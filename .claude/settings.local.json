@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(node:*)",
+      "Bash(pnpm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
