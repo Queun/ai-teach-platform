@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,8 +21,15 @@ import {
   Rocket,
 } from "lucide-react"
 import Link from "next/link"
+import { useTools, useResources, useNews, useStats } from '@/hooks/useStrapi'
 
 export default function HomePage() {
+  // 获取数据 - 只显示精选内容
+  const { data: stats } = useStats();
+  const { data: featuredNews } = useNews({ pageSize: 3, featured: true, sort: 'createdAt:desc' });
+  const { data: featuredResources } = useResources({ pageSize: 3, featured: true, sort: 'createdAt:desc' });
+  const { data: featuredTools } = useTools({ pageSize: 2, featured: true, sort: 'createdAt:desc' });
+
   return (
     <div className="min-h-screen">
       {/* Enhanced Hero Section */}
@@ -116,28 +125,48 @@ export default function HomePage() {
                         <span className="text-xs sm:text-sm text-gray-600">今日推荐工具</span>
                         <Badge className="bg-yellow-100 text-yellow-800 text-xs">热门</Badge>
                       </div>
-                      <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
-                        <div className="text-xl sm:text-2xl">🤖</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm sm:text-base truncate">ChatGPT</div>
-                          <div className="text-xs text-gray-500">AI对话助手</div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs">4.9</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
-                        <div className="text-xl sm:text-2xl">✍️</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm sm:text-base truncate">Grammarly</div>
-                          <div className="text-xs text-gray-500">写作助手</div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs">4.7</span>
-                        </div>
-                      </div>
+                      {featuredTools && featuredTools.length > 0 ? (
+                        featuredTools.slice(0, 2).map((tool, index) => (
+                          <div key={tool.id} className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                              {tool.name?.[0] || 'AI'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm sm:text-base truncate">{tool.name || 'AI工具'}</div>
+                              <div className="text-xs text-gray-500">{tool.shortDesc || 'AI助手工具'}</div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs">{tool.rating || '4.9'}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div className="text-xl sm:text-2xl">🤖</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm sm:text-base truncate">ChatGPT</div>
+                              <div className="text-xs text-gray-500">AI对话助手</div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs">4.9</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                            <div className="text-xl sm:text-2xl">✍️</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm sm:text-base truncate">Grammarly</div>
+                              <div className="text-xs text-gray-500">写作助手</div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs">4.7</span>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -155,10 +184,30 @@ export default function HomePage() {
             {/* Enhanced Stats */}
             <div className="mt-12 sm:mt-16 lg:mt-20 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 px-4 sm:px-0">
               {[
-                { number: "10,000+", label: "活跃教育工作者", icon: Users, color: "text-blue-600" },
-                { number: "500+", label: "AI教育工具", icon: Zap, color: "text-purple-600" },
-                { number: "50,000+", label: "教学资源", icon: BookOpen, color: "text-green-600" },
-                { number: "100,000+", label: "社区互动", icon: MessageSquare, color: "text-pink-600" },
+                { 
+                  number: stats ? `${stats.tools}+` : "10,000+", 
+                  label: "AI教育工具", 
+                  icon: Zap, 
+                  color: "text-purple-600" 
+                },
+                { 
+                  number: stats ? `${stats.resources}+` : "50,000+", 
+                  label: "教学资源", 
+                  icon: BookOpen, 
+                  color: "text-green-600" 
+                },
+                { 
+                  number: stats ? `${stats.news}+` : "100+", 
+                  label: "新闻资讯", 
+                  icon: MessageSquare, 
+                  color: "text-pink-600" 
+                },
+                { 
+                  number: "10,000+", 
+                  label: "活跃教育工作者", 
+                  icon: Users, 
+                  color: "text-blue-600" 
+                },
               ].map((stat, index) => (
                 <div key={index} className="text-center group">
                   <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
@@ -260,91 +309,85 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                title: "教育部发布AI教育新政策，鼓励中小学引入AI课程",
-                date: "2024-05-28",
-                category: "政策动态",
-                image: "/placeholder.svg?height=200&width=400",
-                excerpt:
-                  "教育部近日发布新政策，鼓励全国中小学校积极引入人工智能相关课程，培养学生的AI素养和创新能力...",
-                readTime: "5分钟阅读",
-                featured: true,
-              },
-              {
-                title: "2024年AI教育工具排行榜发布，这些工具最受教师欢迎",
-                date: "2024-05-25",
-                category: "工具评测",
-                image: "/placeholder.svg?height=200&width=400",
-                excerpt:
-                  "近日，国内权威教育科技评测机构发布了2024年AI教育工具排行榜，多款创新工具因其易用性和教学效果获得教师高度评价...",
-                readTime: "8分钟阅读",
-              },
-              {
-                title: "AI如何改变语言教学？一线教师分享成功经验",
-                date: "2024-05-20",
-                category: "教学案例",
-                image: "/placeholder.svg?height=200&width=400",
-                excerpt:
-                  "来自北京市实验中学的王老师分享了她在英语教学中应用AI工具的成功经验，学生的口语和写作能力显著提升...",
-                readTime: "6分钟阅读",
-              },
-            ].map((news, index) => (
-              <Card
-                key={index}
-                className={`overflow-hidden hover:shadow-xl transition-all duration-300 group relative ${
-                  news.featured ? "ring-2 ring-yellow-300 shadow-lg shadow-yellow-100/50" : ""
-                }`}
-              >
-                {/* 头条推荐角标 */}
-                {news.featured && (
-                  <div className="absolute top-0 left-0 z-10">
-                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 sm:px-3 py-1 text-xs font-medium rounded-br-lg shadow-lg">
-                      <Star className="w-3 h-3 inline mr-1" />
-                      头条推荐
+            {featuredNews && featuredNews.length > 0 ? (
+              featuredNews.map((news, index) => (
+                <Card
+                  key={news.documentId || news.id}
+                  className={`overflow-hidden hover:shadow-xl transition-all duration-300 group relative ${
+                    news.isFeatured ? "ring-2 ring-yellow-300 shadow-lg shadow-yellow-100/50" : ""
+                  }`}
+                >
+                  {/* 头条推荐角标 */}
+                  {news.isFeatured && (
+                    <div className="absolute top-0 left-0 z-10">
+                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 sm:px-3 py-1 text-xs font-medium rounded-br-lg shadow-lg">
+                        <Star className="w-3 h-3 inline mr-1" />
+                        头条推荐
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="aspect-video w-full overflow-hidden relative">
+                    {news.featuredImage?.url ? (
+                      <img
+                        src={`http://localhost:1337${news.featuredImage.url}`}
+                        alt={news.title || '新闻图片'}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                        <BookOpen className="w-12 h-12 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                      <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-xs">
+                        {news.category || "资讯"}
+                      </Badge>
                     </div>
                   </div>
-                )}
-
-                <div className="aspect-video w-full overflow-hidden relative">
-                  <img
-                    src={news.image || "/placeholder.svg"}
-                    alt={news.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
-                    <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-xs">
-                      {news.category}
-                    </Badge>
-                  </div>
-                </div>
-                <CardHeader className="pb-2 p-4 sm:p-6 sm:pb-2">
-                  <CardTitle className="text-base sm:text-lg leading-tight hover:text-blue-600 cursor-pointer line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    <Link href={`/news/${index + 1}`}>{news.title}</Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                  <CardDescription className="mb-3 sm:mb-4 line-clamp-3 text-gray-600 text-sm sm:text-base">
-                    {news.excerpt}
-                  </CardDescription>
-                  <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-                    <span>{news.date}</span>
-                    <span>{news.readTime}</span>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-full group-hover:bg-blue-50 group-hover:text-blue-600 h-9"
-                    asChild
-                  >
-                    <Link href={`/news/${index + 1}`}>
-                      阅读全文
-                      <ArrowRight className="w-3 h-3 ml-1" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardHeader className="pb-2 p-4 sm:p-6 sm:pb-2">
+                    <CardTitle className="text-base sm:text-lg leading-tight hover:text-blue-600 cursor-pointer line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      <Link href={`/news/${news.documentId || news.id}`}>
+                        {news.title || '无标题'}
+                      </Link>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <CardDescription className="mb-3 sm:mb-4 line-clamp-3 text-gray-600 text-sm sm:text-base">
+                      {news.excerpt || news.content?.substring(0, 100) + '...' || '暂无摘要'}
+                    </CardDescription>
+                    <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                      <span>
+                        {news.publishDate 
+                          ? new Date(news.publishDate).toLocaleDateString('zh-CN') 
+                          : news.createdAt 
+                            ? new Date(news.createdAt).toLocaleDateString('zh-CN')
+                            : '日期未知'
+                        }
+                      </span>
+                      <span>{news.readTime || '约5分钟阅读'}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full group-hover:bg-blue-50 group-hover:text-blue-600 h-9"
+                      asChild
+                    >
+                      <Link href={`/news/${news.documentId || news.id}`}>
+                        阅读全文
+                        <ArrowRight className="w-3 h-3 ml-1" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12">
+                <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-600 mb-2">暂无新闻资讯</h3>
+                <p className="text-gray-500">最新的教育前沿资讯将在这里展示</p>
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-6 sm:mt-8 lg:hidden">
@@ -373,95 +416,80 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                title: "ChatGPT在课堂教学中的应用指南",
-                category: "教学指南",
-                rating: 4.9,
-                downloads: "2.3k",
-                description: "详细介绍如何在日常教学中有效使用ChatGPT提升教学效果",
-                author: "张明老师",
-                difficulty: "入门",
-                featured: true,
-              },
-              {
-                title: "AI辅助作业批改系统使用手册",
-                category: "工具教程",
-                rating: 4.8,
-                downloads: "1.8k",
-                description: "学习如何使用AI工具快速准确地批改学生作业",
-                author: "李教授",
-                difficulty: "进阶",
-              },
-              {
-                title: "个性化学习路径设计模板",
-                category: "教学模板",
-                rating: 4.7,
-                downloads: "1.5k",
-                description: "基于AI分析的个性化学习路径设计方法和模板",
-                author: "王主任",
-                difficulty: "高级",
-              },
-            ].map((resource, index) => (
-              <Card
-                key={index}
-                className={`hover:shadow-xl transition-all duration-300 group relative ${
-                  resource.featured
-                    ? "ring-2 ring-green-300 bg-gradient-to-br from-green-50/50 to-white shadow-lg shadow-green-100/50"
-                    : ""
-                }`}
-              >
-                {/* 专家推荐徽章 */}
-                {resource.featured && (
-                  <div className="absolute top-0 left-0 z-10">
-                    <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-2 sm:px-3 py-1 text-xs font-medium rounded-br-lg shadow-lg">
-                      <Award className="w-3 h-3 inline mr-1" />
-                      专家推荐
+            {featuredResources && featuredResources.length > 0 ? (
+              featuredResources.map((resource, index) => (
+                <Card
+                  key={resource.documentId || resource.id}
+                  className={`hover:shadow-xl transition-all duration-300 group relative ${
+                    resource.isFeatured
+                      ? "ring-2 ring-green-300 bg-gradient-to-br from-green-50/50 to-white shadow-lg shadow-green-100/50"
+                      : ""
+                  }`}
+                >
+                  {/* 专家推荐徽章 */}
+                  {resource.isFeatured && (
+                    <div className="absolute top-0 left-0 z-10">
+                      <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-2 sm:px-3 py-1 text-xs font-medium rounded-br-lg shadow-lg">
+                        <Award className="w-3 h-3 inline mr-1" />
+                        专家推荐
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <CardHeader className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {resource.category}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 sm:w-4 h-3 sm:h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs sm:text-sm font-medium">{resource.rating}</span>
+                  <CardHeader className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {resource.category || resource.resourceType || "教学资源"}
+                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 sm:w-4 h-3 sm:h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs sm:text-sm font-medium">{resource.rating || '5.0'}</span>
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-base sm:text-lg leading-tight group-hover:text-blue-600 transition-colors">
-                    {resource.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                  <CardDescription className="mb-3 sm:mb-4 line-clamp-2 text-sm sm:text-base">
-                    {resource.description}
-                  </CardDescription>
+                    <CardTitle className="text-base sm:text-lg leading-tight group-hover:text-blue-600 transition-colors">
+                      <Link href={`/resources/${resource.documentId || resource.id}`}>
+                        {resource.title || '无标题'}
+                      </Link>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <CardDescription className="mb-3 sm:mb-4 line-clamp-2 text-sm sm:text-base">
+                      {resource.summary || resource.content?.substring(0, 80) + '...' || '暂无描述'}
+                    </CardDescription>
 
-                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                    <Avatar className="w-5 sm:w-6 h-5 sm:h-6">
-                      <AvatarFallback className="text-xs">{resource.author[0]}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-xs sm:text-sm text-gray-600 flex-1 truncate">{resource.author}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {resource.difficulty}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
-                      <TrendingUp className="w-3 sm:w-4 h-3 sm:h-4" />
-                      {resource.downloads} 下载
+                    <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                      <Avatar className="w-5 sm:w-6 h-5 sm:h-6">
+                        <AvatarFallback className="text-xs">
+                          {resource.authorName ? resource.authorName[0] : '教'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs sm:text-sm text-gray-600 flex-1 truncate">
+                        {resource.authorName || '爱教学团队'}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {resource.difficulty || '入门'}
+                      </Badge>
                     </div>
-                    <Button size="sm" className="group-hover:bg-blue-600 transition-colors h-8">
-                      查看详情
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
+                        <TrendingUp className="w-3 sm:w-4 h-3 sm:h-4" />
+                        {resource.downloads || resource.views || 0}+ 下载
+                      </div>
+                      <Button size="sm" className="group-hover:bg-blue-600 transition-colors h-8" asChild>
+                        <Link href={`/resources/${resource.documentId || resource.id}`}>查看详情</Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12">
+                <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-600 mb-2">暂无精品资源</h3>
+                <p className="text-gray-500">经过专家策展的优质教学资源将在这里展示</p>
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-6 sm:mt-8 lg:hidden">

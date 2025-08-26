@@ -1,0 +1,132 @@
+{
+  "kind": "collectionType",
+  "collectionName": "edu_resources",
+  "info": {
+    "singularName": "edu-resource",
+    "pluralName": "edu-resources",
+    "displayName": "Edu Resource"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "content": {
+      "type": "blocks"
+    },
+    "summary": {
+      "type": "text"
+    },
+    "category": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "gradeLevel": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "authorName": {
+      "type": "string"
+    },
+    "authorTitle": {
+      "type": "string"
+    },
+    "authorSchool": {
+      "type": "string"
+    },
+    "authorAvatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "resourceType": {
+      "type": "string"
+    },
+    "difficulty": {
+      "type": "string"
+    },
+    "estimatedTime": {
+      "type": "string"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "videoUrl": {
+      "type": "string"
+    },
+    "downloads": {
+      "type": "integer",
+      "default": 0
+    },
+    "views": {
+      "type": "integer",
+      "default": 0
+    },
+    "likes": {
+      "type": "integer",
+      "default": 0
+    },
+    "rating": {
+      "type": "decimal",
+      "default": 0
+    },
+    "objectives": {
+      "type": "json"
+    },
+    "prerequisites": {
+      "type": "json"
+    },
+    "materials": {
+      "type": "json"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "seoDescription": {
+      "type": "text"
+    },
+    "relatedTools": {
+      "type": "json"
+    },
+    "feedback": {
+      "type": "json"
+    },
+    "customFields": {
+      "type": "json"
+    }
+  }
+}

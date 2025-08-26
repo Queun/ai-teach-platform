@@ -1,0 +1,117 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ai_tools",
+  "info": {
+    "singularName": "ai-tool",
+    "pluralName": "ai-tools",
+    "displayName": "AI Tool"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "shortDesc": {
+      "type": "text"
+    },
+    "category": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "difficulty": {
+      "type": "string"
+    },
+    "officialUrl": {
+      "type": "string"
+    },
+    "tutorialUrl": {
+      "type": "string"
+    },
+    "logo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "screenshots": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "rating": {
+      "type": "decimal",
+      "default": 0
+    },
+    "userRating": {
+      "type": "decimal",
+      "default": 0
+    },
+    "popularity": {
+      "type": "integer",
+      "default": 0
+    },
+    "features": {
+      "type": "json"
+    },
+    "pros": {
+      "type": "json"
+    },
+    "cons": {
+      "type": "json"
+    },
+    "pricing": {
+      "type": "text"
+    },
+    "platforms": {
+      "type": "json"
+    },
+    "quickStart": {
+      "type": "blocks"
+    },
+    "detailedGuide": {
+      "type": "blocks"
+    },
+    "useCases": {
+      "type": "json"
+    },
+    "isRecommended": {
+      "type": "boolean",
+      "default": false
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "integer",
+      "default": 0
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "seoDescription": {
+      "type": "text"
+    },
+    "customFields": {
+      "type": "json"
+    }
+  }
+}

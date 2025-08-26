@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
+import { useTool } from "@/hooks/useStrapi"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,6 +41,9 @@ export default function ToolDetailPage() {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
 
+  // 使用 Strapi API 获取工具数据
+  const { data: toolData, loading, error } = useTool(id)
+
   // 监听滚动位置，更新导航状态
   useEffect(() => {
     const handleScroll = () => {
@@ -74,111 +78,99 @@ export default function ToolDetailPage() {
     }
   }
 
-  // Mock 工具详细数据
-  const toolData = {
-    "1": {
-      id: 1,
-      name: "ChatGPT",
-      description: "强大的对话式AI助手，可用于课程设计、内容创作、学生问答等多种教学场景",
-      longDescription: `ChatGPT是由OpenAI开发的大型语言模型，基于GPT架构训练而成。它能够理解和生成人类语言，在教育领域有着广泛的应用前景。
+  // 辅助函数：安全地提取文本内容
+  const extractText = (content: any): string => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (content && typeof content === 'object') {
+      if (Array.isArray(content)) {
+        return content.map(item => extractText(item)).join('');
+      }
+      if (content.type === 'text') {
+        return content.text || '';
+      }
+      if (content.children) {
+        return extractText(content.children);
+      }
+      if (content.content) {
+        return extractText(content.content);
+      }
+      return JSON.stringify(content).substring(0, 200) + '...';
+    }
+    return '';
+  };
 
-ChatGPT具有强大的自然语言理解和生成能力，能够回答各种学科的问题、协助教师设计课程内容、帮助学生理解复杂概念、生成教学材料和练习题，以及提供个性化的学习建议。
-
-在教育领域，ChatGPT可以作为智能教学助手协助教师备课和答疑，作为学习伙伴为学生提供24/7的学习支持，作为内容创作工具生成教学材料和评估题目，以及作为语言学习助手提供语言练习和纠错。
-
-为了更好地在教育中使用ChatGPT，建议明确使用目的和场景、设计合适的提示词、验证生成内容的准确性，以及培养学生的批判性思维。`,
-      category: "content-creation",
-      rating: 4.9,
-      reviewCount: 1250,
-      users: "100M+",
-      pricing: "免费/付费",
-      priceRange: "免费 - $20/月",
-      features: [
-        {
-          name: "对话交互",
-          description: "自然流畅的对话体验，支持多轮对话和上下文理解",
-          icon: MessageSquare,
-        },
-        {
-          name: "内容生成",
-          description: "生成各类教学内容，包括课程大纲、练习题、教案等",
-          icon: BookOpen,
-        },
-        {
-          name: "多语言支持",
-          description: "支持100+种语言，满足不同地区的教学需求",
-          icon: Globe,
-        },
-        {
-          name: "API接入",
-          description: "提供API接口，可集成到现有的教学管理系统中",
-          icon: Code,
-        },
-        {
-          name: "自定义指令",
-          description: "支持自定义指令，针对特定教学场景优化响应",
-          icon: Zap,
-        },
-        {
-          name: "插件生态",
-          description: "丰富的插件生态系统，扩展更多专业功能",
-          icon: Play,
-        },
-      ],
-      tags: ["对话AI", "内容创作", "教学助手", "GPT-4"],
-      url: "https://chat.openai.com",
-      logo: "🤖",
-      developer: "OpenAI",
-      developerUrl: "https://openai.com",
-      lastUpdated: "2024-05-28",
-      releaseDate: "2022-11-30",
-      difficulty: "入门",
-      languages: ["中文", "英文", "日文", "韩文", "法文", "德文", "西班牙文", "俄文"],
-      platforms: [
-        { name: "Web", icon: Monitor },
-        { name: "iOS", icon: Smartphone },
-        { name: "Android", icon: Smartphone },
-        { name: "API", icon: Code },
-      ],
-      useCases: [
-        {
-          title: "课程设计",
-          description: "协助教师设计课程大纲、制定教学计划和创建课程内容",
-        },
-        {
-          title: "作业批改",
-          description: "辅助批改作业，提供详细的反馈和改进建议",
-        },
-        {
-          title: "学生答疑",
-          description: "为学生提供24/7的问答服务，解答学习中的疑问",
-        },
-        {
-          title: "教案生成",
-          description: "根据教学目标自动生成详细的教案和教学活动",
-        },
-      ],
-      pros: ["功能强大", "易于使用", "响应迅速", "持续更新"],
-      cons: ["需要网络", "有使用限制", "中文理解有限"],
-      tutorials: 15,
-      alternatives: ["Claude", "Gemini", "文心一言"],
-      integrations: ["Microsoft Office", "Google Workspace", "Slack", "Discord"],
-    },
-  }
-
-  const tool = toolData[id as keyof typeof toolData]
-
-  if (!tool) {
+  // 加载状态
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">工具未找到</h1>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">加载工具详情中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 错误状态
+  if (error || !toolData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4 text-red-600">加载失败</h1>
+          <p className="text-gray-600 mb-4">{error || '工具未找到'}</p>
           <Button asChild>
             <Link href="/tools">返回工具库</Link>
           </Button>
         </div>
       </div>
     )
+  }
+
+  // 转换 Strapi 数据为组件所需格式
+  const data = toolData.attributes || toolData
+  const tool = {
+    id: toolData.id,
+    name: data.name || '未命名工具',
+    description: extractText(data.shortDesc || data.description || '暂无描述'),
+    longDescription: extractText(data.description || data.longDescription || '暂无详细描述'),
+    category: data.category || '其他',
+    rating: data.rating || 5.0,
+    reviewCount: data.reviewCount || 0,
+    users: data.popularity > 10000 ? `${Math.floor(data.popularity / 1000)}K+` : `${data.popularity || 0}+`,
+    pricing: data.pricing || '免费',
+    priceRange: data.pricing || '免费',
+    features: (data.features || []).map((feature: any) => ({
+      name: feature.name || feature,
+      description: feature.description || '',
+      icon: MessageSquare, // 默认图标
+    })),
+    tags: data.tags || [],
+    url: data.officialUrl || '#',
+    logo: data.logo?.url 
+      ? `http://localhost:1337${data.logo.url}` 
+      : "🔧",
+    developer: data.developer || "Unknown",
+    developerUrl: data.developerUrl || '#',
+    lastUpdated: new Date(data.updatedAt || toolData.updatedAt || Date.now()).toLocaleDateString('zh-CN'),
+    releaseDate: data.releaseDate ? new Date(data.releaseDate).toLocaleDateString('zh-CN') : '未知',
+    difficulty: data.difficulty || '入门',
+    languages: data.supportedLanguages || ['中文', '英文'],
+    platforms: [
+      { name: "Web", icon: Monitor },
+      { name: "Mobile", icon: Smartphone },
+      { name: "API", icon: Code },
+    ],
+    useCases: (data.useCases || []).map((useCase: any) => ({
+      title: useCase.title || useCase.name || useCase,
+      description: useCase.description || '暂无描述',
+    })),
+    pros: data.pros || ['功能强大'],
+    cons: data.cons || ['需要网络'],
+    tutorials: data.tutorialCount || 0,
+    alternatives: data.alternatives || [],
+    integrations: data.integrations || [],
   }
 
   // Mock 评价数据
@@ -307,7 +299,25 @@ ChatGPT具有强大的自然语言理解和生成能力，能够回答各种学�
                 <Card>
                   <CardContent className="p-6">
                     <div className="text-center mb-4">
-                      <div className="text-4xl mb-3">{tool.logo}</div>
+                      <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+                        {tool.logo.startsWith('http') ? (
+                          <img 
+                            src={tool.logo} 
+                            alt={tool.name}
+                            className="w-16 h-16 rounded-xl object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling.style.display = 'block';
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`text-4xl ${tool.logo.startsWith('http') ? 'hidden' : ''}`}
+                          style={tool.logo.startsWith('http') ? {display: 'none'} : {}}
+                        >
+                          {tool.logo.startsWith('http') ? '🔧' : tool.logo}
+                        </div>
+                      </div>
                       <h2 className="text-xl font-bold mb-2">{tool.name}</h2>
                       <div className="flex items-center justify-center gap-1 mb-2">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -446,14 +456,20 @@ ChatGPT具有强大的自然语言理解和生成能力，能够回答各种学�
 
                     <div>
                       <h4 className="font-semibold mb-3">应用场景</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {tool.useCases.map((useCase) => (
-                          <div key={useCase.title} className="p-4 border rounded-lg">
-                            <h5 className="font-medium mb-2">{useCase.title}</h5>
-                            <p className="text-sm text-gray-600">{useCase.description}</p>
-                          </div>
-                        ))}
-                      </div>
+                      {tool.useCases.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {tool.useCases.map((useCase, index) => (
+                            <div key={index} className="p-4 border rounded-lg">
+                              <h5 className="font-medium mb-2">{useCase.title}</h5>
+                              <p className="text-sm text-gray-600">{useCase.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 border rounded-lg bg-gray-50">
+                          <p className="text-sm text-gray-500">暂无应用场景信息</p>
+                        </div>
+                      )}
                     </div>
 
                     <Separator />
@@ -499,24 +515,30 @@ ChatGPT具有强大的自然语言理解和生成能力，能够回答各种学�
                     <CardDescription>详细了解工具的各项功能和特性</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {tool.features.map((feature) => {
-                        const Icon = feature.icon
-                        return (
-                          <div key={feature.name} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                            <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <Icon className="w-5 h-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold mb-2">{feature.name}</h4>
-                                <p className="text-sm text-gray-600">{feature.description}</p>
+                    {tool.features.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {tool.features.map((feature, index) => {
+                          const Icon = feature.icon
+                          return (
+                            <div key={index} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                              <div className="flex items-start gap-3">
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <Icon className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold mb-2">{feature.name}</h4>
+                                  <p className="text-sm text-gray-600">{feature.description || '暂无描述'}</p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )
-                      })}
-                    </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">暂无功能特点信息</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </section>
@@ -706,25 +728,31 @@ ChatGPT具有强大的自然语言理解和生成能力，能够回答各种学�
                     <CardDescription>您可能也感兴趣的类似工具</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {tool.alternatives.map((alt) => (
-                        <Card key={alt} className="hover:shadow-md transition-shadow cursor-pointer">
-                          <CardContent className="p-6 text-center">
-                            <div className="text-3xl mb-3">🤖</div>
-                            <h4 className="font-semibold mb-2">{alt}</h4>
-                            <p className="text-sm text-gray-600 mb-4">类似的AI对话工具</p>
-                            <div className="flex items-center justify-center gap-1 mb-3">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">4.5</span>
-                              <span className="text-xs text-gray-500">(320)</span>
-                            </div>
-                            <Button size="sm" variant="outline" className="w-full">
-                              查看详情
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                    {tool.alternatives.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {tool.alternatives.map((alt, index) => (
+                          <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+                            <CardContent className="p-6 text-center">
+                              <div className="text-3xl mb-3">🔧</div>
+                              <h4 className="font-semibold mb-2">{alt}</h4>
+                              <p className="text-sm text-gray-600 mb-4">相关AI工具</p>
+                              <div className="flex items-center justify-center gap-1 mb-3">
+                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                <span className="text-sm font-medium">4.5</span>
+                                <span className="text-xs text-gray-500">(320)</span>
+                              </div>
+                              <Button size="sm" variant="outline" className="w-full">
+                                查看详情
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">暂无相关工具推荐</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </section>

@@ -194,7 +194,7 @@
     isRecommended: { type: "boolean", default: false },
     isFeatured: { type: "boolean", default: false },
     sortOrder: { type: "integer", default: 0 },
-    status: { type: "string", default: "draft" },
+    publication_state: { type: "string", default: "draft" },
 
     // SEO和扩展
     seoTitle: { type: "string" },
@@ -246,9 +246,8 @@
     materials: { type: "json" }, // 所需材料
 
     // 管理
-    isPublished: { type: "boolean", default: false },
+    publication_state: { type: "string", default: "draft" },
     isFeatured: { type: "boolean", default: false },
-    publishDate: { type: "datetime" },
     lastUpdated: { type: "datetime" },
 
     // SEO
@@ -292,7 +291,7 @@
     shares: { type: "integer", default: 0 },
 
     // 状态
-    status: { type: "string", default: "draft" },
+    publication_state: { type: "string", default: "draft" },
     isBreaking: { type: "boolean", default: false },
     isFeatured: { type: "boolean", default: false },
     priority: { type: "integer", default: 0 },

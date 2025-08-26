@@ -5,7 +5,8 @@
       "Bash(docker:*)",
       "Bash(docker compose:*)",
       "Bash(node:*)",
-      "Bash(pnpm:*)"
+      "Bash(pnpm:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

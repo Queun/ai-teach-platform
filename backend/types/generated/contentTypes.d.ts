@@ -373,6 +373,184 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAiToolAiTool extends Struct.CollectionTypeSchema {
+  collectionName: 'ai_tools';
+  info: {
+    displayName: 'AI Tool';
+    pluralName: 'ai-tools';
+    singularName: 'ai-tool';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    category: Schema.Attribute.String;
+    cons: Schema.Attribute.JSON;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    customFields: Schema.Attribute.JSON;
+    description: Schema.Attribute.Blocks;
+    detailedGuide: Schema.Attribute.Blocks;
+    difficulty: Schema.Attribute.String;
+    features: Schema.Attribute.JSON;
+    isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isRecommended: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ai-tool.ai-tool'
+    > &
+      Schema.Attribute.Private;
+    logo: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    officialUrl: Schema.Attribute.String;
+    platforms: Schema.Attribute.JSON;
+    popularity: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    pricing: Schema.Attribute.Text;
+    pros: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    quickStart: Schema.Attribute.Blocks;
+    rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    screenshots: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    seoDescription: Schema.Attribute.Text;
+    seoTitle: Schema.Attribute.String;
+    shortDesc: Schema.Attribute.Text;
+    sortOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    tags: Schema.Attribute.JSON;
+    tutorialUrl: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    useCases: Schema.Attribute.JSON;
+    userRating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+  };
+}
+
+export interface ApiEduResourceEduResource extends Struct.CollectionTypeSchema {
+  collectionName: 'edu_resources';
+  info: {
+    displayName: 'Edu Resource';
+    pluralName: 'edu-resources';
+    singularName: 'edu-resource';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    attachments: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    authorAvatar: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    authorName: Schema.Attribute.String;
+    authorSchool: Schema.Attribute.String;
+    authorTitle: Schema.Attribute.String;
+    category: Schema.Attribute.String;
+    content: Schema.Attribute.Blocks;
+    coverImage: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    customFields: Schema.Attribute.JSON;
+    difficulty: Schema.Attribute.String;
+    downloads: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    estimatedTime: Schema.Attribute.String;
+    feedback: Schema.Attribute.JSON;
+    gradeLevel: Schema.Attribute.String;
+    isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    likes: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::edu-resource.edu-resource'
+    > &
+      Schema.Attribute.Private;
+    materials: Schema.Attribute.JSON;
+    objectives: Schema.Attribute.JSON;
+    prerequisites: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    relatedTools: Schema.Attribute.JSON;
+    resourceType: Schema.Attribute.String;
+    seoDescription: Schema.Attribute.Text;
+    seoTitle: Schema.Attribute.String;
+    subject: Schema.Attribute.String;
+    summary: Schema.Attribute.Text;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    videoUrl: Schema.Attribute.String;
+    views: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+  };
+}
+
+export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
+  collectionName: 'news_articles';
+  info: {
+    displayName: 'News Article';
+    pluralName: 'news-articles';
+    singularName: 'news-article';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    authorAvatar: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    authorBio: Schema.Attribute.String;
+    authorName: Schema.Attribute.String;
+    category: Schema.Attribute.String;
+    content: Schema.Attribute.Blocks;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    customFields: Schema.Attribute.JSON;
+    excerpt: Schema.Attribute.Text;
+    featuredImage: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    gallery: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    isBreaking: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    keywords: Schema.Attribute.JSON;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::news-article.news-article'
+    > &
+      Schema.Attribute.Private;
+    priority: Schema.Attribute.Integer;
+    publishedAt: Schema.Attribute.DateTime;
+    readTime: Schema.Attribute.String;
+    relatedNews: Schema.Attribute.JSON;
+    seoDescription: Schema.Attribute.Text;
+    seoTitle: Schema.Attribute.String;
+    shares: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    slug: Schema.Attribute.UID<'title'>;
+    source: Schema.Attribute.String;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    views: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -882,6 +1060,9 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::ai-tool.ai-tool': ApiAiToolAiTool;
+      'api::edu-resource.edu-resource': ApiEduResourceEduResource;
+      'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

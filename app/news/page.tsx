@@ -1,21 +1,53 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { useNews, useStats } from "@/hooks/useStrapi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Calendar, User, Eye, ArrowRight } from "lucide-react"
+import { Search, Calendar, User, Eye, ArrowRight, MessageSquare } from "lucide-react"
 import Link from "next/link"
 
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [sortBy, setSortBy] = useState("latest")
+
+  // 使用 Strapi API 获取数据
+  const { data: allNews, loading: newsLoading, error: newsError } = useNews({
+    pageSize: 50,
+    sort: 'createdAt:desc'
+  })
+  const { data: stats, loading: statsLoading } = useStats()
+
+  // 辅助函数：安全地提取文本内容
+  const extractText = (content: any): string => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (content && typeof content === 'object') {
+      if (Array.isArray(content)) {
+        return content.map(item => extractText(item)).join('');
+      }
+      if (content.type === 'text') {
+        return content.text || '';
+      }
+      if (content.children) {
+        return extractText(content.children);
+      }
+      if (content.content) {
+        return extractText(content.content);
+      }
+      return JSON.stringify(content).substring(0, 200) + '...';
+    }
+    return '';
+  };
 
   const categories = [
-    { id: "all", name: "全部资讯", count: 86 },
+    { id: "all", name: "全部资讯", count: stats?.news || 86 },
     { id: "policy", name: "政策动态", count: 24 },
     { id: "tools", name: "工具评测", count: 18 },
     { id: "cases", name: "教学案例", count: 16 },
@@ -24,82 +56,38 @@ export default function NewsPage() {
     { id: "research", name: "研究报告", count: 6 },
   ]
 
-  const news = [
-    {
-      id: 1,
-      title: "教育部发布AI教育新政策，鼓励中小学引入AI课程",
-      content:
-        "教育部近日发布新政策，鼓励全国中小学校积极引入人工智能相关课程，培养学生的AI素养和创新能力。该政策明确提出，到2025年，全国50%以上的中小学校应开设AI相关课程，并将AI教育纳入学校信息化建设的重要内容。",
-      category: "政策动态",
-      author: "教育政策研究中心",
-      date: "2024-05-28",
-      views: 3560,
-      image: "/placeholder.svg?height=400&width=800",
-      featured: true,
-      tags: ["教育政策", "AI课程", "中小学教育"],
-    },
-    {
-      id: 2,
-      title: "2024年AI教育工具排行榜发布，这些工具最受教师欢迎",
-      content:
-        "近日，国内权威教育科技评测机构发布了2024年AI教育工具排行榜，多款创新工具因其易用性和教学效果获得教师高度评价。",
-      category: "工具评测",
-      author: "教育科技评测中心",
-      date: "2024-05-25",
-      views: 2890,
-      image: "/placeholder.svg?height=400&width=800",
-      featured: false,
-      tags: ["AI工具", "教育科技", "工具评测"],
-    },
-    {
-      id: 3,
-      title: "AI如何改变语言教学？一线教师分享成功经验",
-      content: "来自北京市实验中学的王老师分享了她在英语教学中应用AI工具的成功经验，学生的口语和写作能力显著提升。",
-      category: "教学案例",
-      author: "王明",
-      date: "2024-05-20",
-      views: 2450,
-      image: "/placeholder.svg?height=400&width=800",
-      featured: false,
-      tags: ["语言教学", "教学案例", "英语教育"],
-    },
-    {
-      id: 4,
-      title: "AI伦理教育成为热点，专家呼吁加强学生AI素养培养",
-      content: "随着AI技术在教育领域的广泛应用，如何培养学生正确认识和使用AI的能力，成为教育界关注的热点话题。",
-      category: "教育观点",
-      author: "教育研究院",
-      date: "2024-05-18",
-      views: 2120,
-      image: "/placeholder.svg?height=400&width=800",
-      featured: false,
-      tags: ["AI伦理", "教育观点", "学生素养"],
-    },
-    {
-      id: 5,
-      title: "全国AI教育创新大赛启动，邀请中小学教师参与",
-      content: "由教育部教育技术中心主办的首届全国AI教育创新大赛正式启动，面向全国中小学教师征集AI教育应用创新案例。",
-      category: "活动通知",
-      author: "教育技术中心",
-      date: "2024-05-15",
-      views: 1890,
-      image: "/placeholder.svg?height=400&width=800",
-      featured: false,
-      tags: ["教育比赛", "教师发展", "AI创新"],
-    },
-    {
-      id: 6,
-      title: "研究表明：AI辅助教学提高学生学习兴趣和成绩",
-      content: "一项历时两年、覆盖全国20所学校的研究显示，合理使用AI辅助教学能显著提高学生的学习兴趣和学业成绩。",
-      category: "研究报告",
-      author: "教育科学研究所",
-      date: "2024-05-10",
-      views: 1760,
-      image: "/placeholder.svg?height=400&width=800",
-      featured: false,
-      tags: ["教育研究", "学习效果", "混合式教学"],
-    },
-  ]
+  // 转换 Strapi 数据为组件所需格式
+  const news = useMemo(() => {
+    if (!allNews || allNews.length === 0) return []
+    
+    return allNews.map(article => {
+      // 安全访问 attributes，如果不存在则使用 article 本身
+      const data = article.attributes || article
+      
+      return {
+        id: article.id,
+        documentId: article.documentId,
+        title: data.title || '未命名文章',
+        content: extractText(data.excerpt || data.content || '暂无内容'),
+        category: data.category || '资讯',
+        author: data.authorName || '未知作者',
+        date: new Date(data.publishDate || data.createdAt || Date.now()).toLocaleDateString('zh-CN'),
+        views: data.views || 0,
+        shares: data.shares || 0,
+        image: data.featuredImage?.url 
+          ? `http://localhost:1337${data.featuredImage.url}` 
+          : "/placeholder.svg?height=400&width=800",
+        featured: data.isFeatured || false,
+        isBreaking: data.isBreaking || false,
+        tags: data.tags || [],
+        source: data.source || '',
+        readTime: data.readTime || '5分钟阅读',
+        slug: data.slug || '',
+        priority: data.priority || 0,
+        keywords: data.keywords || [],
+      }
+    })
+  }, [allNews])
 
   const filteredNews = news.filter((item) => {
     const matchesSearch =
@@ -107,13 +95,36 @@ export default function NewsPage() {
       item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const matchesCategory =
-      selectedCategory === "all" || item.category === categories.find((cat) => cat.id === selectedCategory)?.name
+    const matchesCategory = selectedCategory === "all" || 
+      (selectedCategory === "policy" && item.category.includes("政策")) ||
+      (selectedCategory === "tools" && item.category.includes("工具")) ||
+      (selectedCategory === "cases" && item.category.includes("案例")) ||
+      (selectedCategory === "opinions" && item.category.includes("观点")) ||
+      (selectedCategory === "events" && item.category.includes("活动")) ||
+      (selectedCategory === "research" && item.category.includes("研究"))
 
     return matchesSearch && matchesCategory
   })
 
-  const featuredNews = news.filter((item) => item.featured)
+  const sortedNews = [...filteredNews].sort((a, b) => {
+    switch (sortBy) {
+      case "latest":
+        return new Date(b.date).getTime() - new Date(a.date).getTime()
+      case "popular":
+        return b.views - a.views
+      case "comments":
+        return b.shares - a.shares
+      default:
+        return 0
+    }
+  })
+
+  const featuredNews = news.filter((item) => item.featured || item.isBreaking)
+
+  // 根据分类获取新闻
+  const getNewsByCategory = (categoryName: string) => {
+    return news.filter((item) => item.category.includes(categoryName))
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -153,6 +164,25 @@ export default function NewsPage() {
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Loading State */}
+        {newsLoading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">加载新闻数据中...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {newsError && (
+          <div className="text-center py-12">
+            <div className="text-red-600 text-xl mb-4">加载失败</div>
+            <p className="text-gray-600 mb-4">{newsError}</p>
+            <Button onClick={() => window.location.reload()}>重新加载</Button>
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!newsLoading && !newsError && (
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
             <TabsTrigger value="all">全部资讯</TabsTrigger>
@@ -207,15 +237,15 @@ export default function NewsPage() {
               {/* Main Content */}
               <main className="flex-1">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="text-sm text-gray-600">找到 {filteredNews.length} 条资讯</div>
-                  <Select defaultValue="latest">
+                  <div className="text-sm text-gray-600">找到 {sortedNews.length} 条资讯</div>
+                  <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-48">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="latest">最新发布</SelectItem>
                       <SelectItem value="popular">最多阅读</SelectItem>
-                      <SelectItem value="comments">最多评论</SelectItem>
+                      <SelectItem value="comments">最多分享</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -233,9 +263,16 @@ export default function NewsPage() {
                         />
                       </div>
                       <div className="md:w-3/5 p-6">
-                        <Badge className="mb-2 bg-blue-100 text-blue-800">头条资讯</Badge>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-blue-100 text-blue-800">头条资讯</Badge>
+                          {featuredNews[0].isBreaking && (
+                            <Badge className="bg-red-100 text-red-800">突发</Badge>
+                          )}
+                        </div>
                         <h3 className="text-2xl font-bold mb-3 hover:text-blue-600 cursor-pointer">
-                          {featuredNews[0].title}
+                          <Link href={`/news/${featuredNews[0].documentId || featuredNews[0].id}`}>
+                            {featuredNews[0].title}
+                          </Link>
                         </h3>
                         <p className="text-gray-600 mb-4 line-clamp-3">{featuredNews[0].content}</p>
                         <div className="flex items-center justify-between mb-4">
@@ -254,8 +291,20 @@ export default function NewsPage() {
                             </div>
                           </div>
                         </div>
+                        
+                        {/* Tags */}
+                        {featuredNews[0].tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {featuredNews[0].tags.slice(0, 3).map((tag) => (
+                              <Badge key={tag} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        
                         <Button asChild>
-                          <Link href={`/news/${featuredNews[0].id}`}>
+                          <Link href={`/news/${featuredNews[0].documentId || featuredNews[0].id}`}>
                             阅读全文 <ArrowRight className="ml-2 w-4 h-4" />
                           </Link>
                         </Button>
@@ -266,10 +315,10 @@ export default function NewsPage() {
 
                 {/* News Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredNews
+                  {sortedNews
                     .filter((item) => !item.featured || selectedCategory !== "all" || searchQuery !== "")
                     .map((item) => (
-                      <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                      <Card key={item.documentId || item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video w-full overflow-hidden">
                           <img
                             src={item.image || "/placeholder.svg"}
@@ -279,15 +328,37 @@ export default function NewsPage() {
                         </div>
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between mb-2">
-                            <Badge variant="secondary">{item.category}</Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary">{item.category}</Badge>
+                              {item.isBreaking && (
+                                <Badge className="bg-red-100 text-red-800 text-xs">突发</Badge>
+                              )}
+                            </div>
                             <span className="text-sm text-gray-500">{item.date}</span>
                           </div>
                           <CardTitle className="text-lg leading-tight hover:text-blue-600 cursor-pointer">
-                            <Link href={`/news/${item.id}`}>{item.title}</Link>
+                            <Link href={`/news/${item.documentId || item.id}`}>{item.title}</Link>
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <CardDescription className="mb-4 line-clamp-3">{item.content}</CardDescription>
+                          
+                          {/* Tags */}
+                          {item.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {item.tags.slice(0, 3).map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {item.tags.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{item.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                          
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4 text-sm text-gray-500">
                               <div className="flex items-center gap-1">
@@ -298,9 +369,12 @@ export default function NewsPage() {
                                 <Eye className="w-4 h-4" />
                                 {item.views}
                               </div>
+                              {item.readTime && (
+                                <span className="text-xs">{item.readTime}</span>
+                              )}
                             </div>
                             <Button size="sm" variant="outline" asChild>
-                              <Link href={`/news/${item.id}`}>阅读全文</Link>
+                              <Link href={`/news/${item.documentId || item.id}`}>阅读全文</Link>
                             </Button>
                           </div>
                         </CardContent>
@@ -308,20 +382,31 @@ export default function NewsPage() {
                     ))}
                 </div>
 
-                {/* Pagination */}
-                <div className="flex justify-center mt-8">
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" disabled>
-                      上一页
-                    </Button>
-                    <Button variant="default">1</Button>
-                    <Button variant="outline">2</Button>
-                    <Button variant="outline">3</Button>
-                    <span className="px-2">...</span>
-                    <Button variant="outline">5</Button>
-                    <Button variant="outline">下一页</Button>
+                {/* Empty State */}
+                {sortedNews.length === 0 && (
+                  <div className="text-center py-12">
+                    <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-600 mb-2">暂无相关资讯</h3>
+                    <p className="text-gray-500">请尝试调整搜索条件或分类筛选</p>
                   </div>
-                </div>
+                )}
+
+                {/* Pagination */}
+                {sortedNews.length > 0 && (
+                  <div className="flex justify-center mt-8">
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" disabled>
+                        上一页
+                      </Button>
+                      <Button variant="default">1</Button>
+                      <Button variant="outline">2</Button>
+                      <Button variant="outline">3</Button>
+                      <span className="px-2">...</span>
+                      <Button variant="outline">5</Button>
+                      <Button variant="outline">下一页</Button>
+                    </div>
+                  </div>
+                )}
               </main>
             </div>
           </TabsContent>
@@ -330,7 +415,7 @@ export default function NewsPage() {
             <div className="space-y-6">
               {featuredNews.length > 0 ? (
                 featuredNews.map((item) => (
-                  <Card key={item.id} className="overflow-hidden">
+                  <Card key={item.documentId || item.id} className="overflow-hidden">
                     <div className="md:flex">
                       <div className="md:w-2/5">
                         <img
@@ -341,8 +426,15 @@ export default function NewsPage() {
                         />
                       </div>
                       <div className="md:w-3/5 p-6">
-                        <Badge className="mb-2 bg-blue-100 text-blue-800">头条资讯</Badge>
-                        <h3 className="text-2xl font-bold mb-3 hover:text-blue-600 cursor-pointer">{item.title}</h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-blue-100 text-blue-800">头条资讯</Badge>
+                          {item.isBreaking && (
+                            <Badge className="bg-red-100 text-red-800">突发</Badge>
+                          )}
+                        </div>
+                        <h3 className="text-2xl font-bold mb-3 hover:text-blue-600 cursor-pointer">
+                          <Link href={`/news/${item.documentId || item.id}`}>{item.title}</Link>
+                        </h3>
                         <p className="text-gray-600 mb-4 line-clamp-3">{item.content}</p>
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -360,8 +452,20 @@ export default function NewsPage() {
                             </div>
                           </div>
                         </div>
+                        
+                        {/* Tags */}
+                        {item.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {item.tags.slice(0, 4).map((tag) => (
+                              <Badge key={tag} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        
                         <Button asChild>
-                          <Link href={`/news/${item.id}`}>
+                          <Link href={`/news/${item.documentId || item.id}`}>
                             阅读全文 <ArrowRight className="ml-2 w-4 h-4" />
                           </Link>
                         </Button>
@@ -371,8 +475,9 @@ export default function NewsPage() {
                 ))
               ) : (
                 <div className="text-center py-12">
+                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-4">暂无头条资讯</h3>
-                  <p className="text-gray-600 mb-6">请稍后查看</p>
+                  <p className="text-gray-600 mb-6">最新的重要资讯将在这里展示</p>
                 </div>
               )}
             </div>
@@ -380,94 +485,127 @@ export default function NewsPage() {
 
           <TabsContent value="policy">
             <div className="space-y-6">
-              {news
-                .filter((item) => item.category === "政策动态")
-                .map((item) => (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="md:flex">
-                      <div className="md:w-1/3">
-                        <img
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                          style={{ minHeight: "200px" }}
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <Badge variant="secondary" className="mb-2">
-                          {item.category}
-                        </Badge>
-                        <h3 className="text-xl font-bold mb-3 hover:text-blue-600 cursor-pointer">
-                          <Link href={`/news/${item.id}`}>{item.title}</Link>
-                        </h3>
-                        <p className="text-gray-600 mb-4 line-clamp-2">{item.content}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {item.date}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Eye className="w-4 h-4" />
-                              {item.views} 阅读
-                            </div>
-                          </div>
-                          <Button size="sm" asChild>
-                            <Link href={`/news/${item.id}`}>阅读全文</Link>
-                          </Button>
+              {getNewsByCategory("政策").length > 0 ? getNewsByCategory("政策").map((item) => (
+                <Card key={item.documentId || item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="md:flex">
+                    <div className="md:w-1/3">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        style={{ minHeight: "200px" }}
+                      />
+                    </div>
+                    <div className="md:w-2/3 p-6">
+                      <Badge variant="secondary" className="mb-2">
+                        {item.category}
+                      </Badge>
+                      <h3 className="text-xl font-bold mb-3 hover:text-blue-600 cursor-pointer">
+                        <Link href={`/news/${item.documentId || item.id}`}>{item.title}</Link>
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-2">{item.content}</p>
+                      
+                      {/* Tags */}
+                      {item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {item.tags.slice(0, 4).map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
                         </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {item.date}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-4 h-4" />
+                            {item.views} 阅读
+                          </div>
+                        </div>
+                        <Button size="sm" asChild>
+                          <Link href={`/news/${item.documentId || item.id}`}>阅读全文</Link>
+                        </Button>
                       </div>
                     </div>
-                  </Card>
-                ))}
+                  </div>
+                </Card>
+              )) : (
+                <div className="text-center py-12">
+                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-600 mb-2">暂无政策解读</h3>
+                  <p className="text-gray-500">最新的教育政策解读将在这里展示</p>
+                </div>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="cases">
             <div className="space-y-6">
-              {news
-                .filter((item) => item.category === "教学案例")
-                .map((item) => (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="md:flex">
-                      <div className="md:w-1/3">
-                        <img
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                          style={{ minHeight: "200px" }}
-                        />
-                      </div>
-                      <div className="md:w-2/3 p-6">
-                        <Badge variant="secondary" className="mb-2">
-                          {item.category}
-                        </Badge>
-                        <h3 className="text-xl font-bold mb-3 hover:text-blue-600 cursor-pointer">
-                          <Link href={`/news/${item.id}`}>{item.title}</Link>
-                        </h3>
-                        <p className="text-gray-600 mb-4 line-clamp-2">{item.content}</p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {item.date}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Eye className="w-4 h-4" />
-                              {item.views} 阅读
-                            </div>
-                          </div>
-                          <Button size="sm" asChild>
-                            <Link href={`/news/${item.id}`}>阅读全文</Link>
-                          </Button>
+              {getNewsByCategory("案例").length > 0 ? getNewsByCategory("案例").map((item) => (
+                <Card key={item.documentId || item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="md:flex">
+                    <div className="md:w-1/3">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        style={{ minHeight: "200px" }}
+                      />
+                    </div>
+                    <div className="md:w-2/3 p-6">
+                      <Badge variant="secondary" className="mb-2">
+                        {item.category}
+                      </Badge>
+                      <h3 className="text-xl font-bold mb-3 hover:text-blue-600 cursor-pointer">
+                        <Link href={`/news/${item.documentId || item.id}`}>{item.title}</Link>
+                      </h3>
+                      <p className="text-gray-600 mb-4 line-clamp-2">{item.content}</p>
+                      
+                      {/* Tags */}
+                      {item.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {item.tags.slice(0, 4).map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
                         </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {item.date}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-4 h-4" />
+                            {item.views} 阅读
+                          </div>
+                        </div>
+                        <Button size="sm" asChild>
+                          <Link href={`/news/${item.documentId || item.id}`}>阅读全文</Link>
+                        </Button>
                       </div>
                     </div>
-                  </Card>
-                ))}
+                  </div>
+                </Card>
+              )) : (
+                <div className="text-center py-12">
+                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-600 mb-2">暂无教学案例</h3>
+                  <p className="text-gray-500">最新的教学案例分享将在这里展示</p>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { useTools, useFeaturedTools, useStats } from "@/hooks/useStrapi"
+import strapiService from "@/lib/strapi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -38,6 +40,14 @@ export default function ToolsPage() {
   const [selectedRating, setSelectedRating] = useState("all")
   const [sortBy, setSortBy] = useState("rating")
 
+  // 使用 Strapi API Hooks
+  const { data: stats, loading: statsLoading } = useStats()
+  const { data: allTools, loading: toolsLoading, error: toolsError } = useTools({
+    pageSize: 50,
+    sort: 'createdAt:desc'
+  })
+  const { data: featuredToolsData, loading: featuredLoading } = useFeaturedTools(6)
+
   const toolCategories = [
     { id: "all", name: "全部工具", icon: Globe, count: 156, color: "bg-blue-100 text-blue-800" },
     { id: "content-creation", name: "内容创作", icon: PenTool, count: 32, color: "bg-green-100 text-green-800" },
@@ -49,133 +59,69 @@ export default function ToolsPage() {
     { id: "math", name: "数学计算", icon: Calculator, count: 18, color: "bg-red-100 text-red-800" },
   ]
 
-  const tools = [
-    {
-      id: 1,
-      name: "ChatGPT",
-      description: "强大的对话式AI助手，可用于课程设计、内容创作、学生问答等多种教学场景",
-      category: "content-creation",
-      rating: 4.9,
-      reviewCount: 1250,
-      users: "100M+",
-      pricing: "免费/付费",
-      priceRange: "免费 - $20/月",
-      features: ["对话交互", "内容生成", "多语言支持", "API接入", "自定义指令", "插件生态"],
-      tags: ["对话AI", "内容创作", "教学助手", "GPT-4"],
-      url: "https://chat.openai.com",
-      featured: true,
-      logo: "🤖",
-      developer: "OpenAI",
-      lastUpdated: "2024-05-28",
-      difficulty: "入门",
-      useCases: ["课程设计", "作业批改", "学生答疑", "教案生成"],
-      pros: ["功能强大", "易于使用", "响应迅速", "持续更新"],
-      cons: ["需要网络", "有使用限制", "中文理解有限"],
-      tutorials: 15,
-      isBookmarked: false,
-      isRecommended: true,
-    },
-    {
-      id: 2,
-      name: "Grammarly",
-      description: "AI驱动的写作助手，帮助学生和教师改善英语写作质量，提供语法和风格建议",
-      category: "language",
-      rating: 4.7,
-      reviewCount: 890,
-      users: "30M+",
-      pricing: "免费/付费",
-      priceRange: "免费 - $30/月",
-      features: ["语法检查", "风格建议", "抄袭检测", "写作分析", "词汇增强", "语调调整"],
-      tags: ["英语写作", "语法检查", "学术写作", "风格优化"],
-      url: "https://grammarly.com",
-      featured: false,
-      logo: "✍️",
-      developer: "Grammarly Inc.",
-      lastUpdated: "2024-05-25",
-      difficulty: "入门",
-      useCases: ["英语写作", "论文修改", "邮件撰写", "学术写作"],
-      pros: ["准确度高", "实时检查", "多平台支持", "详细解释"],
-      cons: ["主要支持英语", "高级功能收费", "有时过于严格"],
-      tutorials: 8,
-      isBookmarked: true,
-      isRecommended: false,
-    },
-    {
-      id: 3,
-      name: "Kahoot!",
-      description: "互动式学习平台，通过游戏化测验和调查提升课堂参与度和学习效果",
-      category: "assessment",
-      rating: 4.6,
-      reviewCount: 2100,
-      users: "9B+",
-      pricing: "免费/付费",
-      priceRange: "免费 - $17/月",
-      features: ["互动测验", "实时反馈", "游戏化学习", "数据分析", "团队协作", "自定义主题"],
-      tags: ["互动测验", "课堂参与", "游戏化", "实时反馈"],
-      url: "https://kahoot.com",
-      featured: true,
-      logo: "🎮",
-      developer: "Kahoot! AS",
-      lastUpdated: "2024-05-20",
-      difficulty: "入门",
-      useCases: ["课堂测验", "知识竞赛", "课前预习", "复习巩固"],
-      pros: ["学生喜爱", "操作简单", "数据丰富", "支持大班"],
-      cons: ["需要设备", "网络依赖", "题型有限"],
-      tutorials: 12,
-      isBookmarked: false,
-      isRecommended: true,
-    },
-    {
-      id: 4,
-      name: "Canva",
-      description: "简单易用的设计工具，帮助教师创建精美的教学材料、演示文稿和视觉内容",
-      category: "multimedia",
-      rating: 4.8,
-      reviewCount: 1560,
-      users: "135M+",
-      pricing: "免费/付费",
-      priceRange: "免费 - $15/月",
-      features: ["模板设计", "协作编辑", "品牌套件", "动画制作", "AI设计", "素材库"],
-      tags: ["设计工具", "教学材料", "视觉设计", "模板"],
-      url: "https://canva.com",
-      featured: false,
-      logo: "🎨",
-      developer: "Canva Pty Ltd",
-      lastUpdated: "2024-05-22",
-      difficulty: "入门",
-      useCases: ["课件制作", "海报设计", "信息图表", "社交媒体"],
-      pros: ["模板丰富", "操作简单", "协作便利", "输出质量高"],
-      cons: ["高级功能收费", "网络依赖", "中文字体有限"],
-      tutorials: 20,
-      isBookmarked: true,
-      isRecommended: false,
-    },
-    {
-      id: 5,
-      name: "Wolfram Alpha",
-      description: "计算知识引擎，为数学、科学、工程等学科提供精确的计算和分析功能",
-      category: "math",
-      rating: 4.5,
-      reviewCount: 670,
-      users: "5M+",
-      pricing: "免费/付费",
-      priceRange: "免费 - $8/月",
-      features: ["数学计算", "科学分析", "数据可视化", "步骤解析", "单位转换", "统计分析"],
-      tags: ["数学工具", "科学计算", "STEM教育", "数据分析"],
-      url: "https://wolframalpha.com",
-      featured: false,
-      logo: "🔢",
-      developer: "Wolfram Research",
-      lastUpdated: "2024-05-18",
-      difficulty: "进阶",
-      useCases: ["数学解题", "科学计算", "数据分析", "公式验证"],
-      pros: ["计算准确", "功能全面", "步骤详细", "权威可靠"],
-      cons: ["界面复杂", "学习成本高", "部分功能收费"],
-      tutorials: 6,
-      isBookmarked: false,
-      isRecommended: false,
-    },
-  ]
+  // 辅助函数：安全地提取文本内容
+  const extractText = (content: any): string => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    if (content && typeof content === 'object') {
+      // 如果是富文本对象，尝试提取纯文本
+      if (Array.isArray(content)) {
+        return content.map(item => extractText(item)).join('');
+      }
+      if (content.type === 'text') {
+        return content.text || '';
+      }
+      if (content.children) {
+        return extractText(content.children);
+      }
+      if (content.content) {
+        return extractText(content.content);
+      }
+      // 如果有其他文本字段
+      return JSON.stringify(content).substring(0, 100) + '...';
+    }
+    return '';
+  };
+
+  // 转换 Strapi 数据为组件所需格式
+  const tools = useMemo(() => {
+    if (!allTools || allTools.length === 0) return []
+    
+    return allTools.map(tool => {
+      // 安全访问 attributes，如果不存在则使用 tool 本身
+      const data = tool.attributes || tool
+      
+      return {
+        id: tool.id,
+        documentId: tool.documentId,
+        name: data.name || '未命名工具',
+        description: extractText(data.description || data.shortDesc || '暂无描述'),
+        category: data.category || '其他',
+        rating: data.rating || 5.0,
+        reviewCount: 0, // 可以从统计数据获取
+        users: data.popularity > 10000 ? `${Math.floor(data.popularity / 1000)}K+` : `${data.popularity || 0}+`,
+        pricing: data.pricing || '免费',
+        priceRange: data.pricing || '免费',
+        features: data.features || [],
+        tags: data.tags || [],
+        url: data.officialUrl || '#',
+        featured: data.isFeatured || false,
+        logo: data.logo?.url 
+          ? `http://localhost:1337${data.logo.url}` 
+          : "🔧",
+        developer: "Unknown",
+        lastUpdated: new Date(data.updatedAt || tool.updatedAt || Date.now()).toISOString().split('T')[0],
+        difficulty: data.difficulty || '入门',
+        useCases: data.useCases || [],
+        pros: data.pros || [],
+        cons: data.cons || [],
+        tutorials: 0,
+        isBookmarked: false,
+        isRecommended: data.isRecommended || false,
+      }
+    })
+  }, [allTools])
 
   const filteredTools = tools.filter((tool) => {
     const matchesSearch =
@@ -215,7 +161,29 @@ export default function ToolsPage() {
     }
   })
 
-  const featuredTools = tools.filter((tool) => tool.featured)
+  const featuredTools = useMemo(() => {
+    if (!featuredToolsData || featuredToolsData.length === 0) return []
+    
+    return featuredToolsData.map(tool => {
+      // 安全访问 attributes，如果不存在则使用 tool 本身
+      const data = tool.attributes || tool
+      
+      return {
+        id: tool.id,
+        documentId: tool.documentId,
+        name: data.name || '未命名工具',
+        description: extractText(data.description || data.shortDesc || '暂无描述'),
+        rating: data.rating || 5.0,
+        pricing: data.pricing || '免费',
+        url: data.officialUrl || '#',
+        logo: data.logo?.url 
+          ? `http://localhost:1337${data.logo.url}` 
+          : "🔧",
+        featured: true
+      }
+    })
+  }, [featuredToolsData])
+  
   const recommendedTools = tools.filter((tool) => tool.isRecommended)
 
   return (
@@ -251,6 +219,25 @@ export default function ToolsPage() {
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Loading State */}
+        {toolsLoading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">加载工具数据中...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {toolsError && (
+          <div className="text-center py-12">
+            <div className="text-red-600 text-xl mb-4">加载失败</div>
+            <p className="text-gray-600 mb-4">{toolsError}</p>
+            <Button onClick={() => window.location.reload()}>重新加载</Button>
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!toolsLoading && !toolsError && (
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
             <TabsTrigger value="all">全部工具</TabsTrigger>
@@ -348,19 +335,19 @@ export default function ToolsPage() {
                   <CardContent className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">总工具数</span>
-                      <span className="font-semibold">156</span>
+                      <span className="font-semibold">{statsLoading ? '...' : stats?.tools || 0}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">本周新增</span>
-                      <span className="font-semibold text-green-600">8</span>
+                      <span className="font-semibold text-green-600">-</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">精选推荐</span>
-                      <span className="font-semibold text-blue-600">23</span>
+                      <span className="font-semibold text-blue-600">{featuredTools.length}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">免费工具</span>
-                      <span className="font-semibold text-purple-600">89</span>
+                      <span className="text-gray-600">推荐工具</span>
+                      <span className="font-semibold text-purple-600">{recommendedTools.length}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -390,7 +377,25 @@ export default function ToolsPage() {
                       <CardHeader>
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <div className="text-2xl">{tool.logo}</div>
+                            <div className="w-12 h-12 flex items-center justify-center">
+                              {tool.logo.startsWith('http') ? (
+                                <img 
+                                  src={tool.logo} 
+                                  alt={tool.name}
+                                  className="w-10 h-10 rounded-lg object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling.style.display = 'block';
+                                  }}
+                                />
+                              ) : null}
+                              <div 
+                                className={`text-2xl ${tool.logo.startsWith('http') ? 'hidden' : ''}`}
+                                style={tool.logo.startsWith('http') ? {display: 'none'} : {}}
+                              >
+                                {tool.logo.startsWith('http') ? '🔧' : tool.logo}
+                              </div>
+                            </div>
                             <div>
                               <CardTitle className="text-lg">{tool.name}</CardTitle>
                               <div className="flex items-center gap-2 mt-1">
@@ -452,7 +457,7 @@ export default function ToolsPage() {
 
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" className="flex-1" asChild>
-                            <Link href={`/tools/${tool.id}`}>
+                            <Link href={`/tools/${tool.documentId || tool.id}`}>
                               <BookOpen className="w-3 h-3 mr-1" />
                               查看详情
                             </Link>
@@ -500,7 +505,25 @@ export default function ToolsPage() {
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <div className="text-2xl">{tool.logo}</div>
+                        <div className="w-12 h-12 flex items-center justify-center">
+                          {tool.logo.startsWith('http') ? (
+                            <img 
+                              src={tool.logo} 
+                              alt={tool.name}
+                              className="w-10 h-10 rounded-lg object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling.style.display = 'block';
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className={`text-2xl ${tool.logo.startsWith('http') ? 'hidden' : ''}`}
+                            style={tool.logo.startsWith('http') ? {display: 'none'} : {}}
+                          >
+                            {tool.logo.startsWith('http') ? '🔧' : tool.logo}
+                          </div>
+                        </div>
                         <div>
                           <CardTitle className="text-lg">{tool.name}</CardTitle>
                           <div className="flex items-center gap-2 mt-1">
@@ -524,7 +547,7 @@ export default function ToolsPage() {
                     <CardDescription className="mb-4">{tool.description}</CardDescription>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" className="flex-1" asChild>
-                        <Link href={`/tools/${tool.id}`}>查看详情</Link>
+                        <Link href={`/tools/${tool.documentId || tool.id}`}>查看详情</Link>
                       </Button>
                       <Button size="sm" className="flex-1" asChild>
                         <a href={tool.url} target="_blank" rel="noopener noreferrer">
@@ -557,6 +580,7 @@ export default function ToolsPage() {
             </div>
           </TabsContent>
         </Tabs>
+        )}
       </div>
     </div>
   )
