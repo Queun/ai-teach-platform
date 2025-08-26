@@ -384,7 +384,7 @@ export default function NewsDetailPage() {
 
             {/* 侧边栏 */}
             <div className="lg:col-span-4">
-              <div className="sticky top-4 sm:top-8 space-y-4 sm:space-y-6">
+              <div className="sticky top-16 sm:top-16 space-y-4 sm:space-y-6">
                 {/* 作者信息 */}
                 <Card>
                   <CardHeader className="p-4 sm:p-6">

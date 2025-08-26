@@ -596,3 +596,222 @@ export function useResourceCategories(): UseListState<CategoryStats> {
     hasMore: false
   };
 }
+
+// =============
+// 工具分类统计Hook
+// =============
+
+interface ToolCategoryStats {
+  category: string;
+  count: number;
+  label: string;
+  icon: string;
+}
+
+export function useToolCategories(): UseListState<ToolCategoryStats> {
+  const [state, setState] = useState<{
+    data: ToolCategoryStats[];
+    loading: boolean;
+    error: string | null;
+    pagination: null;
+  }>({
+    data: [],
+    loading: true,
+    error: null,
+    pagination: null
+  });
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      // 获取所有工具以分析分类
+      const response = await strapiService.getTools({ 
+        pageSize: 100,
+        fields: ['category']
+      });
+      
+      // 统计分类数量
+      const categoryMap = new Map<string, number>();
+      response.data.forEach(tool => {
+        const category = tool.category || 'other';
+        categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+      });
+      
+      // 分类标签和图标映射
+      const categoryLabels: Record<string, { label: string; icon: string }> = {
+        'content-creation': { label: '内容创作', icon: '✍️' },
+        'assessment': { label: '评估测试', icon: '📊' },
+        'communication': { label: '交流互动', icon: '💬' },
+        'multimedia': { label: '多媒体', icon: '🎨' },
+        'analytics': { label: '数据分析', icon: '📈' },
+        'language': { label: '语言学习', icon: '🔤' },
+        'math': { label: '数学计算', icon: '🔢' },
+        'presentation': { label: '演示展示', icon: '📽️' },
+        'research': { label: '研究辅助', icon: '🔬' },
+        'productivity': { label: '效率提升', icon: '⚡' },
+        'other': { label: '其他工具', icon: '🔧' }
+      };
+      
+      // 生成分类统计数据
+      const categories: ToolCategoryStats[] = Array.from(categoryMap.entries()).map(([category, count]) => ({
+        category,
+        count,
+        label: categoryLabels[category]?.label || category,
+        icon: categoryLabels[category]?.icon || '🔧'
+      }));
+      
+      // 按数量排序
+      categories.sort((a, b) => b.count - a.count);
+      
+      // 添加"全部"选项
+      const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
+      const allCategories = [
+        { category: 'all', count: totalCount, label: '全部工具', icon: '🌐' },
+        ...categories
+      ];
+      
+      setState({
+        data: allCategories,
+        loading: false,
+        error: null,
+        pagination: null
+      });
+      
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : '获取工具分类失败'
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  return {
+    ...state,
+    refetch: fetchCategories,
+    loadMore: async () => {}, // 分类数据不需要分页加载
+    hasMore: false
+  };
+}
+
+// =============
+// 新闻分类统计Hook
+// =============
+
+interface NewsCategoryStats {
+  category: string;
+  count: number;
+  label: string;
+  icon: string;
+}
+
+export function useNewsCategories(): UseListState<NewsCategoryStats> {
+  const [state, setState] = useState<{
+    data: NewsCategoryStats[];
+    loading: boolean;
+    error: string | null;
+    pagination: null;
+  }>({
+    data: [],
+    loading: true,
+    error: null,
+    pagination: null
+  });
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      // 获取所有新闻以分析分类
+      const response = await strapiService.getNews({ 
+        pageSize: 100,
+        fields: ['category']
+      });
+      
+      // 统计分类数量
+      const categoryMap = new Map<string, number>();
+      response.data.forEach(article => {
+        const category = article.category || 'general';
+        categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+      });
+      
+      // 分类标签和图标映射
+      const categoryLabels: Record<string, { label: string; icon: string }> = {
+        // 英文分类键名
+        'policy': { label: '政策动态', icon: '📋' },
+        'tools': { label: '工具评测', icon: '🔧' },
+        'cases': { label: '教学案例', icon: '💡' },
+        'opinions': { label: '教育观点', icon: '💭' },
+        'events': { label: '活动通知', icon: '📅' },
+        'research': { label: '研究报告', icon: '📊' },
+        'technology': { label: '技术前沿', icon: '🚀' },
+        'interview': { label: '人物访谈', icon: '🎤' },
+        'trend': { label: '行业趋势', icon: '📈' },
+        'general': { label: '综合资讯', icon: '📰' },
+        
+        // 中文分类名（直接支持您的Strapi数据）
+        '政策法规': { label: '政策法规', icon: '📋' },
+        '政策动态': { label: '政策动态', icon: '📋' },
+        '工具评测': { label: '工具评测', icon: '🔧' },
+        '教学案例': { label: '教学案例', icon: '💡' },
+        '教育观点': { label: '教育观点', icon: '💭' },
+        '活动通知': { label: '活动通知', icon: '📅' },
+        '研究报告': { label: '研究报告', icon: '📊' },
+        '技术前沿': { label: '技术前沿', icon: '🚀' },
+        '人物访谈': { label: '人物访谈', icon: '🎤' },
+        '行业趋势': { label: '行业趋势', icon: '📈' },
+        '行业动态': { label: '行业动态', icon: '📈' },
+        '综合资讯': { label: '综合资讯', icon: '📰' },
+        '资讯': { label: '综合资讯', icon: '📰' }
+      };
+      
+      // 生成分类统计数据
+      const categories: NewsCategoryStats[] = Array.from(categoryMap.entries()).map(([category, count]) => ({
+        category,
+        count,
+        label: categoryLabels[category]?.label || category,
+        icon: categoryLabels[category]?.icon || '📰'
+      }));
+      
+      // 按数量排序
+      categories.sort((a, b) => b.count - a.count);
+      
+      // 添加"全部"选项
+      const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
+      const allCategories = [
+        { category: 'all', count: totalCount, label: '全部资讯', icon: '📰' },
+        ...categories
+      ];
+      
+      setState({
+        data: allCategories,
+        loading: false,
+        error: null,
+        pagination: null
+      });
+      
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : '获取新闻分类失败'
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  return {
+    ...state,
+    refetch: fetchCategories,
+    loadMore: async () => {}, // 分类数据不需要分页加载
+    hasMore: false
+  };
+}

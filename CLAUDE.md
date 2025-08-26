@@ -14,6 +14,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm start` - Start the production server
 - `pnpm lint` - Run Next.js ESLint checks
 
+## Environment Considerations
+
+由于某些不可抗力，Claude Code实际运行在WSL中，而项目则在Windows磁盘中，这会导致直接执行编译效率很低。如果需要执行编译和重启服务器，可以交给用户来操作。
+
 ## Project Architecture
 
 This is a Next.js 15 application using the App Router pattern with React 19. The project is an AI-powered educational platform called "爱教学" (AI Education Platform) targeting Chinese educational professionals.

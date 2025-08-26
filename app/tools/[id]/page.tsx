@@ -151,7 +151,7 @@ export default function ToolDetailPage() {
     logo: data.logo?.url 
       ? `http://localhost:1337${data.logo.url}` 
       : "🔧",
-    developer: data.developer || "Unknown",
+    developer: data.developer || "未知",
     developerUrl: data.developerUrl || '#',
     lastUpdated: new Date(data.updatedAt || toolData.updatedAt || Date.now()).toLocaleDateString('zh-CN'),
     releaseDate: data.releaseDate ? new Date(data.releaseDate).toLocaleDateString('zh-CN') : '未知',
@@ -294,7 +294,7 @@ export default function ToolDetailPage() {
           <div className="flex gap-8">
             {/* 左侧导航 - 固定定位 */}
             <aside className="w-64 shrink-0">
-              <div className="sticky top-8 space-y-6">
+              <div className="sticky top-16 space-y-6">
                 {/* 工具基本信息卡片 */}
                 <Card>
                   <CardContent className="p-6">

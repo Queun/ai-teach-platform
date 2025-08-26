@@ -112,6 +112,9 @@
     },
     "customFields": {
       "type": "json"
+    },
+    "developer": {
+      "type": "string"
     }
   }
 }

@@ -392,6 +392,7 @@ export interface ApiAiToolAiTool extends Struct.CollectionTypeSchema {
     customFields: Schema.Attribute.JSON;
     description: Schema.Attribute.Blocks;
     detailedGuide: Schema.Attribute.Blocks;
+    developer: Schema.Attribute.String;
     difficulty: Schema.Attribute.String;
     features: Schema.Attribute.JSON;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;

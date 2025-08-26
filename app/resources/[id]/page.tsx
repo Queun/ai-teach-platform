@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   ArrowLeft,
   Download,
@@ -32,6 +33,7 @@ import {
   Play,
   ExternalLink,
   Share2,
+  Menu,
 } from "lucide-react"
 
 export default function ResourceDetailPage() {
@@ -41,6 +43,7 @@ export default function ResourceDetailPage() {
   const [userRating, setUserRating] = useState(0)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
+  const [showMobileNav, setShowMobileNav] = useState(false)
 
   // 使用 Strapi API 获取资源数据
   const { data: resourceData, loading, error } = useResource(id)
@@ -227,10 +230,10 @@ export default function ResourceDetailPage() {
             </Link>
           </Button>
 
-          <div className="flex gap-8">
-            {/* 左侧导航 - 固定定位 */}
-            <aside className="w-64 shrink-0">
-              <div className="sticky top-8 space-y-6">
+          <div className="lg:flex lg:gap-8">
+            {/* 左侧导航 - 桌面端固定定位，移动端隐藏 */}
+            <aside className="hidden lg:block lg:w-64 lg:shrink-0">
+              <div className="sticky top-16 space-y-6">
                 {/* 资源基本信息卡片 */}
                 <Card>
                   <CardContent className="p-6">
@@ -350,7 +353,83 @@ export default function ResourceDetailPage() {
             </aside>
 
             {/* 右侧主要内容 */}
-            <main className="flex-1 space-y-12">
+            <main className="w-full lg:flex-1 space-y-12">
+              {/* 移动端顶部快捷操作栏 */}
+              <div className="lg:hidden mb-6">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center mb-4">
+                      {resource.coverImage && (
+                        <div className="w-24 h-16 mx-auto mb-3 overflow-hidden rounded-lg">
+                          <img 
+                            src={resource.coverImage} 
+                            alt={resource.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex items-center justify-center gap-1 mb-2">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-semibold">{resource.rating}</span>
+                        <span className="text-sm text-gray-500">({resource.reviewCount})</span>
+                      </div>
+                      <div className="flex gap-2 justify-center mb-3">
+                        <Badge variant="outline">{resource.difficulty}</Badge>
+                        {resource.featured && (
+                          <Badge className="bg-yellow-100 text-yellow-800">
+                            <Award className="w-3 h-3 mr-1" />
+                            精选
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3 mb-4">
+                      {resource.resourceUrl && (
+                        <Button size="lg" className="w-full" asChild>
+                          <a href={resource.resourceUrl} target="_blank" rel="noopener noreferrer">
+                            <Download className="w-4 h-4 mr-2" />
+                            下载资源
+                          </a>
+                        </Button>
+                      )}
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsBookmarked(!isBookmarked)}
+                          className={isBookmarked ? "bg-blue-50 border-blue-200" : ""}
+                        >
+                          <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-blue-600 text-blue-600" : ""}`} />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsLiked(!isLiked)}
+                          className={isLiked ? "bg-red-50 border-red-200" : ""}
+                        >
+                          <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* 移动端快速统计信息 */}
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div className="text-center">
+                        <div className="font-semibold text-blue-600">{resource.downloads}</div>
+                        <div className="text-gray-600">下载</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-green-600">{resource.views}</div>
+                        <div className="text-gray-600">浏览</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
               {/* 概述部分 */}
               <section id="overview" className="scroll-mt-24">
                 <Card>
@@ -674,6 +753,44 @@ export default function ResourceDetailPage() {
             </main>
           </div>
         </div>
+      </div>
+      
+      {/* 移动端浮动导航按钮 */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-50">
+        <Sheet open={showMobileNav} onOpenChange={setShowMobileNav}>
+          <SheetTrigger asChild>
+            <Button size="lg" className="rounded-full w-14 h-14 shadow-lg">
+              <Menu className="w-6 h-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-auto max-h-96 rounded-t-xl">
+            <div className="p-4">
+              <h3 className="font-semibold mb-4">页面导航</h3>
+              <div className="space-y-2">
+                {navigationItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        scrollToSection(item.id)
+                        setShowMobileNav(false)
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
+                        activeSection === item.id
+                          ? "bg-blue-100 text-blue-700 font-medium"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {item.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   )

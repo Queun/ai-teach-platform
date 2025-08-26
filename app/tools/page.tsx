@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useTools, useFeaturedTools, useStats } from "@/hooks/useStrapi"
+import { useTools, useFeaturedTools, useStats, useToolCategories } from "@/hooks/useStrapi"
 import strapiService from "@/lib/strapi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -30,6 +30,11 @@ import {
   Plus,
   Award,
   Clock,
+  Hash,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -39,25 +44,22 @@ export default function ToolsPage() {
   const [selectedPricing, setSelectedPricing] = useState("all")
   const [selectedRating, setSelectedRating] = useState("all")
   const [sortBy, setSortBy] = useState("rating")
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  
+  // 判断是否有筛选条件
+  const hasFilters = selectedCategory !== "all" || selectedTags.length > 0 || searchQuery.trim() !== "" || 
+                     selectedPricing !== "all" || selectedRating !== "all"
 
   // 使用 Strapi API Hooks
   const { data: stats, loading: statsLoading } = useStats()
-  const { data: allTools, loading: toolsLoading, error: toolsError } = useTools({
-    pageSize: 50,
-    sort: 'createdAt:desc'
+  const { data: allTools, loading: toolsLoading, error: toolsError, loadMore, hasMore, pagination } = useTools({
+    pageSize: hasFilters ? 100 : 12, // 有筛选条件时获取更多数据，无筛选时分页
+    sort: 'createdAt:desc',
+    page: currentPage
   })
   const { data: featuredToolsData, loading: featuredLoading } = useFeaturedTools(6)
-
-  const toolCategories = [
-    { id: "all", name: "全部工具", icon: Globe, count: 156, color: "bg-blue-100 text-blue-800" },
-    { id: "content-creation", name: "内容创作", icon: PenTool, count: 32, color: "bg-green-100 text-green-800" },
-    { id: "assessment", name: "评估测试", icon: BarChart3, count: 28, color: "bg-purple-100 text-purple-800" },
-    { id: "communication", name: "交流互动", icon: MessageSquare, count: 24, color: "bg-orange-100 text-orange-800" },
-    { id: "multimedia", name: "多媒体", icon: ImageIcon, count: 20, color: "bg-pink-100 text-pink-800" },
-    { id: "analytics", name: "数据分析", icon: BarChart3, count: 18, color: "bg-indigo-100 text-indigo-800" },
-    { id: "language", name: "语言学习", icon: BookOpen, count: 16, color: "bg-yellow-100 text-yellow-800" },
-    { id: "math", name: "数学计算", icon: Calculator, count: 18, color: "bg-red-100 text-red-800" },
-  ]
+  const { data: toolCategories, loading: categoriesLoading } = useToolCategories()
 
   // 辅助函数：安全地提取文本内容
   const extractText = (content: any): string => {
@@ -110,7 +112,7 @@ export default function ToolsPage() {
         logo: data.logo?.url 
           ? `http://localhost:1337${data.logo.url}` 
           : "🔧",
-        developer: "Unknown",
+        developer: data.developer || "未知",
         lastUpdated: new Date(data.updatedAt || tool.updatedAt || Date.now()).toISOString().split('T')[0],
         difficulty: data.difficulty || '入门',
         useCases: data.useCases || [],
@@ -122,6 +124,41 @@ export default function ToolsPage() {
       }
     })
   }, [allTools])
+
+  // 提取所有可用标签
+  const allTags = useMemo(() => {
+    if (!tools || tools.length === 0) return []
+    
+    const tagMap = new Map<string, number>()
+    tools.forEach(tool => {
+      if (tool.tags && Array.isArray(tool.tags)) {
+        tool.tags.forEach(tag => {
+          if (typeof tag === 'string' && tag.trim()) {
+            const normalizedTag = tag.trim()
+            tagMap.set(normalizedTag, (tagMap.get(normalizedTag) || 0) + 1)
+          }
+        })
+      }
+    })
+    
+    return Array.from(tagMap.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count) // 按使用频率排序
+      .slice(0, 15) // 只显示前15个最常用的标签
+  }, [tools])
+
+  // 标签处理函数
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    )
+  }
+
+  const clearAllTags = () => {
+    setSelectedTags([])
+  }
 
   const filteredTools = tools.filter((tool) => {
     const matchesSearch =
@@ -141,7 +178,11 @@ export default function ToolsPage() {
       (selectedRating === "4+" && tool.rating >= 4) ||
       (selectedRating === "4.5+" && tool.rating >= 4.5)
 
-    return matchesSearch && matchesCategory && matchesPricing && matchesRating
+    const matchesTags = selectedTags.length === 0 || selectedTags.some(selectedTag =>
+      tool.tags.some(toolTag => toolTag === selectedTag)
+    )
+
+    return matchesSearch && matchesCategory && matchesPricing && matchesRating && matchesTags
   })
 
   const sortedTools = [...filteredTools].sort((a, b) => {
@@ -185,6 +226,15 @@ export default function ToolsPage() {
   }, [featuredToolsData])
   
   const recommendedTools = tools.filter((tool) => tool.isRecommended)
+
+  // 分页处理函数
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const totalPages = pagination ? pagination.pageCount : 1
+  const currentPageFromAPI = pagination ? pagination.page : 1
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -250,6 +300,7 @@ export default function ToolsPage() {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Sidebar */}
               <aside className="lg:w-80 space-y-6">
+                <div className="sticky top-16 space-y-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -262,17 +313,16 @@ export default function ToolsPage() {
                     <div>
                       <h4 className="font-medium mb-3">工具分类</h4>
                       <div className="space-y-2">
-                        {toolCategories.map((category) => {
-                          const Icon = category.icon
+                        {(toolCategories || []).map((category) => {
                           return (
                             <Button
-                              key={category.id}
-                              variant={selectedCategory === category.id ? "default" : "ghost"}
+                              key={category.category}
+                              variant={selectedCategory === category.category ? "default" : "ghost"}
                               className="w-full justify-start h-auto p-2"
-                              onClick={() => setSelectedCategory(category.id)}
+                              onClick={() => setSelectedCategory(category.category)}
                             >
-                              <Icon className="w-4 h-4 mr-2" />
-                              <span className="flex-1 text-left">{category.name}</span>
+                              <span className="mr-2">{category.icon}</span>
+                              <span className="flex-1 text-left">{category.label}</span>
                               <Badge variant="secondary" className="ml-2 text-xs">
                                 {category.count}
                               </Badge>
@@ -312,17 +362,73 @@ export default function ToolsPage() {
                       </Select>
                     </div>
 
-                    {/* Features Filter */}
+                    {/* 热门标签筛选 */}
                     <div>
-                      <h4 className="font-medium mb-3">特色功能</h4>
-                      <div className="space-y-2">
-                        {["API接入", "多语言支持", "实时协作", "移动端支持", "离线使用"].map((feature) => (
-                          <label key={feature} className="flex items-center space-x-2">
-                            <Checkbox />
-                            <span className="text-sm">{feature}</span>
-                          </label>
-                        ))}
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium flex items-center gap-2">
+                          <Hash className="w-4 h-4" />
+                          热门标签
+                        </h4>
+                        {selectedTags.length > 0 && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={clearAllTags}
+                            className="text-xs text-gray-500 hover:text-gray-700 p-1"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        )}
                       </div>
+                      
+                      {allTags.length > 0 ? (
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap gap-1">
+                            {allTags.slice(0, 10).map(({ tag, count }) => (
+                              <Button
+                                key={tag}
+                                variant={selectedTags.includes(tag) ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => toggleTag(tag)}
+                                className={`
+                                  h-7 px-2 text-xs transition-all duration-200
+                                  ${selectedTags.includes(tag) 
+                                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300'
+                                  }
+                                `}
+                              >
+                                {tag}
+                                <span className="ml-1 text-xs opacity-75">({count})</span>
+                              </Button>
+                            ))}
+                          </div>
+                          
+                          {selectedTags.length > 0 && (
+                            <div className="pt-2 border-t">
+                              <div className="text-xs text-gray-500 mb-1">已选择:</div>
+                              <div className="flex flex-wrap gap-1">
+                                {selectedTags.map((tag) => (
+                                  <Badge 
+                                    key={tag} 
+                                    variant="secondary" 
+                                    className="text-xs cursor-pointer hover:bg-red-100"
+                                    onClick={() => toggleTag(tag)}
+                                  >
+                                    {tag}
+                                    <X className="w-3 h-3 ml-1" />
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center text-gray-500 text-sm py-2">
+                          <Hash className="w-6 h-6 mx-auto mb-1 text-gray-300" />
+                          暂无标签数据
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -351,6 +457,7 @@ export default function ToolsPage() {
                     </div>
                   </CardContent>
                 </Card>
+                </div>
               </aside>
 
               {/* Main Content */}
@@ -480,20 +587,106 @@ export default function ToolsPage() {
                   ))}
                 </div>
 
-                {/* Pagination */}
-                <div className="flex justify-center mt-8">
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" disabled>
-                      上一页
-                    </Button>
-                    <Button variant="default">1</Button>
-                    <Button variant="outline">2</Button>
-                    <Button variant="outline">3</Button>
-                    <span className="px-2">...</span>
-                    <Button variant="outline">8</Button>
-                    <Button variant="outline">下一页</Button>
+                {/* 分页功能 */}
+                {!hasFilters && totalPages > 1 && (
+                  <div className="flex justify-center mt-8">
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        disabled={currentPageFromAPI <= 1 || toolsLoading}
+                        onClick={() => handlePageChange(currentPageFromAPI - 1)}
+                      >
+                        <ChevronLeft className="w-4 h-4 mr-1" />
+                        上一页
+                      </Button>
+                      
+                      {/* 页码按钮 */}
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPageFromAPI <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPageFromAPI >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPageFromAPI - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPageFromAPI === pageNum ? "default" : "outline"}
+                            onClick={() => handlePageChange(pageNum)}
+                            disabled={toolsLoading}
+                            className="w-10"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                      
+                      {totalPages > 5 && currentPageFromAPI < totalPages - 2 && (
+                        <>
+                          <span className="px-2 text-gray-500">...</span>
+                          <Button
+                            variant="outline"
+                            onClick={() => handlePageChange(totalPages)}
+                            disabled={toolsLoading}
+                            className="w-10"
+                          >
+                            {totalPages}
+                          </Button>
+                        </>
+                      )}
+                      
+                      <Button 
+                        variant="outline" 
+                        disabled={currentPageFromAPI >= totalPages || toolsLoading}
+                        onClick={() => handlePageChange(currentPageFromAPI + 1)}
+                      >
+                        下一页
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </div>
+                    
+                    {/* 分页信息 */}
+                    <div className="text-center mt-3">
+                      <div className="text-xs text-gray-500">
+                        第 {currentPageFromAPI} / {totalPages} 页
+                        {pagination && (
+                          <span className="ml-3">
+                            共 {pagination.total} 个工具
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
+                
+                {/* 有筛选条件时显示的加载更多按钮（备用方案） */}
+                {hasFilters && hasMore && (
+                  <div className="text-center mt-8">
+                    <Button 
+                      onClick={loadMore}
+                      disabled={toolsLoading}
+                      size="lg"
+                      variant="outline"
+                      className="bg-white hover:bg-gray-50"
+                    >
+                      {toolsLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          加载中...
+                        </>
+                      ) : (
+                        <>
+                          加载更多工具
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </main>
             </div>
           </TabsContent>

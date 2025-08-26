@@ -8,17 +8,21 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, ExternalLink, Star, Eye, MessageSquare, ThumbsUp, Calendar, User, Award, Filter } from "lucide-react"
+import { Search, ExternalLink, Star, Eye, MessageSquare, ThumbsUp, Calendar, User, Award, Filter, X, Hash, ChevronDown, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function ResourcesPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [sortBy, setSortBy] = useState("recent")
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  
+  // 判断是否有筛选条件
+  const hasFilters = selectedCategory !== "all" || selectedTags.length > 0 || searchQuery.trim() !== ""
 
   // 使用 Strapi API 获取数据
-  const { data: allResources, loading: resourcesLoading, error: resourcesError } = useResources({
-    pageSize: 50,
+  const { data: allResources, loading: resourcesLoading, error: resourcesError, loadMore, hasMore, pagination } = useResources({
+    pageSize: hasFilters ? 100 : 12, // 有筛选条件时获取更多数据，无筛选时分页
     sort: 'createdAt:desc'
   })
   const { data: stats, loading: statsLoading } = useStats()
@@ -98,6 +102,28 @@ export default function ResourcesPage() {
     })
   }, [allResources])
 
+  // 提取所有可用标签
+  const allTags = useMemo(() => {
+    if (!resources || resources.length === 0) return []
+    
+    const tagMap = new Map<string, number>()
+    resources.forEach(resource => {
+      if (resource.tags && Array.isArray(resource.tags)) {
+        resource.tags.forEach(tag => {
+          if (typeof tag === 'string' && tag.trim()) {
+            const normalizedTag = tag.trim()
+            tagMap.set(normalizedTag, (tagMap.get(normalizedTag) || 0) + 1)
+          }
+        })
+      }
+    })
+    
+    return Array.from(tagMap.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count) // 按使用频率排序
+      .slice(0, 20) // 只显示前20个最常用的标签
+  }, [resources])
+
   // 计算统计数据
   const resourceStats = useMemo(() => {
     if (!resources || resources.length === 0) {
@@ -162,7 +188,11 @@ export default function ResourcesPage() {
 
     const matchesCategory = selectedCategory === "all" || resource.category === selectedCategory
 
-    return matchesSearch && matchesCategory
+    const matchesTags = selectedTags.length === 0 || selectedTags.some(selectedTag =>
+      resource.tags.some(resourceTag => resourceTag === selectedTag)
+    )
+
+    return matchesSearch && matchesCategory && matchesTags
   })
 
   const sortedResources = [...filteredResources].sort((a, b) => {
@@ -181,6 +211,19 @@ export default function ResourcesPage() {
         return 0
     }
   })
+
+  // 标签处理函数
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    )
+  }
+
+  const clearAllTags = () => {
+    setSelectedTags([])
+  }
 
   const getQualityColor = (quality: string) => {
     switch (quality) {
@@ -272,6 +315,7 @@ export default function ResourcesPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <aside className="lg:w-64 space-y-6">
+            <div className="sticky top-16 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">资源分类</CardTitle>
@@ -291,6 +335,89 @@ export default function ResourcesPage() {
                     </Badge>
                   </Button>
                 ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Hash className="w-4 h-4" />
+                    热门标签
+                  </CardTitle>
+                  {selectedTags.length > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={clearAllTags}
+                      className="text-xs text-gray-500 hover:text-gray-700 p-1"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {allTags.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-1">
+                      {allTags.slice(0, 12).map(({ tag, count }) => (
+                        <Button
+                          key={tag}
+                          variant={selectedTags.includes(tag) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleTag(tag)}
+                          className={`
+                            h-7 px-2 text-xs transition-all duration-200
+                            ${selectedTags.includes(tag) 
+                              ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                              : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300'
+                            }
+                          `}
+                        >
+                          {tag}
+                          <span className="ml-1 text-xs opacity-75">({count})</span>
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    {selectedTags.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <div className="text-xs text-gray-500 mb-2">已选择 {selectedTags.length} 个标签:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedTags.map((tag) => (
+                            <Badge 
+                              key={tag} 
+                              variant="secondary" 
+                              className="text-xs cursor-pointer hover:bg-red-100"
+                              onClick={() => toggleTag(tag)}
+                            >
+                              {tag}
+                              <X className="w-3 h-3 ml-1" />
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {allTags.length > 12 && (
+                      <div className="pt-2 text-center">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-xs text-gray-500"
+                        >
+                          查看更多标签 ({allTags.length - 12})
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500 text-sm py-4">
+                    <Hash className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    暂无标签数据
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -337,12 +464,30 @@ export default function ResourcesPage() {
                 </div>
               </CardContent>
             </Card>
+            </div>
           </aside>
 
           {/* Main Content */}
           <main className="flex-1">
             <div className="flex items-center justify-between mb-6">
-              <div className="text-sm text-gray-600">找到 {sortedResources.length} 个教学资源</div>
+              <div className="flex flex-col gap-2">
+                <div className="text-sm text-gray-600">找到 {sortedResources.length} 个教学资源</div>
+                {(selectedTags.length > 0 || selectedCategory !== "all") && (
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>当前筛选:</span>
+                    {selectedCategory !== "all" && (
+                      <Badge variant="outline" className="text-xs">
+                        分类: {displayCategories.find(c => c.category === selectedCategory)?.label}
+                      </Badge>
+                    )}
+                    {selectedTags.length > 0 && (
+                      <Badge variant="outline" className="text-xs">
+                        标签: {selectedTags.join(', ')}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -475,6 +620,42 @@ export default function ResourcesPage() {
                 </div>
               )}
             </div>
+
+            {/* 分页功能 - 只在无筛选条件时显示加载更多按钮 */}
+            {!hasFilters && hasMore && (
+              <div className="text-center mt-8">
+                <Button 
+                  onClick={loadMore}
+                  disabled={resourcesLoading}
+                  size="lg"
+                  variant="outline"
+                  className="bg-white hover:bg-gray-50"
+                >
+                  {resourcesLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      加载中...
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-2" />
+                      加载更多资源
+                    </>
+                  )}
+                </Button>
+                
+                {pagination && (
+                  <div className="text-xs text-gray-500 mt-3">
+                    已显示 {allResources.length} / {pagination.total} 个资源
+                    {pagination.pageCount > 1 && (
+                      <span className="ml-2">
+                        第 {pagination.page} / {pagination.pageCount} 页
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Call to Action */}
             <Card className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">

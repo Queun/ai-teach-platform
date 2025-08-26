@@ -1,27 +1,32 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useNews, useStats } from "@/hooks/useStrapi"
+import { useNews, useStats, useNewsCategories } from "@/hooks/useStrapi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Calendar, User, Eye, ArrowRight, MessageSquare } from "lucide-react"
+import { Search, Calendar, User, Eye, ArrowRight, MessageSquare, Hash, X, Filter, Loader2, ChevronDown } from "lucide-react"
 import Link from "next/link"
 
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [sortBy, setSortBy] = useState("latest")
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+
+  // 判断是否有筛选条件
+  const hasFilters = selectedCategory !== "all" || selectedTags.length > 0 || searchQuery.trim() !== ""
 
   // 使用 Strapi API 获取数据
-  const { data: allNews, loading: newsLoading, error: newsError } = useNews({
-    pageSize: 50,
+  const { data: allNews, loading: newsLoading, error: newsError, loadMore, hasMore, pagination } = useNews({
+    pageSize: hasFilters ? 100 : 12, // 有筛选条件时获取更多数据，无筛选时分页
     sort: 'createdAt:desc'
   })
   const { data: stats, loading: statsLoading } = useStats()
+  const { data: newsCategories, loading: categoriesLoading } = useNewsCategories()
 
   // 辅助函数：安全地提取文本内容
   const extractText = (content: any): string => {
@@ -46,21 +51,14 @@ export default function NewsPage() {
     return '';
   };
 
-  const categories = [
-    { id: "all", name: "全部资讯", count: stats?.news || 86 },
-    { id: "policy", name: "政策动态", count: 24 },
-    { id: "tools", name: "工具评测", count: 18 },
-    { id: "cases", name: "教学案例", count: 16 },
-    { id: "opinions", name: "教育观点", count: 14 },
-    { id: "events", name: "活动通知", count: 8 },
-    { id: "research", name: "研究报告", count: 6 },
-  ]
-
   // 转换 Strapi 数据为组件所需格式
   const news = useMemo(() => {
     if (!allNews || allNews.length === 0) return []
     
-    return allNews.map(article => {
+    console.log('原始新闻数据:', allNews);
+    console.log('原始新闻数量:', allNews.length);
+    
+    const transformedNews = allNews.map(article => {
       // 安全访问 attributes，如果不存在则使用 article 本身
       const data = article.attributes || article
       
@@ -87,7 +85,90 @@ export default function NewsPage() {
         keywords: data.keywords || [],
       }
     })
+    
+    console.log('转换后新闻数据:', transformedNews);
+    console.log('转换后新闻数量:', transformedNews.length);
+    
+    return transformedNews;
   }, [allNews])
+
+  // 提取所有可用标签
+  const allTags = useMemo(() => {
+    if (!news || news.length === 0) return []
+    
+    const tagMap = new Map<string, number>()
+    news.forEach(article => {
+      if (article.tags && Array.isArray(article.tags)) {
+        article.tags.forEach(tag => {
+          if (typeof tag === 'string' && tag.trim()) {
+            const normalizedTag = tag.trim()
+            tagMap.set(normalizedTag, (tagMap.get(normalizedTag) || 0) + 1)
+          }
+        })
+      }
+    })
+    
+    return Array.from(tagMap.entries())
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count) // 按使用频率排序
+      .slice(0, 20) // 只显示前20个最常用的标签
+  }, [news])
+
+  // 计算统计数据
+  const newsStats = useMemo(() => {
+    if (!news || news.length === 0) {
+      return {
+        total: 0,
+        weeklyNew: 0,
+        featured: 0,
+        byCategory: {}
+      };
+    }
+
+    // 计算本周新增（过去7天）
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const weeklyNew = news.filter(article => {
+      const articleDate = new Date(article.date);
+      return articleDate >= oneWeekAgo;
+    }).length;
+
+    // 计算精华资讯数量
+    const featured = news.filter(article => article.featured || article.isBreaking).length;
+
+    // 按分类统计
+    const byCategory: Record<string, number> = {};
+    news.forEach(article => {
+      const category = article.category || 'general';
+      byCategory[category] = (byCategory[category] || 0) + 1;
+    });
+
+    return {
+      total: news.length,
+      weeklyNew,
+      featured,
+      byCategory
+    };
+  }, [news]);
+
+  // 使用动态分类数据，如果加载中或出错则使用默认分类
+  const displayCategories = useMemo(() => {
+    if (!categoriesLoading && newsCategories && newsCategories.length > 0) {
+      return newsCategories;
+    }
+    
+    // 默认分类作为后备
+    return [
+      { category: "all", name: "全部资讯", count: stats?.news || 0, label: "全部资讯", icon: "📰" },
+      { category: "policy", name: "政策动态", count: 0, label: "政策动态", icon: "📋" },
+      { category: "tools", name: "工具评测", count: 0, label: "工具评测", icon: "🔧" },
+      { category: "cases", name: "教学案例", count: 0, label: "教学案例", icon: "💡" },
+      { category: "opinions", name: "教育观点", count: 0, label: "教育观点", icon: "💭" },
+      { category: "events", name: "活动通知", count: 0, label: "活动通知", icon: "📅" },
+      { category: "research", name: "研究报告", count: 0, label: "研究报告", icon: "📊" },
+    ];
+  }, [newsCategories, categoriesLoading, stats]);
 
   const filteredNews = news.filter((item) => {
     const matchesSearch =
@@ -95,16 +176,30 @@ export default function NewsPage() {
       item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const matchesCategory = selectedCategory === "all" || 
-      (selectedCategory === "policy" && item.category.includes("政策")) ||
-      (selectedCategory === "tools" && item.category.includes("工具")) ||
-      (selectedCategory === "cases" && item.category.includes("案例")) ||
-      (selectedCategory === "opinions" && item.category.includes("观点")) ||
-      (selectedCategory === "events" && item.category.includes("活动")) ||
-      (selectedCategory === "research" && item.category.includes("研究"))
+    const matchesCategory = selectedCategory === "all" || item.category === selectedCategory
 
-    return matchesSearch && matchesCategory
+    const matchesTags = selectedTags.length === 0 || selectedTags.some(selectedTag =>
+      item.tags.some(articleTag => articleTag === selectedTag)
+    )
+
+    return matchesSearch && matchesCategory && matchesTags
   })
+
+  console.log('筛选后新闻数量:', filteredNews.length);
+  console.log('筛选后新闻:', filteredNews);
+
+  // 标签处理函数
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    )
+  }
+
+  const clearAllTags = () => {
+    setSelectedTags([])
+  }
 
   const sortedNews = [...filteredNews].sort((a, b) => {
     switch (sortBy) {
@@ -151,9 +246,9 @@ export default function NewsPage() {
                   <SelectValue placeholder="选择分类" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name} ({category.count})
+                  {displayCategories.map((category) => (
+                    <SelectItem key={category.category} value={category.category}>
+                      {category.icon} {category.label} ({category.count})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -195,19 +290,21 @@ export default function NewsPage() {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Sidebar */}
               <aside className="lg:w-64 space-y-6">
+                <div className="sticky top-16 space-y-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">资讯分类</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {categories.map((category) => (
+                    {displayCategories.map((category) => (
                       <Button
-                        key={category.id}
-                        variant={selectedCategory === category.id ? "default" : "ghost"}
-                        className="w-full justify-between"
-                        onClick={() => setSelectedCategory(category.id)}
+                        key={category.category}
+                        variant={selectedCategory === category.category ? "default" : "ghost"}
+                        className="w-full justify-start"
+                        onClick={() => setSelectedCategory(category.category)}
                       >
-                        <span>{category.name}</span>
+                        <span className="mr-2">{category.icon}</span>
+                        <span className="flex-1 text-left">{category.label}</span>
                         <Badge variant="secondary" className="ml-2">
                           {category.count}
                         </Badge>
@@ -218,40 +315,153 @@ export default function NewsPage() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">热门标签</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Hash className="w-4 h-4" />
+                        热门标签
+                      </CardTitle>
+                      {selectedTags.length > 0 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={clearAllTags}
+                          className="text-xs text-gray-500 hover:text-gray-700 p-1"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {["AI教育", "教育政策", "教学案例", "工具评测", "教师发展", "学生素养", "混合式教学"].map(
-                        (tag) => (
-                          <Badge key={tag} variant="outline" className="cursor-pointer hover:bg-blue-50">
-                            {tag}
-                          </Badge>
-                        ),
-                      )}
+                    {allTags.length > 0 ? (
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1">
+                          {allTags.slice(0, 12).map(({ tag, count }) => (
+                            <Button
+                              key={tag}
+                              variant={selectedTags.includes(tag) ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => toggleTag(tag)}
+                              className={`
+                                h-7 px-2 text-xs transition-all duration-200
+                                ${selectedTags.includes(tag) 
+                                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                                  : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300'
+                                }
+                              `}
+                            >
+                              {tag}
+                              <span className="ml-1 text-xs opacity-75">({count})</span>
+                            </Button>
+                          ))}
+                        </div>
+                        
+                        {selectedTags.length > 0 && (
+                          <div className="pt-2 border-t">
+                            <div className="text-xs text-gray-500 mb-2">已选择 {selectedTags.length} 个标签:</div>
+                            <div className="flex flex-wrap gap-1">
+                              {selectedTags.map((tag) => (
+                                <Badge 
+                                  key={tag} 
+                                  variant="secondary" 
+                                  className="text-xs cursor-pointer hover:bg-red-100"
+                                  onClick={() => toggleTag(tag)}
+                                >
+                                  {tag}
+                                  <X className="w-3 h-3 ml-1" />
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {allTags.length > 12 && (
+                          <div className="pt-2 text-center">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-xs text-gray-500"
+                            >
+                              查看更多标签 ({allTags.length - 12})
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-500 text-sm py-4">
+                        <Hash className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                        暂无标签数据
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">资讯统计</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-600">总资讯数</span>
+                        <span className="font-semibold">{newsLoading ? '...' : newsStats.total}</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-600">本周新增</span>
+                        <span className="font-semibold text-green-600">
+                          {newsLoading ? '...' : `+${newsStats.weeklyNew}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-gray-600">头条资讯</span>
+                        <span className="font-semibold text-blue-600">
+                          {newsLoading ? '...' : newsStats.featured}
+                        </span>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
+                </div>
               </aside>
 
               {/* Main Content */}
               <main className="flex-1">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="text-sm text-gray-600">找到 {sortedNews.length} 条资讯</div>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="latest">最新发布</SelectItem>
-                      <SelectItem value="popular">最多阅读</SelectItem>
-                      <SelectItem value="comments">最多分享</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm text-gray-600">找到 {sortedNews.length} 条资讯</div>
+                    {(selectedTags.length > 0 || selectedCategory !== "all") && (
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <span>当前筛选:</span>
+                        {selectedCategory !== "all" && (
+                          <Badge variant="outline" className="text-xs">
+                            分类: {displayCategories.find(c => c.category === selectedCategory)?.label}
+                          </Badge>
+                        )}
+                        {selectedTags.length > 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            标签: {selectedTags.join(', ')}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-gray-400" />
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-48">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="latest">最新发布</SelectItem>
+                        <SelectItem value="popular">最多阅读</SelectItem>
+                        <SelectItem value="comments">最多分享</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {/* Featured News */}
-                {featuredNews.length > 0 && selectedCategory === "all" && searchQuery === "" && (
+                {featuredNews.length > 0 && selectedCategory === "all" && searchQuery === "" && selectedTags.length === 0 && (
                   <Card className="mb-8 overflow-hidden">
                     <div className="md:flex">
                       <div className="md:w-2/5">
@@ -315,9 +525,26 @@ export default function NewsPage() {
 
                 {/* News Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {sortedNews
-                    .filter((item) => !item.featured || selectedCategory !== "all" || searchQuery !== "")
-                    .map((item) => (
+                  {(() => {
+                    // 修复：只排除在头条区域已显示的第一条精华新闻
+                    const shouldShowFeaturedInHeader = selectedCategory === "all" && searchQuery === "" && selectedTags.length === 0;
+                    const firstFeaturedNews = featuredNews.length > 0 ? featuredNews[0] : null;
+                    
+                    const gridNews = sortedNews.filter((item) => {
+                      // 如果头条区域显示了精华新闻，则排除第一条精华新闻，其他都显示
+                      if (shouldShowFeaturedInHeader && firstFeaturedNews && 
+                          (item.id === firstFeaturedNews.id || item.documentId === firstFeaturedNews.documentId)) {
+                        return false; // 排除已在头条显示的新闻
+                      }
+                      return true; // 显示所有其他新闻
+                    });
+                    
+                    console.log('网格新闻筛选前:', sortedNews.length);
+                    console.log('网格新闻筛选后:', gridNews.length);
+                    console.log('是否显示头条:', shouldShowFeaturedInHeader);
+                    console.log('头条新闻:', firstFeaturedNews?.title || '无');
+                    
+                    return gridNews.map((item) => (
                       <Card key={item.documentId || item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video w-full overflow-hidden">
                           <img
@@ -379,7 +606,8 @@ export default function NewsPage() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
+                    ));
+                  })()}
                 </div>
 
                 {/* Empty State */}
@@ -392,19 +620,38 @@ export default function NewsPage() {
                 )}
 
                 {/* Pagination */}
-                {sortedNews.length > 0 && (
-                  <div className="flex justify-center mt-8">
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" disabled>
-                        上一页
-                      </Button>
-                      <Button variant="default">1</Button>
-                      <Button variant="outline">2</Button>
-                      <Button variant="outline">3</Button>
-                      <span className="px-2">...</span>
-                      <Button variant="outline">5</Button>
-                      <Button variant="outline">下一页</Button>
-                    </div>
+                {!hasFilters && hasMore && (
+                  <div className="text-center mt-8">
+                    <Button 
+                      onClick={loadMore}
+                      disabled={newsLoading}
+                      size="lg"
+                      variant="outline"
+                      className="bg-white hover:bg-gray-50"
+                    >
+                      {newsLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          加载中...
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          加载更多资讯
+                        </>
+                      )}
+                    </Button>
+                    
+                    {pagination && (
+                      <div className="text-xs text-gray-500 mt-3">
+                        已显示 {allNews.length} / {pagination.total} 条资讯
+                        {pagination.pageCount > 1 && (
+                          <span className="ml-2">
+                            第 {pagination.page} / {pagination.pageCount} 页
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </main>
