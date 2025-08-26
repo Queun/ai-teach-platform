@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useResources, useStats } from "@/hooks/useStrapi"
+import { useResources, useStats, useResourceCategories } from "@/hooks/useStrapi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,7 @@ export default function ResourcesPage() {
     sort: 'createdAt:desc'
   })
   const { data: stats, loading: statsLoading } = useStats()
+  const { data: categories, loading: categoriesLoading } = useResourceCategories()
 
   // 辅助函数：安全地提取文本内容
   const extractText = (content: any): string => {
@@ -45,15 +46,6 @@ export default function ResourcesPage() {
     }
     return '';
   };
-
-  const categories = [
-    { id: "all", name: "全部资源", count: stats?.resources || 156, icon: "📚" },
-    { id: "teaching-guides", name: "教学指南", count: 45, icon: "📖" },
-    { id: "ai-tools", name: "AI工具评测", count: 38, icon: "🤖" },
-    { id: "case-studies", name: "教学案例", count: 32, icon: "💡" },
-    { id: "templates", name: "教学模板", count: 28, icon: "📄" },
-    { id: "research", name: "学术研究", count: 13, icon: "🔬" },
-  ]
 
   // 转换 Strapi 数据为组件所需格式
   const resources = useMemo(() => {
@@ -85,6 +77,7 @@ export default function ResourcesPage() {
           downloads: data.downloads || 0,
         },
         curatedAt: new Date(data.updatedAt || data.createdAt || Date.now()).toLocaleDateString('zh-CN'),
+        curatedAtRaw: new Date(data.updatedAt || data.createdAt || Date.now()), // 保存原始日期对象用于计算
         curatedBy: "专家团队",
         featured: data.isFeatured || false,
         quality: data.isFeatured ? "精华" : "优质",
@@ -105,6 +98,62 @@ export default function ResourcesPage() {
     })
   }, [allResources])
 
+  // 计算统计数据
+  const resourceStats = useMemo(() => {
+    if (!resources || resources.length === 0) {
+      return {
+        total: 0,
+        weeklyNew: 0,
+        featured: 0,
+        byCategory: {}
+      };
+    }
+
+    // 计算本周新增（过去7天）
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const weeklyNew = resources.filter(resource => {
+      // 使用原始日期对象进行准确比较
+      const resourceDate = resource.curatedAtRaw || new Date(resource.curatedAt);
+      return resourceDate >= oneWeekAgo;
+    }).length;
+
+    // 计算精华资源数量
+    const featured = resources.filter(r => r.featured).length;
+
+    // 按分类统计
+    const byCategory: Record<string, number> = {};
+    resources.forEach(resource => {
+      const category = resource.category || 'uncategorized';
+      byCategory[category] = (byCategory[category] || 0) + 1;
+    });
+
+    return {
+      total: resources.length,
+      weeklyNew,
+      featured,
+      byCategory
+    };
+  }, [resources]);
+
+  // 使用动态分类数据，如果加载中或出错则使用默认分类
+  const displayCategories = useMemo(() => {
+    if (!categoriesLoading && categories && categories.length > 0) {
+      return categories;
+    }
+    
+    // 默认分类作为后备
+    return [
+      { category: "all", name: "全部资源", count: stats?.resources || 0, label: "全部资源", icon: "📚" },
+      { category: "teaching-guides", name: "教学指南", count: 0, label: "教学指南", icon: "📖" },
+      { category: "ai-tools", name: "AI工具评测", count: 0, label: "AI工具评测", icon: "🤖" },
+      { category: "case-studies", name: "教学案例", count: 0, label: "教学案例", icon: "💡" },
+      { category: "templates", name: "教学模板", count: 0, label: "教学模板", icon: "📄" },
+      { category: "research", name: "学术研究", count: 0, label: "学术研究", icon: "🔬" },
+    ];
+  }, [categories, categoriesLoading, stats]);
+
   const filteredResources = resources.filter((resource) => {
     const matchesSearch =
       resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -119,7 +168,9 @@ export default function ResourcesPage() {
   const sortedResources = [...filteredResources].sort((a, b) => {
     switch (sortBy) {
       case "recent":
-        return new Date(b.curatedAt).getTime() - new Date(a.curatedAt).getTime()
+        const dateA = a.curatedAtRaw || new Date(a.curatedAt);
+        const dateB = b.curatedAtRaw || new Date(b.curatedAt);
+        return dateB.getTime() - dateA.getTime();
       case "popular":
         return b.stats.likes - a.stats.likes
       case "downloads":
@@ -186,9 +237,9 @@ export default function ResourcesPage() {
                   <SelectValue placeholder="选择分类" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.icon} {category.name} ({category.count})
+                  {displayCategories.map((category) => (
+                    <SelectItem key={category.category} value={category.category}>
+                      {category.icon} {category.label} ({category.count})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -226,15 +277,15 @@ export default function ResourcesPage() {
                 <CardTitle className="text-lg">资源分类</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {categories.map((category) => (
+                {displayCategories.map((category) => (
                   <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "ghost"}
+                    key={category.category}
+                    variant={selectedCategory === category.category ? "default" : "ghost"}
                     className="w-full justify-start"
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => setSelectedCategory(category.category)}
                   >
                     <span className="mr-2">{category.icon}</span>
-                    <span className="flex-1 text-left">{category.name}</span>
+                    <span className="flex-1 text-left">{category.label}</span>
                     <Badge variant="secondary" className="ml-2">
                       {category.count}
                     </Badge>
@@ -251,15 +302,19 @@ export default function ResourcesPage() {
                 <div className="text-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-gray-600">总资源数</span>
-                    <span className="font-semibold">{statsLoading ? '...' : stats?.resources || 0}</span>
+                    <span className="font-semibold">{resourcesLoading ? '...' : resourceStats.total}</span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-gray-600">本周新增</span>
-                    <span className="font-semibold text-green-600">-</span>
+                    <span className="font-semibold text-green-600">
+                      {resourcesLoading ? '...' : `+${resourceStats.weeklyNew}`}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-gray-600">精华资源</span>
-                    <span className="font-semibold text-yellow-600">{resources.filter(r => r.featured).length}</span>
+                    <span className="font-semibold text-yellow-600">
+                      {resourcesLoading ? '...' : resourceStats.featured}
+                    </span>
                   </div>
                 </div>
               </CardContent>

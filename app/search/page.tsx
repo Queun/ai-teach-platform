@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Search, Filter, SortAsc, Loader2, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,7 +12,7 @@ import GlobalSearchBox from '@/components/search/GlobalSearchBox'
 import Link from 'next/link'
 import { useSearch, getSearchResultIcon, getSearchResultTypeLabel, highlightSearchTerms, type SearchResult } from '@/hooks/useSearch'
 
-export default function SearchPage() {
+function SearchPageContent() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get('q') || ''
   const initialCategory = searchParams.get('category') || 'all'
@@ -339,5 +339,17 @@ function SearchResultCard({ result, query }: SearchResultCardProps) {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    }>
+      <SearchPageContent />
+    </Suspense>
   )
 }

@@ -495,3 +495,104 @@ export function useStats() {
     refetch: fetchStats
   };
 }
+
+// =============
+// 资源分类统计Hook
+// =============
+
+interface CategoryStats {
+  category: string;
+  count: number;
+  label: string;
+  icon: string;
+}
+
+export function useResourceCategories(): UseListState<CategoryStats> {
+  const [state, setState] = useState<{
+    data: CategoryStats[];
+    loading: boolean;
+    error: string | null;
+    pagination: null;
+  }>({
+    data: [],
+    loading: true,
+    error: null,
+    pagination: null
+  });
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      // 获取所有资源以分析分类
+      const response = await strapiService.getResources({ 
+        pageSize: 100,
+        fields: ['category']
+      });
+      
+      // 统计分类数量
+      const categoryMap = new Map<string, number>();
+      response.data.forEach(resource => {
+        const category = resource.category || 'uncategorized';
+        categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+      });
+      
+      // 分类标签和图标映射
+      const categoryLabels: Record<string, { label: string; icon: string }> = {
+        'teaching-guides': { label: '教学指南', icon: '📖' },
+        'ai-tools': { label: 'AI工具评测', icon: '🤖' },
+        'case-studies': { label: '教学案例', icon: '💡' },
+        'templates': { label: '教学模板', icon: '📄' },
+        'research': { label: '学术研究', icon: '🔬' },
+        'course-materials': { label: '课程资料', icon: '📚' },
+        'lesson-plans': { label: '教案设计', icon: '📝' },
+        'assessment': { label: '评估工具', icon: '📊' },
+        'multimedia': { label: '多媒体资源', icon: '🎬' },
+        'uncategorized': { label: '其他', icon: '📋' }
+      };
+      
+      // 生成分类统计数据
+      const categories: CategoryStats[] = Array.from(categoryMap.entries()).map(([category, count]) => ({
+        category,
+        count,
+        label: categoryLabels[category]?.label || category,
+        icon: categoryLabels[category]?.icon || '📋'
+      }));
+      
+      // 按数量排序
+      categories.sort((a, b) => b.count - a.count);
+      
+      // 添加"全部"选项
+      const totalCount = categories.reduce((sum, cat) => sum + cat.count, 0);
+      const allCategories = [
+        { category: 'all', count: totalCount, label: '全部资源', icon: '📚' },
+        ...categories
+      ];
+      
+      setState({
+        data: allCategories,
+        loading: false,
+        error: null,
+        pagination: null
+      });
+      
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : '获取资源分类失败'
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  return {
+    ...state,
+    refetch: fetchCategories,
+    loadMore: async () => {}, // 分类数据不需要分页加载
+    hasMore: false
+  };
+}
