@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SmartAvatar } from "@/components/ui/smart-avatar"
 import { Search, ExternalLink, Star, Eye, MessageSquare, ThumbsUp, Calendar, User, Award, Filter, X, Hash, ChevronDown, Loader2 } from "lucide-react"
 import Link from "next/link"
 
@@ -536,10 +536,12 @@ export default function ResourcesPage() {
 
                     {/* Author Info */}
                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={resource.author.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>{resource.author.name[0]}</AvatarFallback>
-                      </Avatar>
+                      <SmartAvatar 
+                        name={resource.author.name} 
+                        src={resource.author.avatar}
+                        size="default"
+                        className="w-10 h-10"
+                      />
                       <div className="flex-1">
                         <div className="font-medium">{resource.author.name}</div>
                         <div className="text-sm text-gray-600">{resource.author.title}</div>

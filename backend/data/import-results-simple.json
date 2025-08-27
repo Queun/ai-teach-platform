@@ -1,0 +1,28 @@
+{
+  "startTime": "2025-08-27T07:34:35.928Z",
+  "aiTools": {
+    "success": 10,
+    "failed": 0,
+    "errors": []
+  },
+  "eduResources": {
+    "success": 3,
+    "failed": 2,
+    "errors": [
+      {
+        "title": "小学数学思维训练课程设计",
+        "error": "4 errors occurred"
+      },
+      {
+        "title": "项目化学习设计与实施指南",
+        "error": "5 errors occurred"
+      }
+    ]
+  },
+  "newsArticles": {
+    "success": 5,
+    "failed": 0,
+    "errors": []
+  },
+  "endTime": "2025-08-27T07:34:45.407Z"
+}

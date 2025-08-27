@@ -6,7 +6,18 @@
       "Bash(docker compose:*)",
       "Bash(node:*)",
       "Bash(pnpm:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(sed:*)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 npm run seed)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 npm run seed:media)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 npm run seed:data)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 node scripts/import-data.js --test-one)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 npm run seed:simple)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 node scripts/debug-import.js)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 node scripts/test-real-data.js)",
+      "Bash(STRAPI_API_TOKEN=519ac9f3d4ab8620cea5f56431aac8ab2e2148a67e7826c6a8d3b414cfac5f98dfac97da4c9b8e7f7831f5efd5504bac77ff2aa8faea0ad3019fd1a7e1f1833f94ba9ab1d2c1e62acf116cb18c89b24d8ca70ebd8314afbb8ea4150c35b3c9570deb1f3ec75195471c6ddeb315d1e83904cc822af539c857eb987bea2dc1d2f4 node scripts/test-fixed-data.js)",
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

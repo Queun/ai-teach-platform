@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SmartAvatar } from "@/components/ui/smart-avatar"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -224,10 +224,12 @@ export default function NewsDetailPage() {
               </CardTitle>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
-                    <AvatarImage src={article.author.avatar || "/placeholder.svg"} />
-                    <AvatarFallback>{article.author.name[0]}</AvatarFallback>
-                  </Avatar>
+                  <SmartAvatar 
+                    name={article.author.name} 
+                    src={article.author.avatar}
+                    size="default"
+                    className="w-10 h-10 sm:w-12 sm:h-12"
+                  />
                   <div>
                     <div className="font-medium text-sm sm:text-base">{article.author.name}</div>
                     <div className="text-xs sm:text-sm text-gray-500">{article.author.bio}</div>
@@ -351,10 +353,12 @@ export default function NewsDetailPage() {
                   <div className="space-y-4 sm:space-y-6">
                     {comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3 sm:gap-4">
-                        <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
-                          <AvatarImage src={comment.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>{comment.author[0]}</AvatarFallback>
-                        </Avatar>
+                        <SmartAvatar 
+                          name={comment.author} 
+                          src={comment.avatar}
+                          size="sm"
+                          className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
+                        />
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
                             <span className="font-medium text-sm sm:text-base">{comment.author}</span>
@@ -392,10 +396,12 @@ export default function NewsDetailPage() {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
                     <div className="flex items-center gap-3">
-                      <Avatar className="w-10 sm:w-12 h-10 sm:h-12 flex-shrink-0">
-                        <AvatarImage src={article.author.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>{article.author.name[0]}</AvatarFallback>
-                      </Avatar>
+                      <SmartAvatar 
+                        name={article.author.name} 
+                        src={article.author.avatar}
+                        size="default"
+                        className="w-10 sm:w-12 h-10 sm:h-12 flex-shrink-0"
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm sm:text-base truncate">{article.author.name}</div>
                         <div className="text-xs sm:text-sm text-gray-500 break-words leading-relaxed">

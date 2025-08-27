@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SmartAvatar } from "@/components/ui/smart-avatar"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
@@ -666,10 +666,12 @@ export default function ToolDetailPage() {
                           <Card key={review.id}>
                             <CardContent className="p-6">
                               <div className="flex items-start gap-4">
-                                <Avatar>
-                                  <AvatarImage src={review.user.avatar || "/placeholder.svg"} />
-                                  <AvatarFallback>{review.user.name[0]}</AvatarFallback>
-                                </Avatar>
+                                <SmartAvatar 
+                                  name={review.user.name} 
+                                  src={review.user.avatar}
+                                  size="default"
+                                  className="w-10 h-10"
+                                />
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <span className="font-medium">{review.user.name}</span>

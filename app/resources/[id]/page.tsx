@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SmartAvatar } from "@/components/ui/smart-avatar"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Textarea } from "@/components/ui/textarea"
@@ -582,10 +582,12 @@ export default function ResourceDetailPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-start gap-4">
-                      <Avatar className="w-16 h-16">
-                        <AvatarImage src={resource.author.avatar || "/placeholder.svg"} />
-                        <AvatarFallback className="text-lg">{resource.author.name[0]}</AvatarFallback>
-                      </Avatar>
+                      <SmartAvatar 
+                        name={resource.author.name} 
+                        src={resource.author.avatar}
+                        size="xl"
+                        className="w-16 h-16"
+                      />
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold mb-1">{resource.author.name}</h3>
                         <p className="text-gray-600 mb-3">{resource.author.title}</p>
@@ -680,10 +682,12 @@ export default function ResourceDetailPage() {
                           <Card key={review.id}>
                             <CardContent className="p-6">
                               <div className="flex items-start gap-4">
-                                <Avatar>
-                                  <AvatarImage src={review.user.avatar || "/placeholder.svg"} />
-                                  <AvatarFallback>{review.user.name[0]}</AvatarFallback>
-                                </Avatar>
+                                <SmartAvatar 
+                                  name={review.user.name} 
+                                  src={review.user.avatar}
+                                  size="default"
+                                  className="w-10 h-10"
+                                />
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <span className="font-medium">{review.user.name}</span>

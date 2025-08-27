@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { SmartAvatar } from "@/components/ui/smart-avatar"
 import {
   Users,
   ArrowRight,
@@ -458,11 +458,11 @@ export default function HomePage() {
                     </CardDescription>
 
                     <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                      <Avatar className="w-5 sm:w-6 h-5 sm:h-6">
-                        <AvatarFallback className="text-xs">
-                          {resource.authorName ? resource.authorName[0] : '教'}
-                        </AvatarFallback>
-                      </Avatar>
+                      <SmartAvatar 
+                        name={resource.authorName || '爱教学团队'} 
+                        size="sm"
+                        className="w-5 sm:w-6 h-5 sm:h-6"
+                      />
                       <span className="text-xs sm:text-sm text-gray-600 flex-1 truncate">
                         {resource.authorName || '爱教学团队'}
                       </span>

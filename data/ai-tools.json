@@ -1,0 +1,2373 @@
+[
+  {
+    "name": "ChatGPT",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "ChatGPT是由OpenAI开发的先进语言模型，基于GPT架构构建。它能够进行自然对话、回答问题、协助写作、代码编程、数据分析等多种任务。在教育领域，ChatGPT可以作为智能助教，帮助学生解答疑问、提供学习建议、批改作业、生成教学内容等。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "OpenAI开发的强大对话式AI助手，支持教学问答、内容生成、代码编程等多种教育应用场景",
+    "category": "对话助手",
+    "tags": ["对话AI", "教学助手", "内容生成", "问答系统", "OpenAI"],
+    "difficulty": "初级",
+    "officialUrl": "https://chat.openai.com",
+    "tutorialUrl": "https://help.openai.com/en/collections/3742473-chatgpt",
+    "rating": 4.8,
+    "userRating": 4.7,
+    "popularity": 950,
+    "features": [
+      "自然语言对话",
+      "多语言支持",
+      "代码生成和调试",
+      "文档写作辅助",
+      "数据分析协助",
+      "创意内容生成"
+    ],
+    "pros": [
+      "回答准确度高",
+      "支持多种语言",
+      "界面简洁易用",
+      "响应速度快",
+      "免费版本可用"
+    ],
+    "cons": [
+      "知识截止时间限制",
+      "可能生成不准确信息",
+      "高峰期访问受限",
+      "付费功能较多"
+    ],
+    "pricing": "免费版 + GPT-4订阅 $20/月",
+    "platforms": ["网页版", "iOS", "Android"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 访问chat.openai.com注册账号\n2. 在对话框中输入你的问题或需求\n3. ChatGPT会即时回复并提供帮助\n4. 可以继续追问以获得更详细的解答"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用指南：\n\n**课堂教学**\n- 生成教案和课程大纲\n- 创建练习题和测验\n- 解答学生疑问\n\n**作业批改**\n- 检查语法和拼写\n- 提供写作建议\n- 评估论文质量\n\n**个性化学习**\n- 根据学生水平调整解释\n- 提供额外学习资源\n- 制定学习计划"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "智能答疑系统",
+      "作业辅导助手",
+      "教案内容生成",
+      "学习计划制定",
+      "语言学习练习",
+      "编程教学辅助"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 1,
+    "seoTitle": "ChatGPT - 教育领域最受欢迎的AI对话助手",
+    "seoDescription": "了解ChatGPT在教育中的应用，包括智能答疑、作业辅导、教案生成等功能。免费开始使用OpenAI的先进AI技术。",
+    "developer": "OpenAI"
+  },
+  {
+    "name": "Claude",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Claude是由Anthropic开发的AI助手，以安全、有用和诚实为核心设计原则。它在教育领域表现出色，能够提供详细的学术解释、协助研究工作、进行批判性思维训练等。Claude特别擅长长文档处理和深度分析，是教育工作者的理想助手。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "Anthropic开发的安全可靠AI助手，专注于教育研究、学术写作和深度分析任务",
+    "category": "对话助手",
+    "tags": ["AI助手", "学术研究", "文档分析", "安全AI", "Anthropic"],
+    "difficulty": "中级",
+    "officialUrl": "https://claude.ai",
+    "tutorialUrl": "https://support.anthropic.com",
+    "rating": 4.6,
+    "userRating": 4.5,
+    "popularity": 720,
+    "features": [
+      "长文档分析",
+      "学术研究辅助",
+      "安全对话机制",
+      "批判性思维训练",
+      "多格式文件支持",
+      "代码理解和生成"
+    ],
+    "pros": [
+      "安全性高",
+      "分析能力强",
+      "支持长文本处理",
+      "学术写作专业",
+      "回答详尽准确"
+    ],
+    "cons": [
+      "访问需要注册",
+      "免费额度有限",
+      "界面相对简单",
+      "知名度较低"
+    ],
+    "pricing": "免费版 + Pro订阅 $20/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 访问claude.ai创建账号\n2. 上传文档或直接提问\n3. Claude会提供详细分析和建议\n4. 适合用于学术研究和深度思考"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用场景：\n\n**研究辅助**\n- 文献综述协助\n- 数据分析指导\n- 研究方法建议\n\n**教学准备**\n- 课程内容开发\n- 案例研究创建\n- 评估标准制定\n\n**学生指导**\n- 论文写作指导\n- 批判性思维训练\n- 学术道德教育"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "学术论文写作",
+      "研究方法指导",
+      "文献分析整理",
+      "课程内容开发",
+      "学生论文指导",
+      "批判性思维训练"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 2,
+    "seoTitle": "Claude - 专业的教育AI助手和研究伙伴",
+    "seoDescription": "探索Claude在教育研究、学术写作和深度分析中的应用。安全可靠的AI技术助力教育工作者提升效率。",
+    "developer": "Anthropic"
+  },
+  {
+    "name": "Notion AI",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Notion AI是集成在Notion工作空间中的智能助手，专为提升写作、思考和创造效率而设计。在教育环境中，它可以帮助教师创建课程大纲、生成教学内容、整理学习笔记、协助学生完成作业等。与Notion的强大组织功能结合，是教育工作者管理教学资源的理想选择。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "集成在Notion中的AI写作助手，帮助教育工作者创建内容、整理笔记和管理教学资源",
+    "category": "写作助手",
+    "tags": ["写作AI", "笔记整理", "内容生成", "工作空间", "生产力"],
+    "difficulty": "初级",
+    "officialUrl": "https://www.notion.so/product/ai",
+    "tutorialUrl": "https://www.notion.so/help/guides/notion-ai-for-students",
+    "rating": 4.4,
+    "userRating": 4.3,
+    "popularity": 680,
+    "features": [
+      "智能写作辅助",
+      "内容自动生成",
+      "笔记整理优化",
+      "数据库智能填充",
+      "多语言翻译",
+      "格式自动调整"
+    ],
+    "pros": [
+      "与Notion无缝集成",
+      "操作简单直观",
+      "支持多种内容类型",
+      "模板丰富",
+      "团队协作友好"
+    ],
+    "cons": [
+      "需要Notion账号",
+      "AI功能需付费",
+      "生成质量不稳定",
+      "中文支持一般"
+    ],
+    "pricing": "Notion AI $10/月（需Notion订阅）",
+    "platforms": ["网页版", "桌面应用", "移动应用"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 在Notion页面中输入空格键触发AI\n2. 选择想要的AI功能（写作、总结等）\n3. 输入提示词或选择模板\n4. AI将生成相关内容供你使用"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用技巧：\n\n**课程规划**\n- 生成课程大纲\n- 创建学习目标\n- 制定时间表\n\n**内容创作**\n- 编写课程介绍\n- 生成练习题\n- 创建评估标准\n\n**学生管理**\n- 整理学生信息\n- 跟踪学习进度\n- 生成反馈报告"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "课程大纲创建",
+      "教学笔记整理",
+      "作业模板生成",
+      "学生进度跟踪",
+      "教研资料管理",
+      "协作式教学准备"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 3,
+    "seoTitle": "Notion AI - 教育工作者的智能写作和管理助手",
+    "seoDescription": "了解Notion AI如何帮助教师创建课程内容、整理教学资源和提升教育管理效率。",
+    "developer": "Notion Labs"
+  },
+  {
+    "name": "Midjourney",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Midjourney是一款强大的AI图像生成工具，通过Discord平台提供服务。它能够根据文字描述生成高质量的艺术作品和图像。在教育领域，Midjourney可以帮助教师创建视觉教材、插图、概念图等，为抽象概念提供直观的视觉表达，增强学习效果。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "领先的AI图像生成工具，帮助教育工作者创建视觉教材、插图和教学辅助图像",
+    "category": "图像生成",
+    "tags": ["AI绘画", "图像生成", "视觉设计", "教学插图", "创意工具"],
+    "difficulty": "中级",
+    "officialUrl": "https://www.midjourney.com",
+    "tutorialUrl": "https://docs.midjourney.com",
+    "rating": 4.7,
+    "userRating": 4.6,
+    "popularity": 850,
+    "features": [
+      "高质量图像生成",
+      "多样化艺术风格",
+      "快速迭代优化",
+      "批量生成能力",
+      "风格参数控制",
+      "商用授权支持"
+    ],
+    "pros": [
+      "生成质量极高",
+      "艺术风格丰富",
+      "社区活跃",
+      "持续更新改进",
+      "创意无限"
+    ],
+    "cons": [
+      "需要Discord使用",
+      "学习曲线较陡",
+      "订阅费用较高",
+      "生成时间不确定",
+      "中文提示词支持有限"
+    ],
+    "pricing": "基础版 $10/月，标准版 $30/月",
+    "platforms": ["Discord", "网页版（Beta）"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 加入Midjourney Discord服务器\n2. 在频道中输入 /imagine 命令\n3. 添加详细的图像描述提示词\n4. 等待AI生成4张候选图像\n5. 选择喜欢的图像进行放大或变化"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用指南：\n\n**教学插图**\n- 历史场景重现\n- 科学概念可视化\n- 文学情境描绘\n\n**课件制作**\n- 封面设计\n- 图表美化\n- 概念图创建\n\n**创意教学**\n- 艺术课程示例\n- 想象力训练\n- 视觉思维培养\n\n提示词技巧：使用具体描述词，包含风格、色彩、构图等要素"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "历史教学插图",
+      "科学概念可视化",
+      "文学场景重现",
+      "艺术创作教学",
+      "课件封面设计",
+      "教学海报制作"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 4,
+    "seoTitle": "Midjourney - 教育领域最强AI图像生成工具",
+    "seoDescription": "探索Midjourney在教学插图、视觉教材和创意教育中的应用。轻松创建高质量教学图像。",
+    "developer": "Midjourney Inc."
+  },
+  {
+    "name": "Canva AI",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Canva AI是集成在Canva设计平台中的人工智能功能，包括Magic Design、Magic Write、Background Remover等多项AI工具。它专为简化设计流程而开发，让没有专业设计背景的教育工作者也能快速创建专业级的教学材料、海报、演示文稿等视觉内容。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "集成多项AI功能的设计平台，帮助教育工作者轻松创建教学海报、课件和视觉材料",
+    "category": "设计工具",
+    "tags": ["AI设计", "教学素材", "海报制作", "演示文稿", "视觉设计"],
+    "difficulty": "初级",
+    "officialUrl": "https://www.canva.com/ai-image-generator/",
+    "tutorialUrl": "https://www.canva.com/help/",
+    "rating": 4.5,
+    "userRating": 4.4,
+    "popularity": 780,
+    "features": [
+      "智能设计生成",
+      "AI文案写作",
+      "背景移除工具",
+      "智能扩图功能",
+      "风格转换",
+      "批量设计生成"
+    ],
+    "pros": [
+      "操作简单易学",
+      "模板资源丰富",
+      "AI功能实用",
+      "支持团队协作",
+      "免费功能较多"
+    ],
+    "cons": [
+      "高级功能需付费",
+      "AI生成质量不稳定",
+      "自定义程度有限",
+      "网络依赖性强"
+    ],
+    "pricing": "免费版 + Pro版 $15/月",
+    "platforms": ["网页版", "iOS", "Android", "桌面应用"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Canva账号并登录\n2. 选择设计类型（海报、演示等）\n3. 使用Magic Design输入需求描述\n4. AI自动生成多个设计方案\n5. 选择喜欢的设计进行编辑调整"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用场景：\n\n**课堂材料**\n- 教学海报设计\n- 知识点卡片\n- 课程时间表\n\n**演示文稿**\n- PPT模板选择\n- 图表美化\n- 封面设计\n\n**活动宣传**\n- 活动海报\n- 通知公告\n- 证书制作\n\n使用技巧：善用AI功能和丰富的教育模板库"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教学海报制作",
+      "课件模板设计",
+      "学习资料卡片",
+      "活动宣传材料",
+      "学生作品展示",
+      "教室装饰设计"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 5,
+    "seoTitle": "Canva AI - 教育工作者的智能设计助手",
+    "seoDescription": "了解Canva AI如何帮助教师快速创建专业的教学海报、课件和教育材料。简单易用的AI设计工具。",
+    "developer": "Canva"
+  },
+  {
+    "name": "Grammarly",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Grammarly是一款智能语法和写作辅助工具，使用AI技术帮助用户改善英文写作质量。它不仅能检查语法、拼写和标点错误，还能提供写作风格建议、词汇增强和语调调整。在教育领域，Grammarly是教师批改作业和学生提升写作能力的得力助手。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI驱动的英文语法和写作助手，帮助教育工作者提升写作质量和批改效率",
+    "category": "写作助手",
+    "tags": ["语法检查", "写作助手", "英语学习", "作业批改", "学术写作"],
+    "difficulty": "初级",
+    "officialUrl": "https://www.grammarly.com",
+    "tutorialUrl": "https://support.grammarly.com",
+    "rating": 4.3,
+    "userRating": 4.2,
+    "popularity": 650,
+    "features": [
+      "实时语法检查",
+      "拼写错误纠正",
+      "写作风格建议",
+      "词汇多样性增强",
+      "语调调整建议",
+      "抄袭检测功能"
+    ],
+    "pros": [
+      "准确率高",
+      "实时检查",
+      "多平台支持",
+      "使用简便",
+      "免费版功能强大"
+    ],
+    "cons": [
+      "仅支持英文",
+      "高级功能需付费",
+      "有时建议过于保守",
+      "网络依赖"
+    ],
+    "pricing": "免费版 + Premium $12/月",
+    "platforms": ["浏览器插件", "桌面应用", "手机应用", "Word插件"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 安装Grammarly浏览器插件或应用\n2. 在任何文本框中开始输入\n3. Grammarly会自动标识错误和改进建议\n4. 点击建议即可快速修正\n5. 查看详细解释了解错误原因"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用指南：\n\n**学生写作**\n- 作业语法检查\n- 论文写作辅助\n- 英语写作练习\n\n**教师批改**\n- 快速发现学生错误\n- 提供改进建议\n- 节省批改时间\n\n**学术写作**\n- 论文语言润色\n- 学术语调调整\n- 引用格式检查\n\n教学建议：结合语法规则讲解，提升学生语言意识"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "英语作业批改",
+      "学术论文润色",
+      "英语写作教学",
+      "邮件写作改进",
+      "英语学习辅助",
+      "国际交流文档"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 6,
+    "seoTitle": "Grammarly - 教育领域最受信赖的英文写作助手",
+    "seoDescription": "探索Grammarly在英语教学、作业批改和学术写作中的应用。提升英文写作质量的AI工具。",
+    "developer": "Grammarly Inc."
+  },
+  {
+    "name": "Quillbot",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Quillbot是一款AI驱动的改写和总结工具，专注于帮助用户重新表述文本、总结长篇内容和改善写作质量。它提供多种改写模式，从简单的同义词替换到完整的句式重构。在教育环境中，Quillbot可以帮助学生学习不同的表达方式，教师创建多样化的教学材料。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI改写和总结工具，帮助教育工作者重新表述内容、总结文档和创建多样化教材",
+    "category": "写作助手",
+    "tags": ["文本改写", "内容总结", "同义词替换", "学术写作", "教材创作"],
+    "difficulty": "初级",
+    "officialUrl": "https://quillbot.com",
+    "tutorialUrl": "https://quillbot.com/help",
+    "rating": 4.1,
+    "userRating": 4.0,
+    "popularity": 520,
+    "features": [
+      "智能文本改写",
+      "多种改写模式",
+      "文档快速总结",
+      "同义词词典",
+      "语法检查集成",
+      "抄袭检测功能"
+    ],
+    "pros": [
+      "改写质量高",
+      "模式选择丰富",
+      "界面简洁明了",
+      "免费版可用",
+      "处理速度快"
+    ],
+    "cons": [
+      "免费版字数限制",
+      "中文支持有限",
+      "改写结果需人工检查",
+      "依赖网络连接"
+    ],
+    "pricing": "免费版 + Premium $9.95/月",
+    "platforms": ["网页版", "浏览器插件", "Word插件"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 访问Quillbot网站并注册账号\n2. 将需要改写的文本粘贴到输入框\n3. 选择合适的改写模式（标准、流畅、创意等）\n4. 点击改写按钮获得结果\n5. 根据需要继续调整和优化"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用策略：\n\n**教材创作**\n- 改写现有教材\n- 创建多版本解释\n- 适应不同难度级别\n\n**学生指导**\n- 教授改写技巧\n- 避免抄袭问题\n- 提升表达多样性\n\n**内容总结**\n- 长文档摘要\n- 研究资料整理\n- 会议纪要生成\n\n使用建议：结合人工审查，确保改写内容准确性"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教材内容改写",
+      "学术文献总结",
+      "作业避免抄袭",
+      "多样化表达教学",
+      "研究资料整理",
+      "内容本土化调整"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 7,
+    "seoTitle": "Quillbot - 教育工作者的AI改写和总结助手",
+    "seoDescription": "了解Quillbot如何帮助教师改写教材、总结文档和指导学生提升写作表达能力。",
+    "developer": "QuillBot Inc."
+  },
+  {
+    "name": "Speechify",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Speechify是一款先进的AI文本转语音工具，能够将任何文本内容转换为自然流畅的语音。它支持多种语言和语音风格，语音质量接近真人朗读。在教育领域，Speechify可以帮助有阅读障碍的学生、提供多媒体学习体验、制作音频教材等，是实现无障碍教育的重要工具。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "高质量AI文本转语音工具，为教育创造音频学习内容和无障碍学习环境",
+    "category": "语音工具",
+    "tags": ["文本转语音", "TTS", "语音合成", "无障碍教育", "音频教材"],
+    "difficulty": "初级",
+    "officialUrl": "https://speechify.com",
+    "tutorialUrl": "https://speechify.com/help",
+    "rating": 4.4,
+    "userRating": 4.3,
+    "popularity": 490,
+    "features": [
+      "高质量语音合成",
+      "多语言支持",
+      "语速调节",
+      "多种音色选择",
+      "文档直接转换",
+      "音频导出功能"
+    ],
+    "pros": [
+      "语音质量高",
+      "使用简单",
+      "支持多种格式",
+      "语音自然",
+      "响应速度快"
+    ],
+    "cons": [
+      "免费版有限制",
+      "中文语音有限",
+      "高级音色需付费",
+      "文件大小限制"
+    ],
+    "pricing": "免费版 + Premium $139/年",
+    "platforms": ["网页版", "iOS", "Android", "Chrome插件"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Speechify账号并登录\n2. 上传文档或粘贴文本内容\n3. 选择合适的语音和语速\n4. 点击播放按钮开始朗读\n5. 可导出音频文件保存使用"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用场景：\n\n**无障碍教育**\n- 为视障学生提供语音版教材\n- 帮助阅读困难学生\n- 支持多感官学习\n\n**多媒体教学**\n- 制作音频课程\n- 创建播客内容\n- 语言发音示范\n\n**自主学习**\n- 开车时听书学习\n- 复习时解放双眼\n- 提高学习效率\n\n使用技巧：结合文本高亮，增强学习效果"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "无障碍教材制作",
+      "语言学习辅助",
+      "音频课程创建",
+      "阅读理解支持",
+      "多感官教学",
+      "学习资料音频化"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 8,
+    "seoTitle": "Speechify - 教育领域领先的AI文本转语音工具",
+    "seoDescription": "探索Speechify在无障碍教育、多媒体教学和语言学习中的应用。高质量AI语音合成技术。",
+    "developer": "Speechify Inc."
+  },
+  {
+    "name": "Otter.ai",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Otter.ai是一款AI驱动的会议转录和笔记工具，能够实时将语音转换为文字，并自动生成会议摘要和要点。它支持多人对话识别、关键词提取和智能总结。在教育环境中，Otter.ai可以用于课堂录音转录、会议记录、研讨会整理等，大大提升教学管理效率。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "智能语音转文字和会议记录工具，帮助教育工作者高效记录课堂内容和会议要点",
+    "category": "语音工具",
+    "tags": ["语音转文字", "ASR", "会议记录", "课堂转录", "智能笔记"],
+    "difficulty": "初级",
+    "officialUrl": "https://otter.ai",
+    "tutorialUrl": "https://help.otter.ai",
+    "rating": 4.2,
+    "userRating": 4.1,
+    "popularity": 560,
+    "features": [
+      "实时语音转录",
+      "自动会议摘要",
+      "多人对话识别",
+      "关键词提取",
+      "智能章节分段",
+      "团队协作共享"
+    ],
+    "pros": [
+      "转录准确率高",
+      "实时处理能力",
+      "自动生成摘要",
+      "支持团队协作",
+      "集成主流会议软件"
+    ],
+    "cons": [
+      "主要支持英语",
+      "免费版时长限制",
+      "需要网络连接",
+      "对口音敏感"
+    ],
+    "pricing": "免费版 + Pro $10/月",
+    "platforms": ["网页版", "iOS", "Android", "Zoom集成"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Otter.ai账号并安装应用\n2. 开始录音或加入会议\n3. Otter会实时显示转录文字\n4. 会议结束后自动生成摘要\n5. 可编辑、分享和导出记录"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用指南：\n\n**课堂记录**\n- 讲座内容转录\n- 学生讨论记录\n- 重要观点提取\n\n**会议管理**\n- 教研会议记录\n- 家长会整理\n- 培训内容归档\n\n**研究工作**\n- 访谈记录整理\n- 焦点小组讨论\n- 学术会议笔记\n\n使用建议：录音前告知参与者，遵守隐私规定"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "课堂讲座转录",
+      "教研会议记录",
+      "学生访谈整理",
+      "在线课程字幕",
+      "学术会议笔记",
+      "培训内容归档"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 9,
+    "seoTitle": "Otter.ai - 教育工作者的智能语音转文字助手",
+    "seoDescription": "了解Otter.ai如何帮助教师自动记录课堂内容、整理会议要点和提升教学管理效率。",
+    "developer": "Otter.ai"
+  },
+  {
+    "name": "Kahoot!",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Kahoot!是一款游戏化学习平台，让教师能够创建互动式测验、调查和学习游戏。虽然不是纯AI工具，但其智能推荐系统和自动题目生成功能使用了AI技术。Kahoot!通过竞争性游戏机制提高学生参与度，使学习变得有趣和互动，是现代课堂教学的重要辅助工具。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "游戏化学习平台，通过互动测验和学习游戏提升课堂参与度和学习效果",
+    "category": "教学工具",
+    "tags": ["游戏化学习", "互动测验", "课堂参与", "教学游戏", "学习评估"],
+    "difficulty": "初级",
+    "officialUrl": "https://kahoot.com",
+    "tutorialUrl": "https://support.kahoot.com",
+    "rating": 4.6,
+    "userRating": 4.5,
+    "popularity": 820,
+    "features": [
+      "互动式测验创建",
+      "实时答题竞赛",
+      "自动题目生成",
+      "学习进度跟踪",
+      "团队协作模式",
+      "丰富的题库资源"
+    ],
+    "pros": [
+      "学生参与度高",
+      "操作简单直观",
+      "题库资源丰富",
+      "支持多种设备",
+      "免费版功能强大"
+    ],
+    "cons": [
+      "需要网络连接",
+      "高级功能需付费",
+      "题目创建耗时",
+      "对低年级学生有难度"
+    ],
+    "pricing": "免费版 + Plus $7/月",
+    "platforms": ["网页版", "iOS", "Android"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Kahoot教师账号\n2. 创建新的Kahoot测验或选择现有题库\n3. 设置题目、答案和时间限制\n4. 在课堂上启动游戏并显示PIN码\n5. 学生用设备加入游戏开始答题"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教学应用策略：\n\n**课堂复习**\n- 知识点巩固测验\n- 单元结束总结\n- 期末复习游戏\n\n**互动教学**\n- 课中知识检测\n- 概念理解确认\n- 讨论话题引导\n\n**评估工具**\n- 形成性评估\n- 学习效果检验\n- 学生反馈收集\n\n设计技巧：题目简洁明了，适度竞争，注重学习目标"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "课堂知识测验",
+      "复习巩固游戏",
+      "团队协作竞赛",
+      "学习效果评估",
+      "课堂氛围调动",
+      "远程教学互动"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 10,
+    "seoTitle": "Kahoot! - 让学习变得有趣的游戏化教学平台",
+    "seoDescription": "探索Kahoot!如何通过互动测验和学习游戏提升课堂参与度。最受欢迎的游戏化教学工具。",
+    "developer": "Kahoot! AS"
+  },
+  {
+    "name": "Gamma",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Gamma是一款AI驱动的演示文稿创建工具，能够根据用户的简单输入快速生成专业的幻灯片、文档和网页。它使用人工智能理解内容结构，自动选择合适的布局、配色和视觉元素。对于教育工作者来说，Gamma是快速制作教学课件、学术演示和教育资料的理想选择。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI自动生成演示文稿的工具，帮助教育工作者快速创建专业的教学课件和学术演示",
+    "category": "演示工具",
+    "tags": ["AI演示", "课件制作", "自动生成", "演示文稿", "教学工具"],
+    "difficulty": "初级",
+    "officialUrl": "https://gamma.app",
+    "tutorialUrl": "https://gamma.app/help",
+    "rating": 4.3,
+    "userRating": 4.2,
+    "popularity": 420,
+    "features": [
+      "AI自动生成幻灯片",
+      "智能布局设计",
+      "多样化模板",
+      "实时协作编辑",
+      "响应式设计",
+      "一键发布分享"
+    ],
+    "pros": [
+      "生成速度快",
+      "设计质量高",
+      "操作简单",
+      "模板美观",
+      "支持团队协作"
+    ],
+    "cons": [
+      "免费版限制多",
+      "自定义程度有限",
+      "中文支持不完善",
+      "需要网络连接"
+    ],
+    "pricing": "免费版 + Pro $10/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Gamma账号并登录\n2. 选择创建新的演示文稿\n3. 输入主题和大纲要点\n4. AI自动生成完整演示文稿\n5. 根据需要编辑和调整内容"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用场景：\n\n**课堂教学**\n- 快速生成课程PPT\n- 知识点可视化展示\n- 互动式学习内容\n\n**学术演示**\n- 研究成果展示\n- 学术会议演讲\n- 项目汇报材料\n\n**学生作业**\n- 小组展示制作\n- 项目成果汇报\n- 学习总结演示"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "快速课件制作",
+      "学术演示生成",
+      "教学资料创建",
+      "学生作业指导",
+      "培训材料制作",
+      "会议演示准备"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 11,
+    "seoTitle": "Gamma - AI驱动的智能演示文稿制作工具",
+    "seoDescription": "探索Gamma如何帮助教育工作者快速创建专业课件和学术演示。AI自动生成，简化制作流程。",
+    "developer": "Gamma Technologies"
+  },
+  {
+    "name": "Beautiful.AI",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Beautiful.AI是一款智能演示设计平台，使用AI技术自动优化幻灯片设计和布局。它提供了大量专业模板和智能设计建议，让用户专注于内容创作而不用担心设计细节。在教育领域，Beautiful.AI帮助教师创建视觉吸引力强的教学材料，提升学生的学习体验。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "智能演示设计平台，自动优化幻灯片布局，帮助教育工作者创建美观的教学演示",
+    "category": "演示工具",
+    "tags": ["智能设计", "演示文稿", "自动布局", "模板设计", "教学演示"],
+    "difficulty": "初级",
+    "officialUrl": "https://www.beautiful.ai",
+    "tutorialUrl": "https://support.beautiful.ai",
+    "rating": 4.1,
+    "userRating": 4.0,
+    "popularity": 350,
+    "features": [
+      "智能设计辅助",
+      "自动布局调整",
+      "专业模板库",
+      "团队协作功能",
+      "品牌一致性",
+      "数据可视化"
+    ],
+    "pros": [
+      "设计自动优化",
+      "模板质量高",
+      "易于使用",
+      "团队协作友好",
+      "输出质量专业"
+    ],
+    "cons": [
+      "价格相对较高",
+      "免费版功能有限",
+      "模板风格相对固定",
+      "学习成本存在"
+    ],
+    "pricing": "Pro $12/月，Team $40/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 创建Beautiful.AI账号\n2. 选择合适的模板开始\n3. 添加内容，AI自动调整设计\n4. 使用智能建议优化布局\n5. 导出或在线分享演示文稿"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用优势：\n\n**专业外观**\n- 统一的视觉风格\n- 自动颜色搭配\n- 专业排版效果\n\n**高效制作**\n- 智能内容适配\n- 快速模板切换\n- 批量内容处理\n\n**协作教学**\n- 团队共同编辑\n- 版本控制管理\n- 实时反馈收集"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "专业课件制作",
+      "教学演示优化",
+      "学术报告设计",
+      "培训材料创建",
+      "教育品牌展示",
+      "会议演示准备"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 12,
+    "seoTitle": "Beautiful.AI - 智能演示设计平台",
+    "seoDescription": "了解Beautiful.AI如何通过智能设计辅助帮助教育工作者创建专业美观的教学演示文稿。",
+    "developer": "Beautiful.AI"
+  },
+  {
+    "name": "Loom",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Loom是一款简单易用的屏幕录制和视频分享工具，虽然核心功能不是AI，但其AI驱动的转录、总结和视频增强功能使其成为现代教育的重要工具。教师可以用Loom录制教学视频、创建翻转课堂内容、提供个性化反馈，学生也可以用它提交视频作业和进行远程学习。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "简单高效的屏幕录制工具，支持AI转录和总结，是创建教学视频和远程教育的理想选择",
+    "category": "视频工具",
+    "tags": ["屏幕录制", "视频分享", "教学视频", "远程教育", "翻转课堂"],
+    "difficulty": "初级",
+    "officialUrl": "https://www.loom.com",
+    "tutorialUrl": "https://support.loom.com",
+    "rating": 4.5,
+    "userRating": 4.4,
+    "popularity": 640,
+    "features": [
+      "一键屏幕录制",
+      "AI自动转录",
+      "视频快速分享",
+      "观看数据分析",
+      "评论互动功能",
+      "视频编辑工具"
+    ],
+    "pros": [
+      "操作简单直观",
+      "录制质量高",
+      "分享便捷",
+      "免费版功能强",
+      "跨平台支持"
+    ],
+    "cons": [
+      "免费版时长限制",
+      "高级功能需付费",
+      "存储空间有限",
+      "编辑功能基础"
+    ],
+    "pricing": "免费版 + Business $8/月",
+    "platforms": ["网页版", "桌面应用", "移动应用", "浏览器插件"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 安装Loom浏览器插件或应用\n2. 点击录制按钮选择录制区域\n3. 开始录制屏幕和语音\n4. 录制完成后自动上传处理\n5. 获得分享链接即可发送给学生"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用指南：\n\n**翻转课堂**\n- 预习视频制作\n- 知识点讲解录制\n- 操作步骤演示\n\n**个性化教学**\n- 作业反馈视频\n- 个别辅导录制\n- 学习进度跟踪\n\n**远程教育**\n- 在线课程录制\n- 异步教学内容\n- 学习资源分享\n\n使用技巧：保持录制环境整洁，声音清晰，内容结构化"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "翻转课堂视频",
+      "操作演示录制",
+      "作业反馈视频",
+      "在线课程制作",
+      "学习指导录制",
+      "知识点讲解"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 13,
+    "seoTitle": "Loom - 教育视频录制和分享的最佳选择",
+    "seoDescription": "探索Loom在翻转课堂、远程教育和个性化教学中的应用。简单易用的屏幕录制工具。",
+    "developer": "Loom Inc."
+  },
+  {
+    "name": "Perplexity AI",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Perplexity AI是一款AI驱动的搜索引擎和研究助手，结合了传统搜索和大语言模型的优势。它能够理解复杂查询，提供准确的答案并附带可靠的信息来源。在教育领域，Perplexity AI是进行学术研究、事实核查、获取最新信息的强大工具，帮助师生进行高质量的研究工作。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI驱动的搜索引擎和研究助手，提供准确答案和可靠来源，是学术研究的理想工具",
+    "category": "研究工具",
+    "tags": ["AI搜索", "研究助手", "学术查询", "信息验证", "知识发现"],
+    "difficulty": "中级",
+    "officialUrl": "https://www.perplexity.ai",
+    "tutorialUrl": "https://docs.perplexity.ai",
+    "rating": 4.4,
+    "userRating": 4.3,
+    "popularity": 380,
+    "features": [
+      "智能搜索问答",
+      "可靠信息来源",
+      "实时信息获取",
+      "多轮对话查询",
+      "学术文献搜索",
+      "跨语言查询支持"
+    ],
+    "pros": [
+      "答案准确可靠",
+      "提供信息来源",
+      "搜索结果及时",
+      "界面简洁明了",
+      "支持复杂查询"
+    ],
+    "cons": [
+      "免费版查询限制",
+      "中文资源相对较少",
+      "复杂学术查询有限",
+      "需要网络连接"
+    ],
+    "pricing": "免费版 + Pro $20/月",
+    "platforms": ["网页版", "iOS", "Android"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 访问Perplexity AI网站\n2. 在搜索框中输入具体问题\n3. AI提供详细答案和信息来源\n4. 可以继续追问相关问题\n5. 保存重要的搜索结果和来源"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "学术应用策略：\n\n**研究准备**\n- 文献搜索和筛选\n- 研究主题探索\n- 背景信息收集\n\n**事实核查**\n- 信息准确性验证\n- 数据来源确认\n- 观点多样性对比\n\n**教学准备**\n- 最新信息获取\n- 课程内容更新\n- 案例素材搜集\n\n使用技巧：提出具体明确的问题，关注来源可靠性"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "学术文献搜索",
+      "研究背景调查",
+      "教学素材收集",
+      "事实信息验证",
+      "课程内容更新",
+      "学术写作支持"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 14,
+    "seoTitle": "Perplexity AI - 学术研究的智能搜索助手",
+    "seoDescription": "了解Perplexity AI如何帮助教育工作者进行高质量的学术研究和信息查询。可靠来源，准确答案。",
+    "developer": "Perplexity AI Inc."
+  },
+  {
+    "name": "Consensus",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Consensus是一款专门用于学术研究的AI搜索引擎，专注于从同行评议的研究论文中提取信息和见解。它使用AI技术分析和总结学术文献，为研究人员提供基于证据的答案。在教育环境中，Consensus是进行循证教学、学术研究和教学方法验证的重要工具。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "专业的学术AI搜索引擎，从同行评议论文中提取见解，支持循证教学和学术研究",
+    "category": "研究工具",
+    "tags": ["学术搜索", "论文分析", "循证研究", "文献综述", "科研工具"],
+    "difficulty": "高级",
+    "officialUrl": "https://consensus.app",
+    "tutorialUrl": "https://consensus.app/help",
+    "rating": 4.2,
+    "userRating": 4.1,
+    "popularity": 280,
+    "features": [
+      "学术论文搜索",
+      "AI文献分析",
+      "研究结论总结",
+      "证据质量评估",
+      "引用信息提供",
+      "研究趋势分析"
+    ],
+    "pros": [
+      "学术性强",
+      "数据可靠",
+      "分析深入",
+      "节省研究时间",
+      "提供完整引用"
+    ],
+    "cons": [
+      "专业性要求高",
+      "英文文献为主",
+      "免费版功能限制",
+      "查询结果相对专业"
+    ],
+    "pricing": "免费版 + Premium $9/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Consensus账号并登录\n2. 输入研究问题或关键词\n3. AI搜索相关学术论文\n4. 查看研究结论和证据总结\n5. 获取完整的引用信息和原文链接"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "学术应用场景：\n\n**教学研究**\n- 教学方法有效性验证\n- 教育理论文献综述\n- 课程设计依据搜集\n\n**学术写作**\n- 文献综述撰写\n- 理论基础构建\n- 研究空白识别\n\n**循证教学**\n- 最佳实践识别\n- 教学策略选择\n- 干预效果评估\n\n使用建议：结合传统数据库，确保研究全面性"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教育研究文献综述",
+      "教学方法验证",
+      "学术论文写作",
+      "循证教学实践",
+      "研究趋势分析",
+      "理论基础构建"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 15,
+    "seoTitle": "Consensus - 专业的学术AI搜索引擎",
+    "seoDescription": "探索Consensus在教育研究、文献综述和循证教学中的应用。基于学术论文的AI智能搜索。",
+    "developer": "Consensus"
+  },
+  {
+    "name": "Tome",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Tome是一款AI驱动的故事叙述和演示工具，能够根据用户的提示自动生成完整的演示文稿、文档和交互式故事。它结合了文本生成、图像创建和布局设计，为用户提供完整的内容创作解决方案。在教育领域，Tome可以帮助教师创建引人入胜的教学故事、交互式学习材料和创意演示。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI驱动的故事叙述和演示工具，自动生成交互式教学内容和创意演示文稿",
+    "category": "演示工具",
+    "tags": ["AI演示", "故事叙述", "交互内容", "创意工具", "教学故事"],
+    "difficulty": "中级",
+    "officialUrl": "https://beta.tome.app",
+    "tutorialUrl": "https://tome.app/help",
+    "rating": 4.0,
+    "userRating": 3.9,
+    "popularity": 320,
+    "features": [
+      "AI自动生成演示",
+      "交互式内容创建",
+      "智能图文配对",
+      "多媒体集成",
+      "响应式设计",
+      "实时协作编辑"
+    ],
+    "pros": [
+      "创意内容丰富",
+      "自动化程度高",
+      "交互性强",
+      "视觉效果好",
+      "操作相对简单"
+    ],
+    "cons": [
+      "生成质量不稳定",
+      "免费版限制较多",
+      "加载速度较慢",
+      "中文支持有限"
+    ],
+    "pricing": "免费版 + Pro $16/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Tome账号并登录\n2. 选择从提示开始创建\n3. 描述你想要的演示内容和风格\n4. AI自动生成完整的演示文稿\n5. 根据需要编辑和自定义内容"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育创新应用：\n\n**故事化教学**\n- 历史事件叙述\n- 科学概念故事\n- 文学作品解读\n\n**交互式学习**\n- 分支式学习路径\n- 问答式教学内容\n- 游戏化学习体验\n\n**创意展示**\n- 学生作品集\n- 项目成果展示\n- 创意思维培养\n\n使用技巧：提供清晰的内容描述，善用交互功能"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "故事化教学内容",
+      "交互式课程设计",
+      "创意演示制作",
+      "学生作品展示",
+      "教学案例开发",
+      "多媒体教材创建"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 16,
+    "seoTitle": "Tome - AI驱动的创意教学演示工具",
+    "seoDescription": "了解Tome如何帮助教育工作者创建引人入胜的故事化教学内容和交互式学习材料。",
+    "developer": "Tome"
+  },
+  {
+    "name": "Synthesia",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Synthesia是一款AI视频生成平台，能够通过文本输入创建专业的AI主播视频。用户只需提供文本内容，就能生成具有真实人物外观和自然语音的视频。在教育领域，Synthesia可以用于创建多语言教学视频、个性化学习内容、培训材料等，大大降低视频制作的成本和门槛。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI视频生成平台，通过文本创建专业的AI主播教学视频，支持多语言和个性化内容",
+    "category": "视频工具",
+    "tags": ["AI视频", "虚拟主播", "教学视频", "多语言", "视频生成"],
+    "difficulty": "中级",
+    "officialUrl": "https://www.synthesia.io",
+    "tutorialUrl": "https://help.synthesia.io",
+    "rating": 4.3,
+    "userRating": 4.2,
+    "popularity": 450,
+    "features": [
+      "AI虚拟主播",
+      "多语言语音合成",
+      "文本转视频",
+      "自定义虚拟形象",
+      "品牌模板定制",
+      "批量视频生成"
+    ],
+    "pros": [
+      "制作效率高",
+      "多语言支持",
+      "视频质量专业",
+      "成本相对较低",
+      "操作简单直观"
+    ],
+    "cons": [
+      "价格相对较高",
+      "表情动作有限",
+      "中文语音质量一般",
+      "免费版功能极少"
+    ],
+    "pricing": "Starter $30/月，Creator $90/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Synthesia账号并选择套餐\n2. 选择AI主播形象和语言\n3. 输入视频脚本内容\n4. 选择背景和版式设计\n5. 生成并下载专业视频"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用优势：\n\n**多语言教学**\n- 国际化课程制作\n- 语言学习材料\n- 文化交流视频\n\n**规模化制作**\n- 批量课程视频\n- 标准化培训材料\n- 个性化学习内容\n\n**成本效益**\n- 减少拍摄成本\n- 快速内容更新\n- 一致的视觉风格\n\n制作要点：脚本清晰简洁，适合语音节奏"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "多语言教学视频",
+      "在线课程制作",
+      "培训材料开发",
+      "教学公告视频",
+      "课程介绍视频",
+      "知识点讲解"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 17,
+    "seoTitle": "Synthesia - AI视频生成教育解决方案",
+    "seoDescription": "探索Synthesia在多语言教学视频制作和在线教育内容创建中的应用。AI主播技术赋能教育。",
+    "developer": "Synthesia"
+  },
+  {
+    "name": "Elicit",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Elicit是一款专为研究人员设计的AI研究助手，能够帮助用户快速查找、分析和总结学术文献。它使用先进的语言模型理解研究问题，自动搜索相关论文，提取关键信息，并生成研究总结。在教育研究和学术工作中，Elicit是提高研究效率和质量的强大工具。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "专业的AI研究助手，自动搜索和分析学术文献，提升教育研究和学术工作效率",
+    "category": "研究工具",
+    "tags": ["研究助手", "文献分析", "学术搜索", "研究工具", "AI分析"],
+    "difficulty": "高级",
+    "officialUrl": "https://elicit.org",
+    "tutorialUrl": "https://elicit.org/help",
+    "rating": 4.1,
+    "userRating": 4.0,
+    "popularity": 240,
+    "features": [
+      "智能文献搜索",
+      "论文内容提取",
+      "研究问题匹配",
+      "数据表格生成",
+      "研究趋势分析",
+      "引用格式输出"
+    ],
+    "pros": [
+      "搜索精度高",
+      "分析功能强大",
+      "节省研究时间",
+      "结果结构化",
+      "持续更新改进"
+    ],
+    "cons": [
+      "主要面向英文文献",
+      "学习曲线较陡",
+      "免费版功能有限",
+      "专业性要求高"
+    ],
+    "pricing": "免费版 + Plus $10/月，Pro $42/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 访问Elicit网站并注册账号\n2. 输入具体的研究问题\n3. AI自动搜索相关学术论文\n4. 查看论文摘要和关键发现\n5. 导出结构化的研究总结"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "研究应用场景：\n\n**文献综述**\n- 快速识别相关研究\n- 提取关键研究发现\n- 构建理论框架\n\n**研究设计**\n- 了解现有研究方法\n- 识别研究空白\n- 制定研究计划\n\n**教育实证研究**\n- 教学效果研究\n- 学习理论验证\n- 教育政策分析\n\n使用技巧：明确研究问题，善用筛选功能"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教育研究文献综述",
+      "学术论文写作支持",
+      "研究方法学习",
+      "教学实证研究",
+      "政策分析研究",
+      "理论基础构建"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 18,
+    "seoTitle": "Elicit - 专业的AI学术研究助手",
+    "seoDescription": "了解Elicit如何帮助教育研究者快速搜索分析学术文献，提升研究效率和质量。",
+    "developer": "Elicit"
+  },
+  {
+    "name": "Jasper AI",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Jasper AI（原Jarvis）是一款专业的AI写作助手，专注于营销和商业内容创作。它提供了50多种写作模板，支持多种语言和写作风格。在教育领域，Jasper AI可以帮助教育机构创建营销内容、课程描述、教学资料等，同时也能协助教师进行学术写作和教学内容开发。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "专业的AI写作助手，提供丰富的写作模板，适用于教育营销和教学内容创作",
+    "category": "写作助手",
+    "tags": ["AI写作", "内容创作", "营销文案", "教学内容", "模板写作"],
+    "difficulty": "中级",
+    "officialUrl": "https://www.jasper.ai",
+    "tutorialUrl": "https://help.jasper.ai",
+    "rating": 4.2,
+    "userRating": 4.1,
+    "popularity": 580,
+    "features": [
+      "多模板写作支持",
+      "品牌语调定制",
+      "长篇内容生成",
+      "SEO优化建议",
+      "团队协作功能",
+      "多语言内容创作"
+    ],
+    "pros": [
+      "模板类型丰富",
+      "生成质量高",
+      "品牌一致性好",
+      "团队功能完善",
+      "持续功能更新"
+    ],
+    "cons": [
+      "价格相对较高",
+      "学习成本存在",
+      "免费版功能极少",
+      "中文效果一般"
+    ],
+    "pricing": "Creator $49/月，Teams $125/月",
+    "platforms": ["网页版", "浏览器插件"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Jasper AI账号并选择套餐\n2. 选择适合的写作模板\n3. 输入基本信息和要求\n4. AI生成多个版本的内容\n5. 选择和编辑最佳版本"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育应用领域：\n\n**教育营销**\n- 课程宣传文案\n- 招生广告内容\n- 社交媒体推广\n\n**教学内容**\n- 课程大纲撰写\n- 教学案例开发\n- 学习资料创作\n\n**学术写作**\n- 研究提案草拟\n- 论文摘要撰写\n- 学术报告整理\n\n使用建议：结合人工审查，确保内容准确性和适用性"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教育营销文案",
+      "课程描述撰写",
+      "教学资料创作",
+      "学术写作辅助",
+      "培训材料开发",
+      "教育品牌内容"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 19,
+    "seoTitle": "Jasper AI - 教育领域专业的AI写作助手",
+    "seoDescription": "探索Jasper AI在教育营销、课程内容创作和学术写作中的应用。专业的AI内容生成工具。",
+    "developer": "Jasper AI"
+  },
+  {
+    "name": "Copy.ai",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Copy.ai是一款简单易用的AI文案生成工具，专注于帮助用户快速创建各种类型的营销和商业内容。它提供了大量的写作模板和工具，支持多种语言和内容格式。在教育环境中，Copy.ai可以帮助教育工作者创建吸引人的课程介绍、教学公告、学习资料等内容。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "简单易用的AI文案生成工具，帮助教育工作者快速创建课程介绍和教学宣传内容",
+    "category": "写作助手",
+    "tags": ["AI文案", "内容生成", "营销写作", "快速创作", "模板工具"],
+    "difficulty": "初级",
+    "officialUrl": "https://www.copy.ai",
+    "tutorialUrl": "https://help.copy.ai",
+    "rating": 3.9,
+    "userRating": 3.8,
+    "popularity": 460,
+    "features": [
+      "快速文案生成",
+      "多种写作模板",
+      "语调风格调整",
+      "批量内容生成",
+      "团队工作空间",
+      "API接口支持"
+    ],
+    "pros": [
+      "操作简单直观",
+      "生成速度快",
+      "模板选择多样",
+      "免费版可用",
+      "适合初学者"
+    ],
+    "cons": [
+      "生成质量不稳定",
+      "个性化程度有限",
+      "长篇内容效果一般",
+      "高级功能需付费"
+    ],
+    "pricing": "免费版 + Pro $49/月",
+    "platforms": ["网页版", "Chrome插件"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Copy.ai账号并登录\n2. 从模板库中选择合适的工具\n3. 输入产品或服务的基本信息\n4. 生成多个版本的文案内容\n5. 选择和修改最满意的版本"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育营销应用：\n\n**课程推广**\n- 课程标题优化\n- 课程描述撰写\n- 价值主张提炼\n\n**内容营销**\n- 博客文章标题\n- 社交媒体文案\n- 邮件营销内容\n\n**教学资料**\n- 学习指南介绍\n- 作业说明文案\n- 公告通知内容\n\n使用技巧：提供详细输入信息，多次生成选择最佳"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "课程营销文案",
+      "教学公告撰写",
+      "社交媒体内容",
+      "邮件营销文案",
+      "产品描述创作",
+      "广告标题生成"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 20,
+    "seoTitle": "Copy.ai - 快速生成教育营销文案的AI工具",
+    "seoDescription": "了解Copy.ai如何帮助教育工作者快速创建吸引人的课程介绍和营销文案。简单易用的AI写作工具。",
+    "developer": "Copy.ai"
+  },
+  {
+    "name": "Runway ML",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Runway ML是一款强大的AI创意工具套件，提供了视频生成、图像编辑、3D生成等多种AI功能。它让创作者能够使用最前沿的机器学习模型进行创意工作，无需编程背景。在教育领域，Runway ML可以用于创建教学视频、制作动画、生成创意素材等，为视觉教学带来无限可能。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "全能的AI创意工具套件，提供视频生成、图像编辑等功能，为教育创作带来无限可能",
+    "category": "视频工具",
+    "tags": ["AI视频", "创意工具", "图像编辑", "动画制作", "多媒体"],
+    "difficulty": "高级",
+    "officialUrl": "https://runwayml.com",
+    "tutorialUrl": "https://learn.runwayml.com",
+    "rating": 4.4,
+    "userRating": 4.3,
+    "popularity": 380,
+    "features": [
+      "AI视频生成",
+      "图像智能编辑",
+      "3D模型生成",
+      "动画制作工具",
+      "背景移除",
+      "风格转换"
+    ],
+    "pros": [
+      "功能丰富全面",
+      "AI技术先进",
+      "创意可能性大",
+      "持续更新功能",
+      "教程资源丰富"
+    ],
+    "cons": [
+      "学习曲线陡峭",
+      "价格较高",
+      "需要较强创意能力",
+      "处理时间较长"
+    ],
+    "pricing": "Standard $12/月，Pro $28/月",
+    "platforms": ["网页版", "桌面应用"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Runway账号并选择套餐\n2. 选择需要的AI工具功能\n3. 上传素材或输入文本提示\n4. 调整参数设置\n5. 生成并下载创意内容"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "创意教学应用：\n\n**视频制作**\n- 教学动画生成\n- 概念可视化\n- 历史场景重现\n\n**图像处理**\n- 教材图片美化\n- 背景替换\n- 风格统一\n\n**创意项目**\n- 艺术课程示例\n- 创意思维培养\n- 多媒体作品制作\n\n使用建议：从简单功能开始，逐步探索高级特性"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教学动画制作",
+      "创意视频生成",
+      "图像智能编辑",
+      "多媒体教材创作",
+      "艺术教育示例",
+      "概念可视化展示"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 21,
+    "seoTitle": "Runway ML - 教育创作的AI创意工具套件",
+    "seoDescription": "探索Runway ML在教学视频制作、创意教育和多媒体内容创作中的应用。前沿AI技术赋能教育。",
+    "developer": "Runway AI Inc."
+  },
+  {
+    "name": "Scribe",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Scribe是一款自动化操作指南生成工具，能够记录用户的屏幕操作并自动生成带截图的步骤指南。虽然不是纯AI工具，但其智能识别和自动化文档生成功能大大提高了教学材料制作的效率。教师可以用它快速制作软件操作教程、实验步骤指南等教学资料。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "自动生成操作指南的工具，帮助教育工作者快速制作软件教程和实验步骤指南",
+    "category": "教学工具",
+    "tags": ["操作指南", "教程制作", "自动化", "步骤记录", "培训材料"],
+    "difficulty": "初级",
+    "officialUrl": "https://scribehow.com",
+    "tutorialUrl": "https://scribehow.com/library",
+    "rating": 4.3,
+    "userRating": 4.2,
+    "popularity": 320,
+    "features": [
+      "自动截图记录",
+      "操作步骤识别",
+      "智能文本生成",
+      "多格式导出",
+      "团队协作分享",
+      "模糊敏感信息"
+    ],
+    "pros": [
+      "制作效率极高",
+      "操作简单",
+      "自动化程度高",
+      "输出格式多样",
+      "免费版可用"
+    ],
+    "cons": [
+      "仅支持网页和软件操作",
+      "自定义程度有限",
+      "高级功能需付费",
+      "不适合复杂流程"
+    ],
+    "pricing": "免费版 + Pro $23/月",
+    "platforms": ["浏览器插件", "桌面应用"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 安装Scribe浏览器插件\n2. 点击开始记录按钮\n3. 按正常流程操作软件或网页\n4. 完成后Scribe自动生成指南\n5. 编辑完善并分享指南"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教学应用场景：\n\n**软件教学**\n- 办公软件操作指南\n- 在线平台使用教程\n- 工具软件培训\n\n**实验指导**\n- 在线实验步骤\n- 虚拟实验操作\n- 数字化实验流程\n\n**学生指导**\n- 作业提交流程\n- 平台功能使用\n- 学习工具操作\n\n使用技巧：操作前规划好流程，保持操作连贯性"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "软件操作教程",
+      "在线平台指南",
+      "实验步骤记录",
+      "培训材料制作",
+      "学生操作指导",
+      "IT技能培训"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 22,
+    "seoTitle": "Scribe - 自动生成教学操作指南的神器",
+    "seoDescription": "了解Scribe如何帮助教育工作者快速制作软件教程和操作指南。自动化教学材料制作工具。",
+    "developer": "Scribe"
+  },
+  {
+    "name": "Descript",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Descript是一款革命性的音视频编辑工具，通过AI技术让用户能够像编辑文档一样编辑音视频。它提供了转录、AI语音克隆、背景噪音消除等功能。在教育领域，Descript可以用于制作播客、编辑讲座录音、创建音频教材等，大大简化了音视频内容的制作流程。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "革命性的音视频编辑工具，通过AI让编辑变得简单，是制作教育音视频内容的理想选择",
+    "category": "视频工具",
+    "tags": ["音频编辑", "视频编辑", "AI转录", "语音克隆", "播客制作"],
+    "difficulty": "中级",
+    "officialUrl": "https://www.descript.com",
+    "tutorialUrl": "https://help.descript.com",
+    "rating": 4.5,
+    "userRating": 4.4,
+    "popularity": 420,
+    "features": [
+      "文本式编辑",
+      "AI自动转录",
+      "语音克隆技术",
+      "背景噪音消除",
+      "自动字幕生成",
+      "协作编辑功能"
+    ],
+    "pros": [
+      "编辑方式创新",
+      "AI功能强大",
+      "学习成本低",
+      "输出质量高",
+      "协作功能完善"
+    ],
+    "cons": [
+      "免费版功能限制",
+      "AI语音有局限性",
+      "处理大文件较慢",
+      "需要网络连接"
+    ],
+    "pricing": "免费版 + Creator $12/月",
+    "platforms": ["桌面应用", "网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 下载并安装Descript应用\n2. 导入音频或视频文件\n3. AI自动生成转录文本\n4. 通过编辑文本来编辑音视频\n5. 导出编辑完成的内容"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育制作应用：\n\n**课程录制**\n- 讲座音频美化\n- 自动生成字幕\n- 移除冗余内容\n\n**播客教学**\n- 教育播客制作\n- 多人对话编辑\n- 背景音乐添加\n\n**语言教学**\n- 发音纠正示例\n- 语音材料制作\n- 听力练习开发\n\n编辑技巧：先进行粗剪，再精细调整"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教学播客制作",
+      "讲座录音编辑",
+      "语言学习材料",
+      "在线课程字幕",
+      "音频教材制作",
+      "访谈内容整理"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 23,
+    "seoTitle": "Descript - 教育音视频制作的AI编辑工具",
+    "seoDescription": "探索Descript在教学播客、课程录制和音频教材制作中的应用。革命性的音视频编辑体验。",
+    "developer": "Descript"
+  },
+  {
+    "name": "Teachable Machine",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Teachable Machine是Google开发的免费在线工具，让任何人都能轻松创建机器学习模型。它支持图像、声音和姿态识别的模型训练，无需编程知识。在教育领域，Teachable Machine是绝佳的AI教育工具，可以帮助学生理解机器学习原理，创建有趣的AI项目。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "Google开发的免费机器学习教育工具，让学生轻松创建和训练自己的AI模型",
+    "category": "教学工具",
+    "tags": ["机器学习", "AI教育", "模型训练", "Google", "STEM教育"],
+    "difficulty": "初级",
+    "officialUrl": "https://teachablemachine.withgoogle.com",
+    "tutorialUrl": "https://teachablemachine.withgoogle.com/train",
+    "rating": 4.6,
+    "userRating": 4.5,
+    "popularity": 540,
+    "features": [
+      "无代码模型训练",
+      "图像识别训练",
+      "声音分类训练",
+      "姿态检测训练",
+      "实时预览测试",
+      "模型导出功能"
+    ],
+    "pros": [
+      "完全免费使用",
+      "操作极其简单",
+      "教育价值高",
+      "Google技术支持",
+      "适合各年龄段"
+    ],
+    "cons": [
+      "模型功能相对简单",
+      "训练数据量有限",
+      "网络依赖性强",
+      "高级功能缺乏"
+    ],
+    "pricing": "完全免费",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 访问Teachable Machine网站\n2. 选择项目类型（图像、声音或姿态）\n3. 收集和标注训练数据\n4. 点击训练按钮开始训练\n5. 测试模型效果并导出使用"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "AI教育应用：\n\n**基础AI概念**\n- 机器学习原理讲解\n- 训练数据重要性\n- 模型评估方法\n\n**创意项目**\n- 智能分类器制作\n- 声音识别游戏\n- 姿态控制应用\n\n**STEM教育**\n- 跨学科项目设计\n- 科技创新思维\n- 编程前置课程\n\n教学建议：从简单项目开始，逐步增加复杂度"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "AI原理教学",
+      "机器学习入门",
+      "创意项目制作",
+      "STEM课程设计",
+      "科技素养培养",
+      "编程思维启蒙"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 24,
+    "seoTitle": "Teachable Machine - Google免费AI教育工具",
+    "seoDescription": "探索Teachable Machine在AI教育、机器学习教学和STEM课程中的应用。让每个学生都能创建AI模型。",
+    "developer": "Google"
+  },
+  {
+    "name": "D-ID",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "D-ID是一款AI视频生成平台，专门用于创建会说话的人物视频。用户只需上传一张照片和音频文件，就能生成逼真的AI主播视频。在教育领域，D-ID可以用于制作个性化教学视频、历史人物复活讲解、多语言教学内容等，为教育创造更多互动可能。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI会说话的人物视频生成工具，为教育创造个性化和历史人物教学视频",
+    "category": "视频工具",
+    "tags": ["AI视频", "虚拟主播", "会说话的照片", "个性化内容", "历史教学"],
+    "difficulty": "中级",
+    "officialUrl": "https://www.d-id.com",
+    "tutorialUrl": "https://docs.d-id.com",
+    "rating": 4.2,
+    "userRating": 4.1,
+    "popularity": 360,
+    "features": [
+      "照片转视频",
+      "多语言语音合成",
+      "实时面部动画",
+      "批量视频生成",
+      "API接口支持",
+      "高清视频输出"
+    ],
+    "pros": [
+      "效果逼真度高",
+      "操作简单直观",
+      "多语言支持",
+      "个性化程度高",
+      "处理速度快"
+    ],
+    "cons": [
+      "价格相对较高",
+      "免费额度极少",
+      "对照片质量要求高",
+      "伦理使用需谨慎"
+    ],
+    "pricing": "Lite $5.9/月，Pro $29.9/月",
+    "platforms": ["网页版", "API接口"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册D-ID账号并选择套餐\n2. 上传清晰的人物照片\n3. 输入文本或上传音频文件\n4. 选择语言和语音风格\n5. 生成并下载AI视频"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "创新教学应用：\n\n**历史教学**\n- 历史人物复活讲解\n- 古代文明介绍\n- 历史事件重现\n\n**语言学习**\n- 多语言对话练习\n- 发音示范视频\n- 文化背景介绍\n\n**个性化教学**\n- 教师形象视频\n- 定制化学习内容\n- 特殊需求教学\n\n使用注意：遵守版权和隐私规定，合理使用技术"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "历史人物讲解",
+      "多语言教学视频",
+      "个性化教师视频",
+      "文化教育内容",
+      "语言学习材料",
+      "创意教学展示"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 25,
+    "seoTitle": "D-ID - 创造会说话的教育视频",
+    "seoDescription": "了解D-ID如何为教育创造个性化主播视频和历史人物教学内容。AI视频生成新体验。",
+    "developer": "D-ID"
+  },
+  {
+    "name": "Pictory",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Pictory是一款AI驱动的视频创建工具，能够将文本内容自动转换为专业的视频。它集成了视频剪辑、配音、字幕生成等功能，让用户无需专业技能就能制作高质量的教育视频。教师可以用Pictory快速将教案转换为视频课程，创建学习摘要视频等。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "AI视频创建工具，将文本自动转换为专业教学视频，简化视频课程制作流程",
+    "category": "视频工具",
+    "tags": ["AI视频", "文本转视频", "教学视频", "自动剪辑", "在线教育"],
+    "difficulty": "中级",
+    "officialUrl": "https://pictory.ai",
+    "tutorialUrl": "https://pictory.ai/help-center",
+    "rating": 4.1,
+    "userRating": 4.0,
+    "popularity": 340,
+    "features": [
+      "文本转视频",
+      "自动视频剪辑",
+      "AI配音生成",
+      "字幕自动同步",
+      "素材库丰富",
+      "品牌定制功能"
+    ],
+    "pros": [
+      "自动化程度高",
+      "素材库丰富",
+      "输出质量稳定",
+      "支持多种格式",
+      "学习成本低"
+    ],
+    "cons": [
+      "个性化选择有限",
+      "价格相对较高",
+      "中文支持一般",
+      "创意空间受限"
+    ],
+    "pricing": "Standard $23/月，Premium $47/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Pictory账号并选择套餐\n2. 选择从文本创建视频\n3. 输入教学内容文本\n4. 选择视频风格和模板\n5. 生成并编辑视频内容"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教学视频制作：\n\n**课程内容**\n- 教案转视频课程\n- 知识点总结视频\n- 概念讲解视频\n\n**营销推广**\n- 课程介绍视频\n- 机构宣传片\n- 活动推广内容\n\n**学习辅助**\n- 复习总结视频\n- 作业指导视频\n- 学习方法分享\n\n制作技巧：文本结构化，配合视觉素材"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教案视频化",
+      "课程介绍视频",
+      "知识总结视频",
+      "学习指导视频",
+      "教育营销内容",
+      "培训材料视频"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 26,
+    "seoTitle": "Pictory - AI自动化教学视频制作工具",
+    "seoDescription": "探索Pictory在教学视频制作、课程内容创建和教育营销中的应用。文本转视频的AI解决方案。",
+    "developer": "Pictory"
+  },
+  {
+    "name": "Fliki",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Fliki是一款简单易用的AI视频和音频内容创建工具，能够将文本快速转换为带配音的视频。它提供了丰富的AI语音选择和视觉素材库，让用户能够快速制作专业的教育内容。Fliki特别适合制作语言学习材料、知识科普视频和在线课程内容。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "简单易用的AI视频音频创建工具，快速将文本转换为教育视频和语言学习材料",
+    "category": "视频工具",
+    "tags": ["AI视频", "文本转语音", "教学视频", "语言学习", "内容创作"],
+    "difficulty": "初级",
+    "officialUrl": "https://fliki.ai",
+    "tutorialUrl": "https://fliki.ai/resources/tutorials",
+    "rating": 4.0,
+    "userRating": 3.9,
+    "popularity": 290,
+    "features": [
+      "文本转视频",
+      "多语言AI配音",
+      "丰富素材库",
+      "字幕自动生成",
+      "简单拖拽编辑",
+      "批量内容生成"
+    ],
+    "pros": [
+      "操作极其简单",
+      "AI语音质量好",
+      "素材库丰富",
+      "多语言支持强",
+      "价格相对亲民"
+    ],
+    "cons": [
+      "功能相对基础",
+      "自定义程度有限",
+      "视频风格固定",
+      "高级编辑功能少"
+    ],
+    "pricing": "Standard $21/月，Premium $66/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Fliki账号并登录\n2. 选择创建新视频项目\n3. 输入或粘贴文本内容\n4. 选择AI语音和视觉风格\n5. 预览并导出视频"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教育内容制作：\n\n**语言学习**\n- 发音练习材料\n- 对话场景视频\n- 词汇学习卡片\n\n**知识科普**\n- 概念解释视频\n- 科学原理讲解\n- 历史故事叙述\n\n**在线课程**\n- 微课程制作\n- 课程预告片\n- 学习总结视频\n\n使用建议：保持文本简洁，合理选择语音风格"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "语言学习视频",
+      "知识科普内容",
+      "微课程制作",
+      "教学解说视频",
+      "学习材料音频化",
+      "多语言教学内容"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 27,
+    "seoTitle": "Fliki - 简单易用的教育视频制作工具",
+    "seoDescription": "了解Fliki如何帮助教育工作者快速制作语言学习视频和知识科普内容。AI驱动的简单创作。",
+    "developer": "Fliki"
+  },
+  {
+    "name": "Murf AI",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Murf AI是一款专业的AI语音生成平台，提供120多种高质量的AI语音，支持20多种语言。它能够将文本快速转换为自然流畅的语音，适用于各种教育场景。教师可以用Murf AI制作音频教材、播客内容、语言学习材料等，为教学提供丰富的听觉体验。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "专业的AI语音生成平台，提供多语言高质量语音，是制作音频教材的理想工具",
+    "category": "语音工具",
+    "tags": ["AI语音", "文本转语音", "多语言", "音频教材", "播客制作"],
+    "difficulty": "初级",
+    "officialUrl": "https://murf.ai",
+    "tutorialUrl": "https://murf.ai/resources",
+    "rating": 4.3,
+    "userRating": 4.2,
+    "popularity": 380,
+    "features": [
+      "120+种AI语音",
+      "20+种语言支持",
+      "语调情感调节",
+      "停顿和语速控制",
+      "背景音乐添加",
+      "团队协作功能"
+    ],
+    "pros": [
+      "语音质量极高",
+      "语言选择丰富",
+      "情感表达自然",
+      "操作简单直观",
+      "适合专业用途"
+    ],
+    "cons": [
+      "价格相对较高",
+      "免费版限制多",
+      "中文语音有限",
+      "需要网络连接"
+    ],
+    "pricing": "Basic $19/月，Pro $26/月",
+    "platforms": ["网页版"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 注册Murf AI账号并选择套餐\n2. 输入需要转换的文本内容\n3. 选择合适的AI语音和语言\n4. 调整语速、停顿等参数\n5. 生成并下载音频文件"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "音频教学应用：\n\n**教材制作**\n- 课文朗读音频\n- 听力练习材料\n- 有声书制作\n\n**语言教学**\n- 发音标准示范\n- 对话练习音频\n- 语言文化介绍\n\n**播客教育**\n- 教育播客制作\n- 知识分享音频\n- 学习经验分享\n\n使用技巧：根据内容选择合适语音，适度调整语调"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "音频教材制作",
+      "语言学习材料",
+      "教育播客内容",
+      "有声读物创建",
+      "听力练习音频",
+      "多语言教学内容"
+    ],
+    "isRecommended": true,
+    "isFeatured": false,
+    "sortOrder": 28,
+    "seoTitle": "Murf AI - 专业的教育音频制作工具",
+    "seoDescription": "探索Murf AI在音频教材制作、语言教学和教育播客中的应用。高质量AI语音生成技术。",
+    "developer": "Murf"
+  },
+  {
+    "name": "Stable Diffusion",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "Stable Diffusion是一款开源的AI图像生成模型，能够根据文本描述生成高质量的图像。虽然技术门槛相对较高，但其开源特性和强大功能使其成为教育领域的重要工具。教师可以用它生成教学插图、历史场景、科学概念图等，为教学提供无限的视觉可能。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "开源的AI图像生成模型，为教育创造无限的视觉教学内容和概念图像",
+    "category": "图像生成",
+    "tags": ["开源AI", "图像生成", "教学插图", "概念可视化", "免费使用"],
+    "difficulty": "高级",
+    "officialUrl": "https://stability.ai/stable-diffusion",
+    "tutorialUrl": "https://huggingface.co/docs/diffusers/using-diffusers/conditional_image_generation",
+    "rating": 4.5,
+    "userRating": 4.4,
+    "popularity": 720,
+    "features": [
+      "开源免费使用",
+      "高质量图像生成",
+      "多样化艺术风格",
+      "可本地部署",
+      "社区模型丰富",
+      "API接口支持"
+    ],
+    "pros": [
+      "完全免费开源",
+      "生成质量极高",
+      "社区支持活跃",
+      "可自定义训练",
+      "无使用限制"
+    ],
+    "cons": [
+      "技术门槛较高",
+      "需要一定硬件要求",
+      "学习成本大",
+      "使用复杂度高"
+    ],
+    "pricing": "开源免费",
+    "platforms": ["本地部署", "云服务平台"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 选择在线平台（如Hugging Face Spaces）\n2. 输入详细的图像描述提示词\n3. 设置生成参数（分辨率、步数等）\n4. 点击生成按钮等待处理\n5. 下载生成的图像文件"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "教学图像生成：\n\n**历史教学**\n- 古代建筑复原\n- 历史人物肖像\n- 历史事件场景\n\n**科学教学**\n- 分子结构图\n- 生物器官图解\n- 物理现象可视化\n\n**艺术教育**\n- 不同风格示例\n- 创作技法展示\n- 艺术史图像\n\n使用技巧：学习提示词技巧，善用参考图像"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "教学插图创作",
+      "历史场景重现",
+      "科学概念可视化",
+      "艺术风格教学",
+      "创意启发工具",
+      "概念原型设计"
+    ],
+    "isRecommended": false,
+    "isFeatured": false,
+    "sortOrder": 29,
+    "seoTitle": "Stable Diffusion - 开源AI图像生成教育工具",
+    "seoDescription": "了解Stable Diffusion在教学插图创作、概念可视化和创意教育中的应用。免费开源的AI图像生成。",
+    "developer": "Stability AI"
+  },
+  {
+    "name": "GitHub Copilot",
+    "description": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "GitHub Copilot是由GitHub和OpenAI合作开发的AI编程助手，能够根据注释和代码上下文自动生成代码。它支持多种编程语言，是编程教学和计算机科学教育的强大工具。教师可以用它演示编程概念，学生可以用它学习编程技巧，大大提升编程教学的效率和质量。"
+          }
+        ]
+      }
+    ],
+    "shortDesc": "GitHub开发的AI编程助手，为编程教学和计算机科学教育提供智能代码生成支持",
+    "category": "教学工具",
+    "tags": ["AI编程", "代码生成", "编程教学", "计算机教育", "GitHub"],
+    "difficulty": "中级",
+    "officialUrl": "https://github.com/features/copilot",
+    "tutorialUrl": "https://docs.github.com/en/copilot",
+    "rating": 4.4,
+    "userRating": 4.3,
+    "popularity": 680,
+    "features": [
+      "智能代码补全",
+      "多语言支持",
+      "上下文理解",
+      "注释转代码",
+      "IDE深度集成",
+      "学习模式支持"
+    ],
+    "pros": [
+      "代码质量高",
+      "学习价值大",
+      "IDE集成好",
+      "支持语言丰富",
+      "持续改进"
+    ],
+    "cons": [
+      "需要付费订阅",
+      "对网络依赖",
+      "可能产生错误代码",
+      "版权问题争议"
+    ],
+    "pricing": "个人 $10/月，学生免费",
+    "platforms": ["VS Code", "Visual Studio", "JetBrains IDEs", "Neovim"],
+    "quickStart": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "1. 在IDE中安装GitHub Copilot插件\n2. 使用GitHub账号登录授权\n3. 开始编写代码或添加注释\n4. Copilot自动提供代码建议\n5. 按Tab键接受建议或继续编辑"
+          }
+        ]
+      }
+    ],
+    "detailedGuide": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "text": "编程教学应用：\n\n**概念演示**\n- 算法实现展示\n- 数据结构示例\n- 设计模式讲解\n\n**学习辅助**\n- 代码错误分析\n- 最佳实践展示\n- 编程技巧学习\n\n**项目开发**\n- 快速原型开发\n- 代码重构示例\n- 测试用例生成\n\n教学建议：强调理解原理，不只依赖工具"
+          }
+        ]
+      }
+    ],
+    "useCases": [
+      "编程概念教学",
+      "代码示例生成",
+      "算法实现演示",
+      "编程作业辅导",
+      "项目开发指导",
+      "代码review教学"
+    ],
+    "isRecommended": true,
+    "isFeatured": true,
+    "sortOrder": 30,
+    "seoTitle": "GitHub Copilot - AI驱动的编程教学助手",
+    "seoDescription": "探索GitHub Copilot在编程教学、代码示例生成和计算机科学教育中的应用。学生免费使用。",
+    "developer": "GitHub"
+  }
+]
