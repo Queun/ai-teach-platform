@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useResource } from "@/hooks/useStrapi"
+import { useInteraction } from "@/hooks/useInteraction"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -41,12 +42,29 @@ export default function ResourceDetailPage() {
   const id = params.id as string
   const [activeSection, setActiveSection] = useState("overview")
   const [userRating, setUserRating] = useState(0)
-  const [isBookmarked, setIsBookmarked] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
   const [showMobileNav, setShowMobileNav] = useState(false)
 
   // 使用 Strapi API 获取资源数据
   const { data: resourceData, loading, error } = useResource(id)
+  
+  // 使用互动Hook管理点赞/收藏状态
+  const {
+    isLiked,
+    isFavorited: isBookmarked,
+    stats,
+    loading: interactionLoading,
+    toggleLike,
+    toggleFavorite,
+    isAuthenticated
+  } = useInteraction({
+    targetType: 'edu-resource',
+    targetId: id, // 直接使用字符串 ID
+    initialStats: resourceData?.attributes ? {
+      likesCount: resourceData.attributes.likesCount || 0,
+      favoritesCount: resourceData.attributes.favoritesCount || 0,
+      commentsCount: resourceData.attributes.commentsCount || 0
+    } : undefined
+  })
 
   // 监听滚动位置，更新导航状态
   useEffect(() => {
@@ -277,16 +295,20 @@ export default function ResourceDetailPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setIsBookmarked(!isBookmarked)}
+                          onClick={toggleFavorite}
+                          disabled={interactionLoading || !isAuthenticated}
                           className={isBookmarked ? "bg-blue-50 border-blue-200" : ""}
+                          title={!isAuthenticated ? "请先登录" : isBookmarked ? "取消收藏" : "收藏"}
                         >
                           <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-blue-600 text-blue-600" : ""}`} />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setIsLiked(!isLiked)}
+                          onClick={toggleLike}
+                          disabled={interactionLoading || !isAuthenticated}
                           className={isLiked ? "bg-red-50 border-red-200" : ""}
+                          title={!isAuthenticated ? "请先登录" : isLiked ? "取消点赞" : "点赞"}
                         >
                           <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
                         </Button>
@@ -397,16 +419,20 @@ export default function ResourceDetailPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setIsBookmarked(!isBookmarked)}
+                          onClick={toggleFavorite}
+                          disabled={interactionLoading || !isAuthenticated}
                           className={isBookmarked ? "bg-blue-50 border-blue-200" : ""}
+                          title={!isAuthenticated ? "请先登录" : isBookmarked ? "取消收藏" : "收藏"}
                         >
                           <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-blue-600 text-blue-600" : ""}`} />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setIsLiked(!isLiked)}
+                          onClick={toggleLike}
+                          disabled={interactionLoading || !isAuthenticated}
                           className={isLiked ? "bg-red-50 border-red-200" : ""}
+                          title={!isAuthenticated ? "请先登录" : isLiked ? "取消点赞" : "点赞"}
                         >
                           <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
                         </Button>
@@ -475,7 +501,7 @@ export default function ResourceDetailPage() {
                         <div className="flex items-center justify-center mb-2">
                           <Heart className="w-5 h-5 text-pink-600" />
                         </div>
-                        <div className="text-2xl font-bold text-pink-600">{resource.likes}</div>
+                        <div className="text-2xl font-bold text-pink-600">{stats.likesCount}</div>
                         <div className="text-sm text-gray-600">点赞数</div>
                       </div>
                       <div className="text-center p-4 bg-yellow-50 rounded-lg">
@@ -635,7 +661,7 @@ export default function ResourceDetailPage() {
                               />
                             ))}
                           </div>
-                          <div className="text-sm text-gray-500">{resource.reviewCount} 条评价</div>
+                          <div className="text-sm text-gray-500">{stats.commentsCount} 条评价</div>
                         </div>
                         <div className="space-y-2">
                           {ratingDistribution.map((item) => (

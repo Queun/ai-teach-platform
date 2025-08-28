@@ -19,9 +19,11 @@ import {
   Target,
   Lightbulb,
   Rocket,
+  BarChart3,
 } from "lucide-react"
 import Link from "next/link"
 import { useTools, useResources, useNews, useStats } from '@/hooks/useStrapi'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function HomePage() {
   // 获取数据 - 只显示精选内容
@@ -29,6 +31,9 @@ export default function HomePage() {
   const { data: featuredNews } = useNews({ pageSize: 3, featured: true, sort: 'createdAt:desc' });
   const { data: featuredResources } = useResources({ pageSize: 3, featured: true, sort: 'createdAt:desc' });
   const { data: featuredTools } = useTools({ pageSize: 2, featured: true, sort: 'createdAt:desc' });
+
+  // 获取用户认证状态
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <div className="min-h-screen">
@@ -511,53 +516,110 @@ export default function HomePage() {
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 sm:px-4 py-2 mb-4 sm:mb-6">
             <Sparkles className="w-4 h-4" />
-            <span className="text-xs sm:text-sm font-medium">加入我们的教育创新之旅</span>
+            <span className="text-xs sm:text-sm font-medium">
+              {isAuthenticated ? `欢迎回来，${user?.username}！` : '加入我们的教育创新之旅'}
+            </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 px-4 sm:px-0">开启AI教育新篇章</h2>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 px-4 sm:px-0">
+            {isAuthenticated ? '继续您的AI教育探索' : '开启AI教育新篇章'}
+          </h2>
           <p className="text-lg sm:text-xl mb-6 sm:mb-8 opacity-90 max-w-2xl mx-auto leading-relaxed px-4 sm:px-0">
-            与全国数万名教育工作者一起，探索AI在教育中的无限可能，
-            <span className="font-semibold">让技术真正服务于教学</span>
+            {isAuthenticated ? (
+              <>查看您的学习进度，管理收藏内容，发现更多适合您的AI教育工具和资源</>
+            ) : (
+              <>
+                与全国数万名教育工作者一起，探索AI在教育中的无限可能，
+                <span className="font-semibold">让技术真正服务于教学</span>
+              </>
+            )}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 sm:mb-8 px-4 sm:px-0">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-white text-gray-800 hover:bg-gray-100 shadow-lg h-12 sm:h-auto"
-              asChild
-            >
-              <Link href="/auth/register" className="flex items-center gap-2">
-                <Users className="w-4 sm:w-5 h-4 sm:h-5" />
-                免费注册
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-white/30 hover:bg-white/10 backdrop-blur-sm h-12 sm:h-auto text-black"
-              asChild
-            >
-              <Link href="/tools" className="flex items-center gap-2">
-                <Zap className="w-4 sm:w-5 h-4 sm:h-5" />
-                探索AI工具
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  size="lg"
+                  className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-white text-gray-800 hover:bg-gray-100 shadow-lg h-12 sm:h-auto"
+                  asChild
+                >
+                  <Link href="/dashboard" className="flex items-center gap-2">
+                    <BarChart3 className="w-4 sm:w-5 h-4 sm:h-5" />
+                    查看个人中心
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-white/30 hover:bg-white/10 backdrop-blur-sm h-12 sm:h-auto text-black"
+                  asChild
+                >
+                  <Link href="/tools" className="flex items-center gap-2">
+                    <Zap className="w-4 sm:w-5 h-4 sm:h-5" />
+                    探索更多工具
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-white text-gray-800 hover:bg-gray-100 shadow-lg h-12 sm:h-auto"
+                  asChild
+                >
+                  <Link href="/auth/register" className="flex items-center gap-2">
+                    <Users className="w-4 sm:w-5 h-4 sm:h-5" />
+                    免费注册
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-white/30 hover:bg-white/10 backdrop-blur-sm h-12 sm:h-auto text-black"
+                  asChild
+                >
+                  <Link href="/tools" className="flex items-center gap-2">
+                    <Zap className="w-4 sm:w-5 h-4 sm:h-5" />
+                    探索AI工具
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-8 text-xs sm:text-sm opacity-80">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
-              <span>完全免费</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
-              <span>无需信用卡</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
-              <span>即刻开始</span>
-            </div>
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span>个性化推荐</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span>学习进度跟踪</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span>专属收藏库</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span>完全免费</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span>无需信用卡</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span>即刻开始</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

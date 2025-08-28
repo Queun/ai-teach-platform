@@ -6,8 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SmartAvatar } from "@/components/ui/smart-avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useFavorites, useInteractionHistory, useUserStats } from "@/hooks/useDashboard"
+import { useAuth } from "@/contexts/AuthContext"
 import {
   BookOpen,
   MessageSquare,
@@ -19,124 +24,87 @@ import {
   Heart,
   Bookmark,
   ExternalLink,
+  Star,
+  Clock,
+  Trash2,
+  Filter,
+  AlertCircle,
+  Loader2,
+  RefreshCw,
+  Calendar,
+  Zap,
+  Award,
 } from "lucide-react"
 import Link from "next/link"
 
-// Mock 历史记录数据
-const MOCK_HISTORY = {
-  resources: [
-    {
-      id: 1,
-      title: "ChatGPT在数学教学中的创新应用",
-      type: "PDF",
-      category: "教学指南",
-      visitedAt: "2024-05-29 14:30",
-      action: "下载",
-      url: "/resources/1",
-    },
-    {
-      id: 2,
-      title: "AI辅助英语写作批改系统使用手册",
-      type: "视频",
-      category: "工具教程",
-      visitedAt: "2024-05-29 10:15",
-      action: "浏览",
-      url: "/resources/2",
-    },
-    {
-      id: 3,
-      title: "基于AI的个性化学习路径设计模板",
-      type: "模板",
-      category: "教学模板",
-      visitedAt: "2024-05-28 16:45",
-      action: "收藏",
-      url: "/resources/3",
-    },
-  ],
-  tools: [
-    {
-      id: 1,
-      name: "ChatGPT",
-      category: "内容创作",
-      visitedAt: "2024-05-29 15:20",
-      action: "访问工具",
-      url: "/tools/chatgpt",
-    },
-    {
-      id: 2,
-      name: "Grammarly",
-      category: "语言学习",
-      visitedAt: "2024-05-28 11:30",
-      action: "查看详情",
-      url: "/tools/grammarly",
-    },
-  ],
-  community: [
-    {
-      id: 1,
-      title: "如何在小学数学课堂中有效使用ChatGPT？",
-      type: "讨论",
-      visitedAt: "2024-05-29 13:45",
-      action: "参与讨论",
-      url: "/community/1",
-    },
-    {
-      id: 2,
-      title: "AI辅助英语写作批改的最佳实践分享",
-      type: "讨论",
-      visitedAt: "2024-05-28 09:20",
-      action: "点赞",
-      url: "/community/2",
-    },
-  ],
-  news: [
-    {
-      id: 1,
-      title: "教育部发布AI教育新政策，鼓励中小学引入AI课程",
-      category: "政策动态",
-      visitedAt: "2024-05-29 08:30",
-      action: "阅读",
-      url: "/news/1",
-    },
-  ],
-}
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const { user, isAuthenticated, isLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
+  const [favoriteFilter, setFavoriteFilter] = useState<'all' | 'ai-tool' | 'edu-resource' | 'news-article'>('all')
+
+  // 使用Dashboard相关的Hooks
+  const favoritesHook = useFavorites({ 
+    contentType: favoriteFilter === 'all' ? undefined : favoriteFilter, 
+    pageSize: 12 
+  })
+  const historyHook = useInteractionHistory(30)
+  const statsHook = useUserStats()
 
   useEffect(() => {
-    // 检查登录状态
-    const userData = localStorage.getItem("user")
-    if (!userData) {
+    // 检查认证状态
+    if (!isLoading && !isAuthenticated) {
       router.push("/auth/login")
       return
     }
-    setUser(JSON.parse(userData))
-  }, [router])
+
+    // 检查URL参数中的tab参数
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const tabParam = urlParams.get('tab')
+      if (tabParam && ['overview', 'history', 'favorites', 'settings'].includes(tabParam)) {
+        setActiveTab(tabParam)
+      }
+    }
+  }, [isAuthenticated, isLoading, router])
+
+  const { logout } = useAuth()
 
   const handleLogout = () => {
-    localStorage.removeItem("user")
+    logout()
     router.push("/auth/login")
   }
 
-  if (!user) {
+  // 显示加载状态或认证检查
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">加载中...</p>
+          <p className="text-gray-600">正在验证登录状态...</p>
         </div>
       </div>
     )
   }
 
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">正在跳转到登录页面...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 使用真实的统计数据，如果还在加载则使用默认值
   const stats = {
-    resourcesViewed: MOCK_HISTORY.resources.length + 15,
-    toolsUsed: MOCK_HISTORY.tools.length + 8,
-    discussionsJoined: MOCK_HISTORY.community.length + 12,
-    articlesRead: MOCK_HISTORY.news.length + 25,
+    resourcesViewed: statsHook.loading ? 0 : (statsHook.stats.totalInteractions || 0),
+    toolsUsed: statsHook.loading ? 0 : (statsHook.stats.likesCount || 0),
+    discussionsJoined: statsHook.loading ? 0 : (statsHook.stats.commentsCount || 0),
+    articlesRead: statsHook.loading ? 0 : (statsHook.stats.favoritesCount || 0),
   }
 
   return (
@@ -150,12 +118,11 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-4">
                   <Avatar className="w-16 h-16">
                     <AvatarImage src="/placeholder.svg?height=64&width=64" />
-                    <AvatarFallback className="text-lg">{user.name[0]}</AvatarFallback>
+                    <AvatarFallback className="text-lg">{(user?.username || user?.name)?.[0] || 'U'}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">欢迎回来，{user.name}</h1>
-                    <p className="text-gray-600">{user.role}</p>
-                    <p className="text-sm text-gray-500">上次登录：{new Date(user.loginTime).toLocaleString()}</p>
+                    <h1 className="text-2xl font-bold text-gray-900">欢迎回来，{user?.username || user?.name}</h1>
+                    <p className="text-gray-600">{user?.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -182,15 +149,22 @@ export default function DashboardPage() {
 
             {/* 数据概览 */}
             <TabsContent value="overview" className="space-y-6">
+              {/* 统计卡片 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">浏览资源</p>
-                        <p className="text-2xl font-bold text-blue-600">{stats.resourcesViewed}</p>
+                        <p className="text-sm font-medium text-gray-600">总互动数</p>
+                        <div className="flex items-center gap-2">
+                          {statsHook.loading ? (
+                            <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+                          ) : (
+                            <p className="text-2xl font-bold text-blue-600">{stats.resourcesViewed}</p>
+                          )}
+                        </div>
                       </div>
-                      <BookOpen className="w-8 h-8 text-blue-600" />
+                      <TrendingUp className="w-8 h-8 text-blue-600" />
                     </div>
                   </CardContent>
                 </Card>
@@ -199,10 +173,16 @@ export default function DashboardPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">使用工具</p>
-                        <p className="text-2xl font-bold text-green-600">{stats.toolsUsed}</p>
+                        <p className="text-sm font-medium text-gray-600">点赞数量</p>
+                        <div className="flex items-center gap-2">
+                          {statsHook.loading ? (
+                            <Loader2 className="w-6 h-6 text-green-600 animate-spin" />
+                          ) : (
+                            <p className="text-2xl font-bold text-green-600">{stats.toolsUsed}</p>
+                          )}
+                        </div>
                       </div>
-                      <TrendingUp className="w-8 h-8 text-green-600" />
+                      <Heart className="w-8 h-8 text-green-600" />
                     </div>
                   </CardContent>
                 </Card>
@@ -211,8 +191,14 @@ export default function DashboardPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">参与讨论</p>
-                        <p className="text-2xl font-bold text-purple-600">{stats.discussionsJoined}</p>
+                        <p className="text-sm font-medium text-gray-600">评论数量</p>
+                        <div className="flex items-center gap-2">
+                          {statsHook.loading ? (
+                            <Loader2 className="w-6 h-6 text-purple-600 animate-spin" />
+                          ) : (
+                            <p className="text-2xl font-bold text-purple-600">{stats.discussionsJoined}</p>
+                          )}
+                        </div>
                       </div>
                       <MessageSquare className="w-8 h-8 text-purple-600" />
                     </div>
@@ -223,10 +209,16 @@ export default function DashboardPage() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">阅读文章</p>
-                        <p className="text-2xl font-bold text-orange-600">{stats.articlesRead}</p>
+                        <p className="text-sm font-medium text-gray-600">收藏数量</p>
+                        <div className="flex items-center gap-2">
+                          {statsHook.loading ? (
+                            <Loader2 className="w-6 h-6 text-orange-600 animate-spin" />
+                          ) : (
+                            <p className="text-2xl font-bold text-orange-600">{stats.articlesRead}</p>
+                          )}
+                        </div>
                       </div>
-                      <Eye className="w-8 h-8 text-orange-600" />
+                      <Bookmark className="w-8 h-8 text-orange-600" />
                     </div>
                   </CardContent>
                 </Card>
@@ -235,211 +227,385 @@ export default function DashboardPage() {
               {/* 最近活动 */}
               <Card>
                 <CardHeader>
-                  <CardTitle>最近活动</CardTitle>
-                  <CardDescription>您最近在平台上的活动记录</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>最近活动</CardTitle>
+                      <CardDescription>您最近在平台上的互动记录</CardDescription>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={historyHook.refresh} 
+                      disabled={historyHook.loading}
+                    >
+                      {historyHook.loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      ...MOCK_HISTORY.resources.slice(0, 2),
-                      ...MOCK_HISTORY.tools.slice(0, 1),
-                      ...MOCK_HISTORY.community.slice(0, 1),
-                    ]
-                      .sort((a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime())
-                      .slice(0, 4)
-                      .map((item, index) => (
+                  {historyHook.loading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                      <span className="ml-2 text-gray-600">加载中...</span>
+                    </div>
+                  ) : historyHook.error ? (
+                    <Alert className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        {historyHook.error}
+                      </AlertDescription>
+                    </Alert>
+                  ) : historyHook.history.length === 0 ? (
+                    <div className="text-center py-8">
+                      <TrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2 text-gray-600">暂无活动记录</h3>
+                      <p className="text-gray-500 mb-4">开始探索内容，您的互动记录将在这里显示</p>
+                      <div className="flex gap-2 justify-center">
+                        <Button size="sm" asChild>
+                          <Link href="/tools">探索AI工具</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/resources">浏览资源</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {historyHook.history.slice(0, 5).map((item, index) => (
                         <div key={index} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50">
-                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                          <div className="flex-1">
-                            <p className="font-medium">{item.title || item.name}</p>
-                            <p className="text-sm text-gray-600">
-                              {item.action} • {item.visitedAt}
-                            </p>
+                          <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
+                          <div className="flex-1 min-w-0">
+                            <Link href={item.contentUrl} className="hover:text-blue-600">
+                              <p className="font-medium truncate">{item.contentTitle}</p>
+                              <p className="text-sm text-gray-600">
+                                {item.actionText} • {new Date(item.createdAt).toLocaleDateString('zh-CN')}
+                              </p>
+                            </Link>
                           </div>
-                          <Badge variant="outline">{item.category || item.type}</Badge>
+                          <div className="flex items-center gap-2">
+                            {item.actionType === 'like' && <Heart className="w-4 h-4 text-red-500" />}
+                            {item.actionType === 'favorite' && <Bookmark className="w-4 h-4 text-blue-500" />}
+                            <Badge variant="outline" className="text-xs">
+                              {item.targetType === 'ai-tool' ? 'AI工具' : 
+                               item.targetType === 'edu-resource' ? '教育资源' : '新闻'}
+                            </Badge>
+                          </div>
                         </div>
                       ))}
-                  </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* 历史记录 */}
             <TabsContent value="history" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* 资源浏览记录 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BookOpen className="w-5 h-5" />
-                      资源浏览记录
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {MOCK_HISTORY.resources.map((resource) => (
-                        <div
-                          key={resource.id}
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="flex-1">
-                            <Link href={resource.url} className="font-medium hover:text-blue-600 line-clamp-1">
-                              {resource.title}
-                            </Link>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {resource.category}
-                              </Badge>
-                              <Badge variant="secondary" className="text-xs">
-                                {resource.type}
-                              </Badge>
-                              <span className="text-xs text-gray-500">{resource.visitedAt}</span>
-                            </div>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>互动历史</CardTitle>
+                      <CardDescription>您在平台上的所有点赞和收藏记录 ({historyHook.totalCount} 项)</CardDescription>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={historyHook.refresh} 
+                      disabled={historyHook.loading}
+                    >
+                      {historyHook.loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {historyHook.loading && historyHook.history.length === 0 ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                      <span className="ml-2 text-gray-600">加载历史记录中...</span>
+                    </div>
+                  ) : historyHook.error ? (
+                    <Alert className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        {historyHook.error}
+                      </AlertDescription>
+                    </Alert>
+                  ) : historyHook.history.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2 text-gray-600">暂无互动记录</h3>
+                      <p className="text-gray-500 mb-4">开始探索内容，您的互动历史将在这里显示</p>
+                      <div className="flex gap-2 justify-center">
+                        <Button size="sm" asChild>
+                          <Link href="/tools">探索AI工具</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/resources">浏览教育资源</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {historyHook.history.map((item, index) => (
+                        <div key={index} className="flex items-start gap-4 p-4 rounded-lg border hover:bg-gray-50 transition-colors">
+                          <div className="flex-shrink-0 mt-1">
+                            {item.actionType === 'like' ? (
+                              <Heart className="w-5 h-5 text-red-500" />
+                            ) : (
+                              <Bookmark className="w-5 h-5 text-blue-500" />
+                            )}
                           </div>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            {resource.action === "下载" && <Download className="w-3 h-3" />}
-                            {resource.action === "浏览" && <Eye className="w-3 h-3" />}
-                            {resource.action === "收藏" && <Bookmark className="w-3 h-3" />}
-                            {resource.action}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <Link href={item.contentUrl} className="hover:text-blue-600">
+                                  <p className="font-medium truncate">{item.contentTitle}</p>
+                                </Link>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {item.actionText}
+                                  <span className="mx-2">•</span>
+                                  <time dateTime={item.createdAt}>
+                                    {new Date(item.createdAt).toLocaleString('zh-CN', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </time>
+                                </p>
+                              </div>
+                              <Badge variant="outline" className="text-xs flex-shrink-0">
+                                {item.targetType === 'ai-tool' ? '🔧 AI工具' : 
+                                 item.targetType === 'edu-resource' ? '📚 教育资源' : 
+                                 '📰 新闻'}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 工具使用记录 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
-                      工具使用记录
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {MOCK_HISTORY.tools.map((tool) => (
-                        <div
-                          key={tool.id}
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="flex-1">
-                            <Link href={tool.url} className="font-medium hover:text-blue-600">
-                              {tool.name}
-                            </Link>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {tool.category}
-                              </Badge>
-                              <span className="text-xs text-gray-500">{tool.visitedAt}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <ExternalLink className="w-3 h-3" />
-                            {tool.action}
+                      
+                      {historyHook.history.length >= 30 && (
+                        <div className="text-center pt-4 border-t">
+                          <p className="text-sm text-gray-500 mb-3">
+                            显示最近 30 条记录，查看完整历史请访问对应页面
+                          </p>
+                          <div className="flex gap-2 justify-center">
+                            <Button size="sm" variant="outline" asChild>
+                              <Link href="/tools">工具页面</Link>
+                            </Button>
+                            <Button size="sm" variant="outline" asChild>
+                              <Link href="/resources">资源页面</Link>
+                            </Button>
+                            <Button size="sm" variant="outline" asChild>
+                              <Link href="/news">新闻页面</Link>
+                            </Button>
                           </div>
                         </div>
-                      ))}
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* 社区参与记录 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5" />
-                      社区参与记录
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {MOCK_HISTORY.community.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="flex-1">
-                            <Link href={item.url} className="font-medium hover:text-blue-600 line-clamp-2">
-                              {item.title}
-                            </Link>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {item.type}
-                              </Badge>
-                              <span className="text-xs text-gray-500">{item.visitedAt}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            {item.action === "点赞" && <Heart className="w-3 h-3" />}
-                            {item.action === "参与讨论" && <MessageSquare className="w-3 h-3" />}
-                            {item.action}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 资讯阅读记录 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Eye className="w-5 h-5" />
-                      资讯阅读记录
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {MOCK_HISTORY.news.map((article) => (
-                        <div
-                          key={article.id}
-                          className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
-                        >
-                          <div className="flex-1">
-                            <Link href={article.url} className="font-medium hover:text-blue-600 line-clamp-2">
-                              {article.title}
-                            </Link>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {article.category}
-                              </Badge>
-                              <span className="text-xs text-gray-500">{article.visitedAt}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Eye className="w-3 h-3" />
-                            {article.action}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* 我的收藏 */}
             <TabsContent value="favorites">
               <Card>
                 <CardHeader>
-                  <CardTitle>我的收藏</CardTitle>
-                  <CardDescription>您收藏的资源、工具和讨论</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12">
-                    <Bookmark className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">暂无收藏内容</h3>
-                    <p className="text-gray-600 mb-4">开始浏览资源和工具，收藏您感兴趣的内容</p>
-                    <div className="flex gap-2 justify-center">
-                      <Button asChild>
-                        <Link href="/resources">浏览资源</Link>
-                      </Button>
-                      <Button variant="outline" asChild>
-                        <Link href="/tools">探索工具</Link>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>我的收藏</CardTitle>
+                      <CardDescription>
+                        您收藏的AI工具、教育资源和新闻文章 ({favoritesHook.totalCount} 项)
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select value={favoriteFilter} onValueChange={setFavoriteFilter}>
+                        <SelectTrigger className="w-40">
+                          <Filter className="w-4 h-4 mr-2" />
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">全部类型</SelectItem>
+                          <SelectItem value="ai-tool">AI工具</SelectItem>
+                          <SelectItem value="edu-resource">教育资源</SelectItem>
+                          <SelectItem value="news-article">新闻文章</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={favoritesHook.refresh} 
+                        disabled={favoritesHook.loading}
+                      >
+                        {favoritesHook.loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-4 h-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
+                </CardHeader>
+                <CardContent>
+                  {favoritesHook.loading && favoritesHook.favorites.length === 0 ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                      <span className="ml-2 text-gray-600">加载收藏内容中...</span>
+                    </div>
+                  ) : favoritesHook.error ? (
+                    <Alert className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        {favoritesHook.error}
+                      </AlertDescription>
+                    </Alert>
+                  ) : favoritesHook.favorites.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Bookmark className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2 text-gray-600">
+                        {favoriteFilter === 'all' ? '暂无收藏内容' : '该类型暂无收藏'}
+                      </h3>
+                      <p className="text-gray-500 mb-4">
+                        {favoriteFilter === 'all' 
+                          ? '开始浏览内容，收藏您感兴趣的内容' 
+                          : '在对应页面中收藏该类型的内容'
+                        }
+                      </p>
+                      <div className="flex gap-2 justify-center">
+                        <Button size="sm" asChild>
+                          <Link href="/tools">探索AI工具</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/resources">浏览教育资源</Link>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href="/news">阅读新闻资讯</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {favoritesHook.favorites.map((item, index) => {
+                          const data = item.attributes || item;
+                          const contentType = item.contentType;
+                          let title, description, url, category, rating;
+                          
+                          // 根据内容类型提取信息
+                          if (contentType === 'ai-tool') {
+                            title = data.name || '未知工具';
+                            description = data.shortDesc || data.description || '暂无描述';
+                            url = `/tools/${item.documentId || item.id}`;
+                            category = data.category || 'AI工具';
+                            rating = data.rating || 5.0;
+                          } else if (contentType === 'edu-resource') {
+                            title = data.title || '未知资源';
+                            description = data.summary || data.content?.substring(0, 100) || '暂无描述';
+                            url = `/resources/${item.documentId || item.id}`;
+                            category = data.category || '教育资源';
+                            rating = data.rating || 5.0;
+                          } else if (contentType === 'news-article') {
+                            title = data.title || '未知文章';
+                            description = data.excerpt || data.content?.substring(0, 100) || '暂无摘要';
+                            url = `/news/${item.documentId || item.id}`;
+                            category = data.category || '新闻文章';
+                            rating = null; // 新闻通常没有评分
+                          }
+
+                          return (
+                            <Card key={index} className="group hover:shadow-lg transition-all duration-200">
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="flex-1 min-w-0">
+                                      <CardTitle className="text-base leading-tight hover:text-blue-600 transition-colors">
+                                        <Link href={url} className="line-clamp-2">
+                                          {title}
+                                        </Link>
+                                      </CardTitle>
+                                      <div className="flex items-center gap-2 mt-2">
+                                        <Badge variant="secondary" className="text-xs">
+                                          {category}
+                                        </Badge>
+                                        {rating && (
+                                          <div className="flex items-center gap-1">
+                                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                            <span className="text-xs text-gray-600">{rating}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={async () => {
+                                      const success = await favoritesHook.removeFavorite(item.actionId);
+                                      if (!success) {
+                                        // 可以在这里添加错误提示
+                                        console.error('删除收藏失败');
+                                      }
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="pt-0">
+                                <CardDescription className="line-clamp-3 text-sm mb-3">
+                                  {description}
+                                </CardDescription>
+                                <div className="flex items-center justify-between text-xs text-gray-500">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{new Date(item.favoritedAt).toLocaleDateString('zh-CN')}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Link href={url} className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700">
+                                      <span>查看详情</span>
+                                      <ExternalLink className="w-3 h-3" />
+                                    </Link>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+
+                      {/* 加载更多按钮 */}
+                      {favoritesHook.hasMore && (
+                        <div className="text-center mt-6">
+                          <Button 
+                            variant="outline" 
+                            onClick={favoritesHook.loadMore}
+                            disabled={favoritesHook.loading}
+                          >
+                            {favoritesHook.loading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                加载中...
+                              </>
+                            ) : (
+                              '加载更多'
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -457,20 +623,25 @@ export default function DashboardPage() {
                       <h3 className="text-lg font-semibold mb-4">个人信息</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium mb-2">姓名</label>
-                          <p className="text-gray-900">{user.name}</p>
+                          <label className="block text-sm font-medium mb-2">用户名</label>
+                          <p className="text-gray-900">{user?.username || '未设置'}</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-2">邮箱</label>
-                          <p className="text-gray-900">{user.email}</p>
+                          <p className="text-gray-900">{user?.email || '未设置'}</p>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">角色</label>
-                          <p className="text-gray-900">{user.role}</p>
+                          <label className="block text-sm font-medium mb-2">用户类型</label>
+                          <p className="text-gray-900">教育工作者</p>
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-2">注册时间</label>
-                          <p className="text-gray-900">2024年5月</p>
+                          <p className="text-gray-900">
+                            {user?.createdAt 
+                              ? new Date(user.createdAt).toLocaleDateString('zh-CN') 
+                              : '未知'
+                            }
+                          </p>
                         </div>
                       </div>
                     </div>

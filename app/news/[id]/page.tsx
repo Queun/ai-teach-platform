@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useParams } from "next/navigation"
 import { useNewsArticle } from "@/hooks/useStrapi"
+import { useInteraction } from "@/hooks/useInteraction"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,12 +17,29 @@ import { Calendar, Eye, Heart, Share2, Bookmark, MessageSquare, ArrowLeft, Thumb
 export default function NewsDetailPage() {
   const params = useParams()
   const id = params.id as string
-  const [isLiked, setIsLiked] = useState(false)
-  const [isBookmarked, setIsBookmarked] = useState(false)
   const [comment, setComment] = useState("")
 
   // 使用 Strapi API 获取新闻数据
   const { data: newsData, loading, error } = useNewsArticle(id)
+
+  // 使用互动功能 hook
+  const {
+    isLiked,
+    isFavorited,
+    stats,
+    loading: interactionLoading,
+    toggleLike,
+    toggleFavorite,
+    isAuthenticated
+  } = useInteraction({
+    targetType: 'news-article',
+    targetId: id, // 直接使用字符串 ID
+    initialStats: newsData?.attributes ? {
+      likesCount: newsData.attributes.likesCount || 0,
+      favoritesCount: newsData.attributes.favoritesCount || 0,
+      commentsCount: newsData.attributes.commentsCount || 0
+    } : undefined
+  })
 
   // 辅助函数：安全地提取文本内容
   const extractText = (content: any): string => {
@@ -291,21 +309,23 @@ export default function NewsDetailPage() {
                     <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                       <Button
                         variant={isLiked ? "default" : "outline"}
-                        onClick={() => setIsLiked(!isLiked)}
+                        onClick={toggleLike}
                         className="flex items-center gap-2 text-sm"
                         size="sm"
+                        disabled={interactionLoading || !isAuthenticated}
                       >
                         <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-                        {article.likes + (isLiked ? 1 : 0)} 点赞
+                        {stats.likesCount} 点赞
                       </Button>
                       <Button
-                        variant={isBookmarked ? "default" : "outline"}
-                        onClick={() => setIsBookmarked(!isBookmarked)}
+                        variant={isFavorited ? "default" : "outline"}
+                        onClick={toggleFavorite}
                         className="flex items-center gap-2 text-sm"
                         size="sm"
+                        disabled={interactionLoading || !isAuthenticated}
                       >
-                        <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
-                        {article.bookmarks + (isBookmarked ? 1 : 0)} 收藏
+                        <Bookmark className={`w-4 h-4 ${isFavorited ? "fill-current" : ""}`} />
+                        {stats.favoritesCount} 收藏
                       </Button>
                       <Button variant="outline" className="flex items-center gap-2 text-sm" size="sm">
                         <Share2 className="w-4 h-4" />

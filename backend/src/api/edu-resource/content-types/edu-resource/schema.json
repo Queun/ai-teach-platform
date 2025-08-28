@@ -127,6 +127,18 @@
     },
     "customFields": {
       "type": "json"
+    },
+    "likesCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "favoritesCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "commentsCount": {
+      "type": "integer",
+      "default": 0
     }
   }
 }

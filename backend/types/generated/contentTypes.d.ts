@@ -385,6 +385,7 @@ export interface ApiAiToolAiTool extends Struct.CollectionTypeSchema {
   };
   attributes: {
     category: Schema.Attribute.String;
+    commentsCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     cons: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -394,9 +395,11 @@ export interface ApiAiToolAiTool extends Struct.CollectionTypeSchema {
     detailedGuide: Schema.Attribute.Blocks;
     developer: Schema.Attribute.String;
     difficulty: Schema.Attribute.String;
+    favoritesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     features: Schema.Attribute.JSON;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     isRecommended: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    likesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -431,6 +434,42 @@ export interface ApiAiToolAiTool extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiCommentComment extends Struct.CollectionTypeSchema {
+  collectionName: 'comments';
+  info: {
+    displayName: 'Comment';
+    pluralName: 'comments';
+    singularName: 'comment';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.Text & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::comment.comment'
+    > &
+      Schema.Attribute.Private;
+    parent: Schema.Attribute.Relation<'manyToOne', 'api::comment.comment'>;
+    publishedAt: Schema.Attribute.DateTime;
+    replies: Schema.Attribute.Relation<'oneToMany', 'api::comment.comment'>;
+    targetId: Schema.Attribute.String & Schema.Attribute.Required;
+    targetType: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface ApiEduResourceEduResource extends Struct.CollectionTypeSchema {
   collectionName: 'edu_resources';
   info: {
@@ -453,6 +492,7 @@ export interface ApiEduResourceEduResource extends Struct.CollectionTypeSchema {
     authorSchool: Schema.Attribute.String;
     authorTitle: Schema.Attribute.String;
     category: Schema.Attribute.String;
+    commentsCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     content: Schema.Attribute.Blocks;
     coverImage: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
@@ -464,10 +504,12 @@ export interface ApiEduResourceEduResource extends Struct.CollectionTypeSchema {
     difficulty: Schema.Attribute.String;
     downloads: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     estimatedTime: Schema.Attribute.String;
+    favoritesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     feedback: Schema.Attribute.JSON;
     gradeLevel: Schema.Attribute.String;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     likes: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    likesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -512,12 +554,14 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     authorBio: Schema.Attribute.String;
     authorName: Schema.Attribute.String;
     category: Schema.Attribute.String;
+    commentsCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     content: Schema.Attribute.Blocks;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     customFields: Schema.Attribute.JSON;
     excerpt: Schema.Attribute.Text;
+    favoritesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     featuredImage: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
     >;
@@ -528,6 +572,7 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     isBreaking: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     keywords: Schema.Attribute.JSON;
+    likesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -549,6 +594,42 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     views: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+  };
+}
+
+export interface ApiUserActionUserAction extends Struct.CollectionTypeSchema {
+  collectionName: 'user_actions';
+  info: {
+    displayName: 'User Action';
+    pluralName: 'user-actions';
+    singularName: 'user-action';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    actionType: Schema.Attribute.Enumeration<['like', 'favorite']> &
+      Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-action.user-action'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    targetId: Schema.Attribute.String & Schema.Attribute.Required;
+    targetType: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -1007,10 +1088,10 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    comments: Schema.Attribute.Relation<'oneToMany', 'api::comment.comment'>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     createdAt: Schema.Attribute.DateTime;
@@ -1042,6 +1123,10 @@ export interface PluginUsersPermissionsUser
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    user_actions: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-action.user-action'
+    >;
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -1062,8 +1147,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::ai-tool.ai-tool': ApiAiToolAiTool;
+      'api::comment.comment': ApiCommentComment;
       'api::edu-resource.edu-resource': ApiEduResourceEduResource;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
+      'api::user-action.user-action': ApiUserActionUserAction;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

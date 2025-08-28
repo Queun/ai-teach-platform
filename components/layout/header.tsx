@@ -4,13 +4,23 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Search, Bell } from "lucide-react"
+import { Menu, Search, Bell, User, LogOut, Settings, BarChart3 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import GlobalSearchBox from "@/components/search/GlobalSearchBox"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const { user, isAuthenticated, logout } = useAuth()
 
   const navigation = [
     { name: "首页", href: "/" },
@@ -66,18 +76,67 @@ export function Header() {
               <Search className="w-4 h-4" />
             </Button>
 
-            <Button variant="ghost" size="sm" className="hidden md:flex relative">
-              <Bell className="w-4 h-4" />
-              <Badge className="absolute -top-1 -right-1 w-2 h-2 p-0 bg-red-500"></Badge>
-            </Button>
-
             <div className="hidden md:flex items-center space-x-2">
-              <Button variant="ghost" asChild size="sm">
-                <Link href="/auth/login">登录</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/auth/register">注册</Link>
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  {/* 通知按钮 */}
+                  <Button variant="ghost" size="sm" className="relative">
+                    <Bell className="w-4 h-4" />
+                    <Badge className="absolute -top-1 -right-1 w-2 h-2 p-0 bg-red-500"></Badge>
+                  </Button>
+
+                  {/* 用户下拉菜单 */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user?.avatar} alt={user?.username} />
+                          <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                            {user?.username?.[0]?.toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                      <div className="flex items-center justify-start gap-2 p-2">
+                        <div className="flex flex-col space-y-1 leading-none">
+                          <p className="font-medium">{user?.username}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard" className="cursor-pointer">
+                          <BarChart3 className="mr-2 h-4 w-4" />
+                          <span>个人中心</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard?tab=settings" className="cursor-pointer">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>账户设置</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>退出登录</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild size="sm">
+                    <Link href="/auth/login">登录</Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link href="/auth/register">注册</Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu */}
@@ -100,12 +159,47 @@ export function Header() {
                     </Link>
                   ))}
                   <div className="border-t pt-4 space-y-2">
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link href="/auth/login">登录</Link>
-                    </Button>
-                    <Button className="w-full" asChild>
-                      <Link href="/auth/register">注册</Link>
-                    </Button>
+                    {isAuthenticated ? (
+                      <>
+                        <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={user?.avatar} alt={user?.username} />
+                            <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                              {user?.username?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-green-700">{user?.username}</span>
+                            <span className="text-xs text-green-600">{user?.email}</span>
+                          </div>
+                        </div>
+                        <Button variant="outline" className="w-full justify-start" asChild>
+                          <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                            <BarChart3 className="w-4 h-4 mr-2" />
+                            个人中心
+                          </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start" asChild>
+                          <Link href="/dashboard?tab=settings" onClick={() => setIsOpen(false)}>
+                            <Settings className="w-4 h-4 mr-2" />
+                            账户设置
+                          </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start" onClick={logout}>
+                          <LogOut className="w-4 h-4 mr-2" />
+                          退出登录
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="outline" className="w-full" asChild>
+                          <Link href="/auth/login">登录</Link>
+                        </Button>
+                        <Button className="w-full" asChild>
+                          <Link href="/auth/register">注册</Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </SheetContent>

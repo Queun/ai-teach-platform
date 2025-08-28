@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useTool } from "@/hooks/useStrapi"
+import { useInteraction } from "@/hooks/useInteraction"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -38,11 +39,28 @@ export default function ToolDetailPage() {
   const id = params.id as string
   const [activeSection, setActiveSection] = useState("overview")
   const [userRating, setUserRating] = useState(0)
-  const [isBookmarked, setIsBookmarked] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
 
   // 使用 Strapi API 获取工具数据
   const { data: toolData, loading, error } = useTool(id)
+  
+  // 使用互动Hook管理点赞/收藏状态
+  const {
+    isLiked,
+    isFavorited: isBookmarked,
+    stats,
+    loading: interactionLoading,
+    toggleLike,
+    toggleFavorite,
+    isAuthenticated
+  } = useInteraction({
+    targetType: 'ai-tool',
+    targetId: id, // 直接使用字符串 ID
+    initialStats: toolData?.attributes ? {
+      likesCount: toolData.attributes.likesCount || 0,
+      favoritesCount: toolData.attributes.favoritesCount || 0,
+      commentsCount: toolData.attributes.commentsCount || 0
+    } : undefined
+  })
 
   // 监听滚动位置，更新导航状态
   useEffect(() => {
@@ -337,15 +355,19 @@ export default function ToolDetailPage() {
                       <div className="grid grid-cols-2 gap-2">
                         <Button
                           variant="outline"
-                          onClick={() => setIsBookmarked(!isBookmarked)}
+                          onClick={toggleFavorite}
+                          disabled={interactionLoading || !isAuthenticated}
                           className={isBookmarked ? "bg-blue-50 border-blue-200" : ""}
+                          title={!isAuthenticated ? "请先登录" : isBookmarked ? "取消收藏" : "收藏"}
                         >
                           <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-blue-600 text-blue-600" : ""}`} />
                         </Button>
                         <Button
                           variant="outline"
-                          onClick={() => setIsLiked(!isLiked)}
+                          onClick={toggleLike}
+                          disabled={interactionLoading || !isAuthenticated}
                           className={isLiked ? "bg-red-50 border-red-200" : ""}
+                          title={!isAuthenticated ? "请先登录" : isLiked ? "取消点赞" : "点赞"}
                         >
                           <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
                         </Button>
@@ -366,6 +388,14 @@ export default function ToolDetailPage() {
                       <div className="flex justify-between">
                         <span className="text-gray-600">价格</span>
                         <span className="font-medium">{tool.priceRange}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">点赞数</span>
+                        <span className="font-medium">{stats.likesCount}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">收藏数</span>
+                        <span className="font-medium">{stats.favoritesCount}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">更新</span>

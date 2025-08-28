@@ -289,3 +289,106 @@ export interface StrapiError {
     details?: any;
   };
 }
+
+// =============
+// 用户互动相关类型
+// =============
+
+// 用户行为记录
+export interface UserAction {
+  id: number;
+  attributes: {
+    actionType: 'like' | 'favorite';
+    targetType: 'ai-tool' | 'edu-resource' | 'news-article';
+    targetId: number;
+    users_permissions_user: {
+      data: {
+        id: number;
+        attributes: {
+          username: string;
+          email: string;
+        };
+      };
+    };
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+// 评论系统
+export interface Comment {
+  id: number;
+  attributes: {
+    content: string;
+    targetType: 'ai-tool' | 'edu-resource' | 'news-article';
+    targetId: number;
+    users_permissions_user: {
+      data: {
+        id: number;
+        attributes: {
+          username: string;
+          email: string;
+        };
+      };
+    };
+    parent?: {
+      data?: {
+        id: number;
+        attributes: Comment['attributes'];
+      };
+    };
+    replies?: {
+      data: Array<{
+        id: number;
+        attributes: Comment['attributes'];
+      }>;
+    };
+    isHelpful: number;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt?: string;
+  };
+}
+
+// 用户互动状态
+export interface UserInteractionState {
+  isLiked: boolean;
+  isFavorited: boolean;
+}
+
+// 互动统计数据
+export interface InteractionStats {
+  likesCount: number;
+  favoritesCount: number;
+  commentsCount: number;
+}
+
+// 用户认证相关
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  confirmed: boolean;
+  blocked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthResponse {
+  jwt: string;
+  user: User;
+}
+
+// 扩展现有内容类型，添加互动计数
+export interface AIToolWithStats extends AITool {
+  attributes: AITool['attributes'] & InteractionStats;
+}
+
+export interface EduResourceWithStats extends EduResource {
+  attributes: EduResource['attributes'] & InteractionStats;
+}
+
+export interface NewsArticleWithStats extends NewsArticle {
+  attributes: NewsArticle['attributes'] & InteractionStats;
+}

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -13,19 +13,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Mail, Lock, Github, Chrome, AlertCircle, Loader2 } from "lucide-react"
-
-// Mock 用户数据 - 用于测试
-const MOCK_USERS = [
-  { email: "teacher@test.com", password: "123456", name: "张老师", role: "小学教师" },
-  { email: "admin@test.com", password: "admin123", name: "管理员", role: "系统管理员" },
-  { email: "student@test.com", password: "student123", name: "李同学", role: "学生" },
-  { email: "wrong@test.com", password: "wrongpass", name: "测试用户", role: "教师" }, // 用于测试密码错误
-]
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login, isAuthenticated, isLoading: authLoading, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -36,6 +30,13 @@ export default function LoginPage() {
     password?: string
     general?: string
   }>({})
+
+  // 如果已经登录，重定向到首页
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.push("/")
+    }
+  }, [isAuthenticated, user, router])
 
   const validateForm = () => {
     const newErrors: typeof errors = {}
@@ -63,43 +64,23 @@ export default function LoginPage() {
 
     if (!validateForm()) return
 
-    setIsLoading(true)
+    setIsSubmitting(true)
     setErrors({})
 
     try {
-      // 模拟API调用延迟
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Mock 登录验证
-      const user = MOCK_USERS.find((u) => u.email === formData.email)
-
-      if (!user) {
-        setErrors({ general: "用户不存在，请检查邮箱地址" })
-        return
+      const result = await login(formData.email, formData.password)
+      
+      if (result.success) {
+        // 登录成功，重定向到首页
+        router.push("/")
+      } else {
+        setErrors({ general: result.error || "登录失败，请检查邮箱和密码" })
       }
-
-      if (user.password !== formData.password) {
-        setErrors({ general: "密码错误，请重新输入" })
-        return
-      }
-
-      // 登录成功 - 存储用户信息到 localStorage (实际项目中应使用更安全的方式)
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          loginTime: new Date().toISOString(),
-        }),
-      )
-
-      // 跳转到仪表板
-      router.push("/dashboard")
     } catch (error) {
+      console.error("Login error:", error)
       setErrors({ general: "登录失败，请稍后重试" })
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -109,6 +90,18 @@ export default function LoginPage() {
     if (errors[field as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
+  }
+
+  // 如果正在检查认证状态，显示加载状态
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <p className="text-gray-600">正在检查登录状态...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -130,20 +123,6 @@ export default function LoginPage() {
             <CardDescription className="text-center">使用您的邮箱和密码登录</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* 测试账号提示 */}
-            <Alert className="bg-blue-50 border-blue-200">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-800">
-                <strong>测试账号：</strong>
-                <br />
-                teacher@test.com / 123456 (教师)
-                <br />
-                admin@test.com / admin123 (管理员)
-                <br />
-                student@test.com / student123 (学生)
-              </AlertDescription>
-            </Alert>
-
             {errors.general && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -163,7 +142,7 @@ export default function LoginPage() {
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   />
                 </div>
                 {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
@@ -180,7 +159,7 @@ export default function LoginPage() {
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
                     className={`pl-10 pr-10 ${errors.password ? "border-red-500" : ""}`}
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   />
                   <Button
                     type="button"
@@ -188,7 +167,7 @@ export default function LoginPage() {
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4 text-gray-400" />
@@ -206,7 +185,7 @@ export default function LoginPage() {
                     id="remember"
                     checked={formData.rememberMe}
                     onCheckedChange={(checked) => handleInputChange("rememberMe", checked as boolean)}
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   />
                   <Label htmlFor="remember" className="text-sm">
                     记住我
@@ -217,8 +196,8 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full h-11" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
+                {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     登录中...
@@ -239,11 +218,11 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-11" disabled={isLoading}>
+              <Button variant="outline" className="h-11" disabled={isSubmitting}>
                 <Github className="w-4 h-4 mr-2" />
                 GitHub
               </Button>
-              <Button variant="outline" className="h-11" disabled={isLoading}>
+              <Button variant="outline" className="h-11" disabled={isSubmitting}>
                 <Chrome className="w-4 h-4 mr-2" />
                 Google
               </Button>

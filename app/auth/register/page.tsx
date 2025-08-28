@@ -2,8 +2,9 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,11 +12,16 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Eye, EyeOff, Mail, Lock, User, School, Github, Chrome } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, EyeOff, Mail, Lock, User, School, Github, Chrome, AlertCircle, Loader2 } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const { register, isAuthenticated, isLoading: authLoading, user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,15 +31,116 @@ export default function RegisterPage() {
     school: "",
     agreeTerms: false,
   })
+  const [errors, setErrors] = useState<{
+    name?: string
+    email?: string
+    password?: string
+    confirmPassword?: string
+    role?: string
+    agreeTerms?: string
+    general?: string
+  }>({})
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle registration logic here
-    console.log("Registration attempt:", formData)
+  // 如果已经登录，重定向到首页
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.push("/")
+    }
+  }, [isAuthenticated, user, router])
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {}
+
+    // 姓名验证
+    if (!formData.name.trim()) {
+      newErrors.name = "请输入您的姓名"
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = "姓名至少需要2个字符"
+    }
+
+    // 邮箱验证
+    if (!formData.email) {
+      newErrors.email = "请输入邮箱地址"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "请输入有效的邮箱地址"
+    }
+
+    // 密码验证
+    if (!formData.password) {
+      newErrors.password = "请输入密码"
+    } else if (formData.password.length < 6) {
+      newErrors.password = "密码至少需要6位字符"
+    }
+
+    // 确认密码验证
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "请确认密码"
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "两次输入的密码不一致"
+    }
+
+    // 职业角色验证
+    if (!formData.role) {
+      newErrors.role = "请选择您的职业角色"
+    }
+
+    // 服务条款验证
+    if (!formData.agreeTerms) {
+      newErrors.agreeTerms = "请阅读并同意服务条款和隐私政策"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validateForm()) return
+
+    setIsSubmitting(true)
+    setErrors({})
+
+    try {
+      // 使用姓名作为用户名
+      const result = await register({
+        username: formData.name.trim(),
+        email: formData.email,
+        password: formData.password
+      })
+      
+      if (result.success) {
+        // 注册成功，重定向到首页
+        router.push("/")
+      } else {
+        setErrors({ general: result.error || "注册失败，请稍后重试" })
+      }
+    } catch (error) {
+      console.error("Registration error:", error)
+      setErrors({ general: "注册失败，请稍后重试" })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    // 清除对应字段的错误
+    if (errors[field as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  // 如果正在检查认证状态，显示加载状态
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <p className="text-gray-600">正在检查登录状态...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -55,6 +162,13 @@ export default function RegisterPage() {
             <CardDescription className="text-center">填写以下信息创建您的账户</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {errors.general && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errors.general}</AlertDescription>
+              </Alert>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">姓名</Label>
@@ -66,10 +180,12 @@ export default function RegisterPage() {
                     placeholder="输入您的姓名"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="pl-10"
+                    className={`pl-10 ${errors.name ? "border-red-500" : ""}`}
+                    disabled={isSubmitting}
                     required
                   />
                 </div>
+                {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
               </div>
 
               <div className="space-y-2">
@@ -82,16 +198,18 @@ export default function RegisterPage() {
                     placeholder="输入您的邮箱"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="pl-10"
+                    className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
+                    disabled={isSubmitting}
                     required
                   />
                 </div>
+                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">职业角色</Label>
-                <Select value={formData.role} onValueChange={(value) => handleInputChange("role", value)}>
-                  <SelectTrigger>
+                <Select value={formData.role} onValueChange={(value) => handleInputChange("role", value)} disabled={isSubmitting}>
+                  <SelectTrigger className={errors.role ? "border-red-500" : ""}>
                     <SelectValue placeholder="选择您的职业角色" />
                   </SelectTrigger>
                   <SelectContent>
@@ -105,10 +223,11 @@ export default function RegisterPage() {
                     <SelectItem value="other">其他</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="school">学校/机构</Label>
+                <Label htmlFor="school">学校/机构（可选）</Label>
                 <div className="relative">
                   <School className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
@@ -118,6 +237,7 @@ export default function RegisterPage() {
                     value={formData.school}
                     onChange={(e) => handleInputChange("school", e.target.value)}
                     className="pl-10"
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -129,10 +249,11 @@ export default function RegisterPage() {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="设置您的密码"
+                    placeholder="设置您的密码（至少6位字符）"
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
-                    className="pl-10 pr-10"
+                    className={`pl-10 pr-10 ${errors.password ? "border-red-500" : ""}`}
+                    disabled={isSubmitting}
                     required
                   />
                   <Button
@@ -141,6 +262,7 @@ export default function RegisterPage() {
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={isSubmitting}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4 text-gray-400" />
@@ -149,6 +271,7 @@ export default function RegisterPage() {
                     )}
                   </Button>
                 </div>
+                {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
               </div>
 
               <div className="space-y-2">
@@ -161,7 +284,8 @@ export default function RegisterPage() {
                     placeholder="再次输入密码"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                    className="pl-10 pr-10"
+                    className={`pl-10 pr-10 ${errors.confirmPassword ? "border-red-500" : ""}`}
+                    disabled={isSubmitting}
                     required
                   />
                   <Button
@@ -170,6 +294,7 @@ export default function RegisterPage() {
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={isSubmitting}
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-4 h-4 text-gray-400" />
@@ -178,29 +303,41 @@ export default function RegisterPage() {
                     )}
                   </Button>
                 </div>
+                {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword}</p>}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={formData.agreeTerms}
-                  onCheckedChange={(checked) => handleInputChange("agreeTerms", checked)}
-                  required
-                />
-                <Label htmlFor="terms" className="text-sm">
-                  我同意{" "}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-500">
-                    服务条款
-                  </Link>{" "}
-                  和{" "}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-500">
-                    隐私政策
-                  </Link>
-                </Label>
+              <div className="space-y-2">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={formData.agreeTerms}
+                    onCheckedChange={(checked) => handleInputChange("agreeTerms", checked as boolean)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                  <Label htmlFor="terms" className="text-sm leading-5">
+                    我同意{" "}
+                    <Link href="/terms" className="text-blue-600 hover:text-blue-500">
+                      服务条款
+                    </Link>{" "}
+                    和{" "}
+                    <Link href="/privacy" className="text-blue-600 hover:text-blue-500">
+                      隐私政策
+                    </Link>
+                  </Label>
+                </div>
+                {errors.agreeTerms && <p className="text-sm text-red-500">{errors.agreeTerms}</p>}
               </div>
 
-              <Button type="submit" className="w-full h-11">
-                创建账户
+              <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    创建中...
+                  </>
+                ) : (
+                  "创建账户"
+                )}
               </Button>
             </form>
 
@@ -214,11 +351,11 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="h-11">
+              <Button variant="outline" className="h-11" disabled={isSubmitting}>
                 <Github className="w-4 h-4 mr-2" />
                 GitHub
               </Button>
-              <Button variant="outline" className="h-11">
+              <Button variant="outline" className="h-11" disabled={isSubmitting}>
                 <Chrome className="w-4 h-4 mr-2" />
                 Google
               </Button>

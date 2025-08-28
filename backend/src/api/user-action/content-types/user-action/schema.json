@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_actions",
+  "info": {
+    "singularName": "user-action",
+    "pluralName": "user-actions",
+    "displayName": "User Action"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "actionType": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "like",
+        "favorite"
+      ]
+    },
+    "targetType": {
+      "type": "string",
+      "required": true
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "user_actions"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "targetId": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
