@@ -44,12 +44,10 @@ export function useFavorites({
   // 获取收藏数据
   const fetchFavorites = useCallback(async (page = 1, reset = false) => {
     if (!user || !isAuthenticated) {
-      console.log('❌ 用户未认证，跳过获取收藏数据');
       return;
     }
 
     try {
-      console.log('🔄 获取收藏数据:', { userId: user.id, contentType, page, pageSize });
       setError(null);
       if (page === 1 || reset) setLoading(true);
       
@@ -69,9 +67,8 @@ export function useFavorites({
       setCurrentPage(page);
       setHasMore(response.hasMore);
       setTotalCount(response.meta.pagination.total);
-      console.log('✅ 收藏数据获取成功:', response.meta.pagination.total, '条记录');
     } catch (err: any) {
-      console.error('❌ 获取收藏数据失败:', err);
+      console.error('获取收藏数据失败:', err);
       setError(err.message || '获取收藏列表失败');
     } finally {
       setLoading(false);
@@ -117,17 +114,14 @@ export function useFavorites({
   useEffect(() => {
     // 等待认证加载完成
     if (authLoading) {
-      console.log('⏳ 等待认证状态加载完成...');
       return;
     }
 
     // 用户已认证，获取数据
     if (isAuthenticated && user && !initializeRef.current) {
-      console.log('🔄 初始化 useFavorites，用户已认证');
       initializeRef.current = true;
       fetchFavorites(1, true);
     } else if (!isAuthenticated) {
-      console.log('❌ 用户未认证，清空收藏数据');
       setLoading(false);
       setFavorites([]);
       setTotalCount(0);
@@ -137,7 +131,6 @@ export function useFavorites({
   // 当筛选参数变化时重新获取数据
   useEffect(() => {
     if (initializeRef.current && user && isAuthenticated) {
-      console.log('🔄 参数变化，重新获取收藏数据:', { contentType, pageSize });
       fetchFavorites(1, true);
     }
   }, [contentType, pageSize, user?.id, isAuthenticated, fetchFavorites]);
@@ -183,12 +176,10 @@ export function useInteractionHistory(limit = 50): UseInteractionHistoryReturn {
   // 获取互动历史数据
   const fetchHistory = useCallback(async () => {
     if (!user || !isAuthenticated) {
-      console.log('❌ 用户未认证，跳过获取历史数据');
       return;
     }
 
     try {
-      console.log('🔄 获取互动历史数据:', { userId: user.id, limit });
       setError(null);
       setLoading(true);
       
@@ -199,9 +190,8 @@ export function useInteractionHistory(limit = 50): UseInteractionHistoryReturn {
 
       setHistory(response.data);
       setTotalCount(response.total);
-      console.log('✅ 历史数据获取成功:', response.total, '条记录');
     } catch (err: any) {
-      console.error('❌ 获取历史数据失败:', err);
+      console.error('获取历史数据失败:', err);
       setError(err.message || '获取互动历史失败');
     } finally {
       setLoading(false);
@@ -219,17 +209,14 @@ export function useInteractionHistory(limit = 50): UseInteractionHistoryReturn {
   useEffect(() => {
     // 等待认证加载完成
     if (authLoading) {
-      console.log('⏳ 等待认证状态加载完成...');
       return;
     }
 
     // 用户已认证，获取数据
     if (isAuthenticated && user && !initializeRef.current) {
-      console.log('🔄 初始化 useInteractionHistory，用户已认证');
       initializeRef.current = true;
       fetchHistory();
     } else if (!isAuthenticated) {
-      console.log('❌ 用户未认证，清空历史数据');
       setLoading(false);
       setHistory([]);
       setTotalCount(0);
@@ -239,7 +226,6 @@ export function useInteractionHistory(limit = 50): UseInteractionHistoryReturn {
   // 当limit变化时重新获取数据
   useEffect(() => {
     if (initializeRef.current && user && isAuthenticated) {
-      console.log('🔄 limit变化，重新获取历史数据:', { limit });
       fetchHistory();
     }
   }, [limit, user?.id, isAuthenticated, fetchHistory]);
@@ -290,31 +276,25 @@ export function useUserStats(): UseUserStatsReturn {
   // 获取统计数据
   const fetchStats = useCallback(async () => {
     if (!user || !isAuthenticated) {
-      console.log('❌ 用户未认证，跳过获取统计数据');
       return;
     }
 
     try {
-      console.log('🔄 开始获取用户统计数据, userId:', user.id);
       setError(null);
       setLoading(true);
       
       // 首先尝试原始方法
       try {
         const response = await strapiService.getUserInteractionStats(user.id);
-        console.log('✅ 统计数据获取成功:', response);
         setStats(response);
         return;
       } catch (primaryError) {
-        console.warn('⚠️  原始统计方法失败，尝试备选方案:', primaryError);
-        
         // 尝试备选方案
         const response = await strapiService.getUserInteractionStatsAlternative(user.id);
-        console.log('✅ 备选方案统计数据获取成功:', response);
         setStats(response);
       }
     } catch (err: any) {
-      console.error('❌ 所有统计方法都失败:', err);
+      console.error('获取统计数据失败:', err);
       setError(err.message || '获取统计数据失败');
       // 设置默认值
       setStats({
@@ -339,17 +319,14 @@ export function useUserStats(): UseUserStatsReturn {
   useEffect(() => {
     // 等待认证加载完成
     if (authLoading) {
-      console.log('⏳ 等待认证状态加载完成...');
       return;
     }
 
     // 用户已认证，获取数据
     if (isAuthenticated && user && !initializeRef.current) {
-      console.log('🔄 初始化 useUserStats，用户已认证');
       initializeRef.current = true;
       fetchStats();
     } else if (!isAuthenticated) {
-      console.log('❌ 用户未认证，重置统计数据');
       setLoading(false);
       setStats({
         likesCount: 0,

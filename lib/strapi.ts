@@ -788,7 +788,6 @@ class StrapiService {
 
     try {
       const user = await this.request('/users/me');
-      console.log('Current user data:', user); // 添加日志查看用户数据结构
       return user;
     } catch (error) {
       console.error('Error fetching current user:', error);
@@ -1123,7 +1122,6 @@ class StrapiService {
           },
           pageSize: 1
         })}`).catch(err => {
-          console.warn('获取likes统计失败:', err.message);
           return { meta: { pagination: { total: 0 } } };
         }),
         this.request(`/user-actions?${this.buildQueryParams({
@@ -1134,7 +1132,6 @@ class StrapiService {
           },
           pageSize: 1
         })}`).catch(err => {
-          console.warn('获取favorites统计失败:', err.message);
           return { meta: { pagination: { total: 0 } } };
         })
       ]);
