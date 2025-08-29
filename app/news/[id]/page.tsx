@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { useNewsArticle } from "@/hooks/useStrapi"
 import { useInteraction } from "@/hooks/useInteraction"
@@ -9,15 +9,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { SmartAvatar } from "@/components/ui/smart-avatar"
-import { Separator } from "@/components/ui/separator"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Calendar, Eye, Heart, Share2, Bookmark, MessageSquare, ArrowLeft, ThumbsUp, Send } from "lucide-react"
+import { Calendar, Eye, Heart, Share2, Bookmark, MessageSquare, ArrowLeft } from "lucide-react"
 
 export default function NewsDetailPage() {
   const params = useParams()
   const id = params.id as string
-  const [comment, setComment] = useState("")
 
   // 使用 Strapi API 获取新闻数据
   const { data: newsData, loading, error } = useNewsArticle(id)
@@ -37,9 +33,26 @@ export default function NewsDetailPage() {
     initialStats: newsData?.attributes ? {
       likesCount: newsData.attributes.likesCount || 0,
       favoritesCount: newsData.attributes.favoritesCount || 0,
-      commentsCount: newsData.attributes.commentsCount || 0
+      commentsCount: 0 // 新闻页面不支持评论
     } : undefined
   })
+
+  // 追踪浏览量 - 当页面加载完成且有新闻数据时增加浏览量
+  useEffect(() => {
+    if (newsData && id && !loading) {
+      // 延迟一秒后追踪浏览量，避免用户快速跳转时重复计数
+      const timer = setTimeout(async () => {
+        try {
+          const { strapiService } = await import('@/lib/strapi')
+          await strapiService.incrementViews('news-articles', id)
+        } catch (error) {
+          console.error('Failed to track view:', error)
+        }
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [newsData, id, loading])
 
   // 辅助函数：安全地提取文本内容
   const extractText = (content: any): string => {
@@ -107,7 +120,6 @@ export default function NewsDetailPage() {
     },
     date: new Date(data.publishDate || data.createdAt || newsData.createdAt || Date.now()).toLocaleDateString('zh-CN'),
     views: data.views || 0,
-    likes: data.likes || 0,
     comments: data.commentCount || 0,
     bookmarks: data.bookmarks || 0,
     image: data.featuredImage?.url 
@@ -122,34 +134,6 @@ export default function NewsDetailPage() {
     isBreaking: data.isBreaking || false,
     isFeatured: data.isFeatured || false
   }
-
-  // Mock 评论数据 - 未来可以从 Strapi 获取
-  const comments = [
-    {
-      id: 1,
-      author: "张老师",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "非常有价值的内容，对我的工作很有帮助！",
-      date: new Date(Date.now() - 86400000).toLocaleDateString('zh-CN'), // 1天前
-      likes: 12,
-    },
-    {
-      id: 2,
-      author: "李教授",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "写得很详细，期待更多这样的分享。",
-      date: new Date(Date.now() - 172800000).toLocaleDateString('zh-CN'), // 2天前
-      likes: 8,
-    },
-    {
-      id: 3,
-      author: "王主任",
-      avatar: "/placeholder.svg?height=32&width=32",
-      content: "感谢分享，很实用的内容！",
-      date: new Date(Date.now() - 259200000).toLocaleDateString('zh-CN'), // 3天前
-      likes: 15,
-    },
-  ]
 
   // Mock 相关文章数据 - 未来可以从 Strapi 获取
   const relatedArticles = [
@@ -334,74 +318,18 @@ export default function NewsDetailPage() {
                     </div>
                     <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-500">
                       <MessageSquare className="w-4 h-4" />
-                      {comments.length} 条评论
+                      评论功能暂不开放
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* 评论区 */}
+              {/* 评论功能因合规要求暂不开放 */}
               <Card>
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <MessageSquare className="w-5 h-5" />
-                    评论 ({comments.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                  {/* 发表评论 */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <Label htmlFor="comment" className="text-sm sm:text-base">
-                      发表评论
-                    </Label>
-                    <Textarea
-                      id="comment"
-                      placeholder="写下您的想法..."
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      className="min-h-[80px] sm:min-h-[100px] text-sm sm:text-base"
-                    />
-                    <Button className="flex items-center gap-2 w-full sm:w-auto" size="sm">
-                      <Send className="w-4 h-4" />
-                      发表评论
-                    </Button>
-                  </div>
-
-                  <Separator />
-
-                  {/* 评论列表 */}
-                  <div className="space-y-4 sm:space-y-6">
-                    {comments.map((comment) => (
-                      <div key={comment.id} className="flex gap-3 sm:gap-4">
-                        <SmartAvatar 
-                          name={comment.author} 
-                          src={comment.avatar}
-                          size="sm"
-                          className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                            <span className="font-medium text-sm sm:text-base">{comment.author}</span>
-                            <span className="text-xs sm:text-sm text-gray-500">{comment.date}</span>
-                          </div>
-                          <p className="text-gray-700 mb-3 text-sm sm:text-base leading-relaxed">{comment.content}</p>
-                          <div className="flex items-center gap-3 sm:gap-4">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="flex items-center gap-1 text-xs sm:text-sm h-8"
-                            >
-                              <ThumbsUp className="w-3 h-3" />
-                              {comment.likes}
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-xs sm:text-sm h-8">
-                              回复
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="p-6 text-center text-gray-500">
+                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium mb-2">评论功能暂不开放</h3>
+                  <p className="text-sm">为确保内容合规，新闻资讯暂不支持评论功能</p>
                 </CardContent>
               </Card>
             </div>

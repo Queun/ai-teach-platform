@@ -16,7 +16,8 @@
       "required": true,
       "enum": [
         "like",
-        "favorite"
+        "favorite",
+        "comment-like"
       ]
     },
     "targetType": {

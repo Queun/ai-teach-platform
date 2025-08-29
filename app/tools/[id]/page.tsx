@@ -33,6 +33,7 @@ import {
   Monitor,
   Code,
 } from "lucide-react"
+import { CommentSection } from "@/components/comments/CommentSection"
 
 export default function ToolDetailPage() {
   const params = useParams()
@@ -83,6 +84,23 @@ export default function ToolDetailPage() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // 追踪浏览量 - 当页面加载完成且有工具数据时增加浏览量
+  useEffect(() => {
+    if (toolData && id && !loading) {
+      // 延迟一秒后追踪浏览量，避免用户快速跳转时重复计数
+      const timer = setTimeout(async () => {
+        try {
+          const { strapiService } = await import('@/lib/strapi')
+          await strapiService.incrementViews('ai-tools', id)
+        } catch (error) {
+          console.error('Failed to track view:', error)
+        }
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [toolData, id, loading])
 
   // 平滑滚动到指定区域
   const scrollToSection = (sectionId: string) => {
@@ -154,7 +172,6 @@ export default function ToolDetailPage() {
     description: extractText(data.shortDesc || data.description || '暂无描述'),
     longDescription: extractText(data.description || data.longDescription || '暂无详细描述'),
     category: data.category || '其他',
-    rating: data.rating || 5.0,
     reviewCount: data.reviewCount || 0,
     users: data.popularity > 10000 ? `${Math.floor(data.popularity / 1000)}K+` : `${data.popularity || 0}+`,
     pricing: data.pricing || '免费',
@@ -171,7 +188,7 @@ export default function ToolDetailPage() {
       : "🔧",
     developer: data.developer || "未知",
     developerUrl: data.developerUrl || '#',
-    lastUpdated: new Date(data.updatedAt || toolData.updatedAt || Date.now()).toLocaleDateString('zh-CN'),
+    lastUpdated: new Date(data.publishedAt || data.createdAt || Date.now()).toLocaleDateString('zh-CN'),
     releaseDate: data.releaseDate ? new Date(data.releaseDate).toLocaleDateString('zh-CN') : '未知',
     difficulty: data.difficulty || '入门',
     languages: data.supportedLanguages || ['中文', '英文'],
@@ -337,11 +354,6 @@ export default function ToolDetailPage() {
                         </div>
                       </div>
                       <h2 className="text-xl font-bold mb-2">{tool.name}</h2>
-                      <div className="flex items-center justify-center gap-1 mb-2">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{tool.rating}</span>
-                        <span className="text-sm text-gray-500">({tool.reviewCount})</span>
-                      </div>
                       <Badge variant="outline">{tool.difficulty}</Badge>
                     </div>
 
@@ -388,6 +400,10 @@ export default function ToolDetailPage() {
                       <div className="flex justify-between">
                         <span className="text-gray-600">价格</span>
                         <span className="font-medium">{tool.priceRange}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">浏览量</span>
+                        <span className="font-medium">{toolData?.attributes?.views || toolData?.views || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">点赞数</span>
@@ -626,127 +642,12 @@ export default function ToolDetailPage() {
 
               {/* 用户评价部分 */}
               <section id="reviews" className="scroll-mt-24">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Star className="w-5 h-5" />
-                      用户评价
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                      {/* 评分统计 */}
-                      <div className="lg:col-span-1">
-                        <div className="text-center mb-6">
-                          <div className="text-4xl font-bold mb-2">{tool.rating}</div>
-                          <div className="flex justify-center mb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-5 h-5 ${
-                                  i < Math.floor(tool.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <div className="text-sm text-gray-500">{tool.reviewCount} 条评价</div>
-                        </div>
-                        <div className="space-y-2">
-                          {ratingDistribution.map((item) => (
-                            <div key={item.stars} className="flex items-center gap-2">
-                              <span className="text-sm w-8">{item.stars}星</span>
-                              <Progress value={item.percentage} className="flex-1" />
-                              <span className="text-sm text-gray-500 w-12">{item.count}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* 写评价 */}
-                        <Card className="mt-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">写评价</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div>
-                              <Label className="text-sm">您的评分</Label>
-                              <div className="flex gap-1 mt-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-6 h-6 cursor-pointer ${
-                                      i < userRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                    }`}
-                                    onClick={() => setUserRating(i + 1)}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <Label htmlFor="review">评价内容</Label>
-                              <Textarea id="review" placeholder="分享您的使用体验..." className="mt-1" />
-                            </div>
-                            <Button className="w-full">提交评价</Button>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      {/* 评价列表 */}
-                      <div className="lg:col-span-2 space-y-6">
-                        {reviews.map((review) => (
-                          <Card key={review.id}>
-                            <CardContent className="p-6">
-                              <div className="flex items-start gap-4">
-                                <SmartAvatar 
-                                  name={review.user.name} 
-                                  src={review.user.avatar}
-                                  size="default"
-                                  className="w-10 h-10"
-                                />
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="font-medium">{review.user.name}</span>
-                                    {review.verified && (
-                                      <Badge variant="outline" className="text-xs">
-                                        <CheckCircle className="w-3 h-3 mr-1" />
-                                        已验证
-                                      </Badge>
-                                    )}
-                                    <span className="text-sm text-gray-500">{review.user.role}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="flex">
-                                      {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star
-                                          key={i}
-                                          className={`w-4 h-4 ${
-                                            i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                    <span className="text-sm text-gray-500">{review.date}</span>
-                                  </div>
-                                  <h4 className="font-medium mb-2">{review.title}</h4>
-                                  <p className="text-gray-700 mb-3">{review.content}</p>
-                                  <div className="flex items-center gap-4">
-                                    <Button variant="ghost" size="sm">
-                                      <ThumbsUp className="w-3 h-3 mr-1" />
-                                      有用 ({review.helpful})
-                                    </Button>
-                                    <Button variant="ghost" size="sm">
-                                      <MessageSquare className="w-3 h-3 mr-1" />
-                                      回复
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <CommentSection 
+                  targetType="ai-tool" 
+                  targetId={id} 
+                  showTitle={true}
+                  className=""
+                />
               </section>
 
               {/* 相关工具部分 */}
@@ -768,11 +669,6 @@ export default function ToolDetailPage() {
                               <div className="text-3xl mb-3">🔧</div>
                               <h4 className="font-semibold mb-2">{alt}</h4>
                               <p className="text-sm text-gray-600 mb-4">相关AI工具</p>
-                              <div className="flex items-center justify-center gap-1 mb-3">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium">4.5</span>
-                                <span className="text-xs text-gray-500">(320)</span>
-                              </div>
                               <Button size="sm" variant="outline" className="w-full">
                                 查看详情
                               </Button>

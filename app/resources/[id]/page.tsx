@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   ArrowLeft,
-  Download,
   Star,
   Heart,
   Bookmark,
@@ -36,6 +35,7 @@ import {
   Share2,
   Menu,
 } from "lucide-react"
+import { CommentSection } from "@/components/comments/CommentSection"
 
 export default function ResourceDetailPage() {
   const params = useParams()
@@ -87,6 +87,23 @@ export default function ResourceDetailPage() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // 追踪浏览量 - 当页面加载完成且有资源数据时增加浏览量
+  useEffect(() => {
+    if (resourceData && id && !loading) {
+      // 延迟一秒后追踪浏览量，避免用户快速跳转时重复计数
+      const timer = setTimeout(async () => {
+        try {
+          const { strapiService } = await import('@/lib/strapi')
+          await strapiService.incrementViews('edu-resources', id)
+        } catch (error) {
+          console.error('Failed to track view:', error)
+        }
+      }, 1000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [resourceData, id, loading])
 
   // 平滑滚动到指定区域
   const scrollToSection = (sectionId: string) => {
@@ -167,18 +184,15 @@ export default function ResourceDetailPage() {
       bio: data.authorBio || '暂无简介',
     },
     tags: data.tags || [],
-    rating: data.rating || 5.0,
     reviewCount: data.reviewCount || 0,
-    downloads: data.downloads || 0,
     views: data.views || 0,
-    likes: data.likes || 0,
     difficulty: data.difficulty || '入门',
     estimatedTime: data.estimatedTime || '未知',
     resourceType: data.resourceType || '文档',
     subject: data.subject || '',
     gradeLevel: data.gradeLevel || '',
     createdAt: new Date(data.createdAt || resourceData.createdAt || Date.now()).toLocaleDateString('zh-CN'),
-    updatedAt: new Date(data.updatedAt || resourceData.updatedAt || Date.now()).toLocaleDateString('zh-CN'),
+    updatedAt: new Date(data.publishedAt || data.createdAt || Date.now()).toLocaleDateString('zh-CN'),
     featured: data.isFeatured || false,
     resourceUrl: data.attachments?.[0]?.url 
       ? `http://localhost:1337${data.attachments[0].url}` 
@@ -266,11 +280,6 @@ export default function ResourceDetailPage() {
                         </div>
                       )}
                       <h2 className="text-lg font-bold mb-2 line-clamp-2">{resource.title}</h2>
-                      <div className="flex items-center justify-center gap-1 mb-2">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{resource.rating}</span>
-                        <span className="text-sm text-gray-500">({resource.reviewCount})</span>
-                      </div>
                       <div className="flex gap-2 justify-center">
                         <Badge variant="outline">{resource.difficulty}</Badge>
                         {resource.featured && (
@@ -324,10 +333,6 @@ export default function ResourceDetailPage() {
                       <div className="flex justify-between">
                         <span className="text-gray-600">类型</span>
                         <span className="font-medium">{resource.resourceType}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">下载量</span>
-                        <span className="font-medium">{resource.downloads}+</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">浏览量</span>
@@ -390,11 +395,6 @@ export default function ResourceDetailPage() {
                           />
                         </div>
                       )}
-                      <div className="flex items-center justify-center gap-1 mb-2">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{resource.rating}</span>
-                        <span className="text-sm text-gray-500">({resource.reviewCount})</span>
-                      </div>
                       <div className="flex gap-2 justify-center mb-3">
                         <Badge variant="outline">{resource.difficulty}</Badge>
                         {resource.featured && (
@@ -445,12 +445,12 @@ export default function ResourceDetailPage() {
                     {/* 移动端快速统计信息 */}
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div className="text-center">
-                        <div className="font-semibold text-blue-600">{resource.downloads}</div>
-                        <div className="text-gray-600">下载</div>
-                      </div>
-                      <div className="text-center">
                         <div className="font-semibold text-green-600">{resource.views}</div>
                         <div className="text-gray-600">浏览</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-purple-600">{resource.reviewCount}</div>
+                        <div className="text-gray-600">评价</div>
                       </div>
                     </div>
                   </CardContent>
@@ -482,14 +482,7 @@ export default function ResourceDetailPage() {
                     <Separator />
 
                     {/* 资源统计 */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <div className="flex items-center justify-center mb-2">
-                          <Download className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div className="text-2xl font-bold text-blue-600">{resource.downloads}</div>
-                        <div className="text-sm text-gray-600">下载量</div>
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <div className="flex items-center justify-center mb-2">
                           <Eye className="w-5 h-5 text-green-600" />
@@ -504,12 +497,12 @@ export default function ResourceDetailPage() {
                         <div className="text-2xl font-bold text-pink-600">{stats.likesCount}</div>
                         <div className="text-sm text-gray-600">点赞数</div>
                       </div>
-                      <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <div className="flex items-center justify-center mb-2">
-                          <Star className="w-5 h-5 text-yellow-600" />
+                          <Bookmark className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-2xl font-bold text-yellow-600">{resource.rating}</div>
-                        <div className="text-sm text-gray-600">平均评分</div>
+                        <div className="text-2xl font-bold text-blue-600">{stats.favoritesCount}</div>
+                        <div className="text-sm text-gray-600">收藏数</div>
                       </div>
                     </div>
 
@@ -638,127 +631,12 @@ export default function ResourceDetailPage() {
 
               {/* 用户评价部分 */}
               <section id="reviews" className="scroll-mt-24">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Star className="w-5 h-5" />
-                      用户评价
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                      {/* 评分统计 */}
-                      <div className="lg:col-span-1">
-                        <div className="text-center mb-6">
-                          <div className="text-4xl font-bold mb-2">{resource.rating}</div>
-                          <div className="flex justify-center mb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-5 h-5 ${
-                                  i < Math.floor(resource.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <div className="text-sm text-gray-500">{stats.commentsCount} 条评价</div>
-                        </div>
-                        <div className="space-y-2">
-                          {ratingDistribution.map((item) => (
-                            <div key={item.stars} className="flex items-center gap-2">
-                              <span className="text-sm w-8">{item.stars}星</span>
-                              <Progress value={item.percentage} className="flex-1" />
-                              <span className="text-sm text-gray-500 w-12">{item.count}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* 写评价 */}
-                        <Card className="mt-6">
-                          <CardHeader>
-                            <CardTitle className="text-lg">写评价</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div>
-                              <Label className="text-sm">您的评分</Label>
-                              <div className="flex gap-1 mt-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-6 h-6 cursor-pointer ${
-                                      i < userRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                    }`}
-                                    onClick={() => setUserRating(i + 1)}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <Label htmlFor="review">评价内容</Label>
-                              <Textarea id="review" placeholder="分享您的使用体验..." className="mt-1" />
-                            </div>
-                            <Button className="w-full">提交评价</Button>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      {/* 评价列表 */}
-                      <div className="lg:col-span-2 space-y-6">
-                        {reviews.map((review) => (
-                          <Card key={review.id}>
-                            <CardContent className="p-6">
-                              <div className="flex items-start gap-4">
-                                <SmartAvatar 
-                                  name={review.user.name} 
-                                  src={review.user.avatar}
-                                  size="default"
-                                  className="w-10 h-10"
-                                />
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="font-medium">{review.user.name}</span>
-                                    {review.verified && (
-                                      <Badge variant="outline" className="text-xs">
-                                        <CheckCircle className="w-3 h-3 mr-1" />
-                                        已验证
-                                      </Badge>
-                                    )}
-                                    <span className="text-sm text-gray-500">{review.user.role}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="flex">
-                                      {Array.from({ length: 5 }).map((_, i) => (
-                                        <Star
-                                          key={i}
-                                          className={`w-4 h-4 ${
-                                            i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                    <span className="text-sm text-gray-500">{review.date}</span>
-                                  </div>
-                                  <h4 className="font-medium mb-2">{review.title}</h4>
-                                  <p className="text-gray-700 mb-3">{review.content}</p>
-                                  <div className="flex items-center gap-4">
-                                    <Button variant="ghost" size="sm">
-                                      <ThumbsUp className="w-3 h-3 mr-1" />
-                                      有用 ({review.helpful})
-                                    </Button>
-                                    <Button variant="ghost" size="sm">
-                                      <MessageSquare className="w-3 h-3 mr-1" />
-                                      回复
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <CommentSection 
+                  targetType="edu-resource" 
+                  targetId={id} 
+                  showTitle={true}
+                  className=""
+                />
               </section>
 
               {/* 相关资源部分 */}

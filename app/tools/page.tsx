@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { useTools, useFeaturedTools, useStats, useToolCategories } from "@/hooks/useStrapi"
+import { useInteraction } from "@/hooks/useInteraction"
 import strapiService from "@/lib/strapi"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -38,24 +39,172 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+// 工具卡片互动组件
+function ToolCard({ tool }: { tool: any }) {
+  // 使用 useMemo 稳定 targetId 和 initialStats，避免无限重渲染
+  const targetId = useMemo(() => tool.documentId || tool.id.toString(), [tool.documentId, tool.id])
+  
+  const initialStats = useMemo(() => ({
+    likesCount: tool.likesCount || 0,  // 使用正确的字段名
+    favoritesCount: tool.favoritesCount || 0,
+    commentsCount: tool.commentsCount || 0
+  }), [tool.likesCount, tool.favoritesCount, tool.commentsCount])
+
+  const {
+    isLiked,
+    isFavorited: isBookmarked,
+    stats,
+    loading: interactionLoading,
+    toggleLike,
+    toggleFavorite,
+    isAuthenticated
+  } = useInteraction({
+    targetType: 'ai-tool',
+    targetId,
+    initialStats
+  })
+
+  return (
+    <Card key={tool.id} className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 flex items-center justify-center">
+              {tool.logo.startsWith('http') ? (
+                <img 
+                  src={tool.logo} 
+                  alt={tool.name}
+                  className="w-10 h-10 rounded-lg object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'block';
+                  }}
+                />
+              ) : null}
+              <div 
+                className={`text-2xl ${tool.logo.startsWith('http') ? 'hidden' : ''}`}
+                style={tool.logo.startsWith('http') ? {display: 'none'} : {}}
+              >
+                {tool.logo.startsWith('http') ? '🔧' : tool.logo}
+              </div>
+            </div>
+            <div>
+              <CardTitle className="text-lg">{tool.name}</CardTitle>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="text-xs">
+                  {tool.difficulty}
+                </Badge>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            {tool.featured && (
+              <Badge variant="default" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                <Award className="w-3 h-3 mr-1" />
+                精选
+              </Badge>
+            )}
+          </div>
+        </div>
+        <CardDescription className="text-sm text-gray-600 leading-relaxed">
+          {tool.description}
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-600">{tool.userCount}+ 用户</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <TrendingUp className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-600">{stats.likesCount} 点赞</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <Clock className="w-4 h-4" />
+              <span>{tool.lastUpdated}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">价格：{tool.priceRange}</span>
+            <span className="text-gray-600">{tool.tutorials} 个教程</span>
+          </div>
+
+          <div className="flex flex-wrap gap-1">
+            {tool.tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+            {tool.tags.length > 3 && (
+              <Badge variant="outline" className="text-xs">
+                +{tool.tags.length - 3}
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="flex-1" asChild>
+            <Link href={`/tools/${tool.documentId || tool.id}`}>
+              <BookOpen className="w-3 h-3 mr-1" />
+              查看详情
+            </Link>
+          </Button>
+          <Button size="sm" className="flex-1" asChild>
+            <a href={tool.url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="w-3 h-3 mr-1" />
+              访问工具
+            </a>
+          </Button>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className={`px-2 ${isLiked ? "bg-red-50 border-red-200" : ""}`}
+            onClick={toggleLike}
+            disabled={interactionLoading || !isAuthenticated}
+            title={!isAuthenticated ? "请先登录" : isLiked ? "取消点赞" : "点赞"}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+          </Button>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className={`px-2 ${isBookmarked ? "bg-blue-50 border-blue-200" : ""}`}
+            onClick={toggleFavorite}
+            disabled={interactionLoading || !isAuthenticated}
+            title={!isAuthenticated ? "请先登录" : isBookmarked ? "取消收藏" : "收藏"}
+          >
+            <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-blue-600 text-blue-600" : ""}`} />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function ToolsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedPricing, setSelectedPricing] = useState("all")
-  const [selectedRating, setSelectedRating] = useState("all")
-  const [sortBy, setSortBy] = useState("rating")
+  const [sortBy, setSortBy] = useState("createdAt:desc")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   
   // 判断是否有筛选条件
   const hasFilters = selectedCategory !== "all" || selectedTags.length > 0 || searchQuery.trim() !== "" || 
-                     selectedPricing !== "all" || selectedRating !== "all"
+                     selectedPricing !== "all"
 
   // 使用 Strapi API Hooks
   const { data: stats, loading: statsLoading } = useStats()
   const { data: allTools, loading: toolsLoading, error: toolsError, loadMore, hasMore, pagination } = useTools({
     pageSize: hasFilters ? 100 : 12, // 有筛选条件时获取更多数据，无筛选时分页
-    sort: 'createdAt:desc',
+    sort: 'createdAt:desc', // 使用创建时间，这个字段创建后不会变化
     page: currentPage
   })
   const { data: featuredToolsData, loading: featuredLoading } = useFeaturedTools(6)
@@ -113,7 +262,7 @@ export default function ToolsPage() {
           ? `http://localhost:1337${data.logo.url}` 
           : "🔧",
         developer: data.developer || "未知",
-        lastUpdated: new Date(data.updatedAt || tool.updatedAt || Date.now()).toISOString().split('T')[0],
+        lastUpdated: new Date(data.publishedAt || data.createdAt || Date.now()).toISOString().split('T')[0],
         difficulty: data.difficulty || '入门',
         useCases: data.useCases || [],
         pros: data.pros || [],
@@ -121,6 +270,13 @@ export default function ToolsPage() {
         tutorials: 0,
         isBookmarked: false,
         isRecommended: data.isRecommended || false,
+        // 添加统计字段，避免组件重渲染
+        likesCount: data.likesCount || 0,
+        favoritesCount: data.favoritesCount || 0,
+        commentsCount: data.commentsCount || 0,
+        // 保存原始日期字段用于排序
+        publishedAt: data.publishedAt,
+        createdAt: data.createdAt,
       }
     })
   }, [allTools])
@@ -173,22 +329,15 @@ export default function ToolsPage() {
       (selectedPricing === "free" && tool.pricing.includes("免费")) ||
       (selectedPricing === "paid" && tool.pricing.includes("付费"))
 
-    const matchesRating =
-      selectedRating === "all" ||
-      (selectedRating === "4+" && tool.rating >= 4) ||
-      (selectedRating === "4.5+" && tool.rating >= 4.5)
-
     const matchesTags = selectedTags.length === 0 || selectedTags.some(selectedTag =>
       tool.tags.some(toolTag => toolTag === selectedTag)
     )
 
-    return matchesSearch && matchesCategory && matchesPricing && matchesRating && matchesTags
+    return matchesSearch && matchesCategory && matchesPricing && matchesTags
   })
 
   const sortedTools = [...filteredTools].sort((a, b) => {
     switch (sortBy) {
-      case "rating":
-        return b.rating - a.rating
       case "users":
         return Number.parseInt(b.users.replace(/[^\d]/g, "")) - Number.parseInt(a.users.replace(/[^\d]/g, ""))
       case "reviews":
@@ -197,8 +346,10 @@ export default function ToolsPage() {
         return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()
       case "name":
         return a.name.localeCompare(b.name)
+      case "createdAt:desc":
       default:
-        return 0
+        // 使用稳定的 createdAt 字段，这个字段创建后不会变化
+        return new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime()
     }
   })
 
@@ -214,13 +365,36 @@ export default function ToolsPage() {
         documentId: tool.documentId,
         name: data.name || '未命名工具',
         description: extractText(data.description || data.shortDesc || '暂无描述'),
+        category: data.category || '其他',
         rating: data.rating || 5.0,
+        reviewCount: 0,
+        users: data.popularity > 10000 ? `${Math.floor(data.popularity / 1000)}K+` : `${data.popularity || 0}+`,
+        userCount: data.popularity || 0,
         pricing: data.pricing || '免费',
+        priceRange: data.pricing || '免费',
+        features: data.features || [],
+        tags: data.tags || [],
         url: data.officialUrl || '#',
+        featured: true,
         logo: data.logo?.url 
           ? `http://localhost:1337${data.logo.url}` 
           : "🔧",
-        featured: true
+        developer: data.developer || "未知",
+        lastUpdated: new Date(data.publishedAt || data.createdAt || Date.now()).toISOString().split('T')[0],
+        difficulty: data.difficulty || '入门',
+        useCases: data.useCases || [],
+        pros: data.pros || [],
+        cons: data.cons || [],
+        tutorials: 0,
+        isBookmarked: false,
+        isRecommended: data.isRecommended || false,
+        // 添加统计字段，避免组件重渲染
+        likesCount: data.likesCount || 0,
+        favoritesCount: data.favoritesCount || 0,
+        commentsCount: data.commentsCount || 0,
+        // 保存原始日期字段用于排序
+        publishedAt: data.publishedAt,
+        createdAt: data.createdAt,
       }
     })
   }, [featuredToolsData])
@@ -347,21 +521,6 @@ export default function ToolsPage() {
                       </Select>
                     </div>
 
-                    {/* Rating Filter */}
-                    <div>
-                      <h4 className="font-medium mb-3">用户评分</h4>
-                      <Select value={selectedRating} onValueChange={setSelectedRating}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择评分" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">全部评分</SelectItem>
-                          <SelectItem value="4.5+">4.5分及以上</SelectItem>
-                          <SelectItem value="4+">4.0分及以上</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
                     {/* 热门标签筛选 */}
                     <div>
                       <div className="flex items-center justify-between mb-3">
@@ -469,7 +628,7 @@ export default function ToolsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="rating">评分最高</SelectItem>
+                      <SelectItem value="createdAt:desc">最新发布</SelectItem>
                       <SelectItem value="users">用户最多</SelectItem>
                       <SelectItem value="reviews">评价最多</SelectItem>
                       <SelectItem value="updated">最近更新</SelectItem>
@@ -480,110 +639,7 @@ export default function ToolsPage() {
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   {sortedTools.map((tool) => (
-                    <Card key={tool.id} className="hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 flex items-center justify-center">
-                              {tool.logo.startsWith('http') ? (
-                                <img 
-                                  src={tool.logo} 
-                                  alt={tool.name}
-                                  className="w-10 h-10 rounded-lg object-cover"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    e.currentTarget.nextElementSibling.style.display = 'block';
-                                  }}
-                                />
-                              ) : null}
-                              <div 
-                                className={`text-2xl ${tool.logo.startsWith('http') ? 'hidden' : ''}`}
-                                style={tool.logo.startsWith('http') ? {display: 'none'} : {}}
-                              >
-                                {tool.logo.startsWith('http') ? '🔧' : tool.logo}
-                              </div>
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{tool.name}</CardTitle>
-                              <div className="flex items-center gap-2 mt-1">
-                                <div className="flex items-center gap-1">
-                                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                  <span className="text-sm font-medium">{tool.rating}</span>
-                                  <span className="text-xs text-gray-500">({tool.reviewCount})</span>
-                                </div>
-                                <Badge variant="outline" className="text-xs">
-                                  {tool.difficulty}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {tool.featured && (
-                              <Badge className="bg-yellow-100 text-yellow-800">
-                                <Award className="w-3 h-3 mr-1" />
-                                精选
-                              </Badge>
-                            )}
-                            {tool.isRecommended && <Badge className="bg-blue-100 text-blue-800">推荐</Badge>}
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <CardDescription className="mb-4 line-clamp-2">{tool.description}</CardDescription>
-
-                        <div className="space-y-3 mb-4">
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Users className="w-4 h-4" />
-                              <span>{tool.users} 用户</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Clock className="w-4 h-4" />
-                              <span>{tool.lastUpdated}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">价格：{tool.priceRange}</span>
-                            <span className="text-gray-600">{tool.tutorials} 个教程</span>
-                          </div>
-
-                          <div className="flex flex-wrap gap-1">
-                            {tool.tags.slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {tool.tags.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{tool.tags.length - 3}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="flex-1" asChild>
-                            <Link href={`/tools/${tool.documentId || tool.id}`}>
-                              <BookOpen className="w-3 h-3 mr-1" />
-                              查看详情
-                            </Link>
-                          </Button>
-                          <Button size="sm" className="flex-1" asChild>
-                            <a href={tool.url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              访问工具
-                            </a>
-                          </Button>
-                          <Button size="sm" variant="ghost" className="px-2">
-                            <Heart className={`w-4 h-4 ${tool.isBookmarked ? "fill-red-500 text-red-500" : ""}`} />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="px-2">
-                            <Bookmark className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <ToolCard key={tool.id} tool={tool} />
                   ))}
                 </div>
 
@@ -694,63 +750,7 @@ export default function ToolsPage() {
           <TabsContent value="featured">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {featuredTools.map((tool) => (
-                <Card key={tool.id} className="hover:shadow-lg transition-shadow border-2 border-yellow-200">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 flex items-center justify-center">
-                          {tool.logo.startsWith('http') ? (
-                            <img 
-                              src={tool.logo} 
-                              alt={tool.name}
-                              className="w-10 h-10 rounded-lg object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling.style.display = 'block';
-                              }}
-                            />
-                          ) : null}
-                          <div 
-                            className={`text-2xl ${tool.logo.startsWith('http') ? 'hidden' : ''}`}
-                            style={tool.logo.startsWith('http') ? {display: 'none'} : {}}
-                          >
-                            {tool.logo.startsWith('http') ? '🔧' : tool.logo}
-                          </div>
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">{tool.name}</CardTitle>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{tool.rating}</span>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              {tool.pricing}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      <Badge className="bg-yellow-100 text-yellow-800">
-                        <Award className="w-3 h-3 mr-1" />
-                        精选
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="mb-4">{tool.description}</CardDescription>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1" asChild>
-                        <Link href={`/tools/${tool.documentId || tool.id}`}>查看详情</Link>
-                      </Button>
-                      <Button size="sm" className="flex-1" asChild>
-                        <a href={tool.url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-3 h-3 mr-1" />
-                          访问工具
-                        </a>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ToolCard key={tool.id} tool={tool} />
               ))}
             </div>
           </TabsContent>

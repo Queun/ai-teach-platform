@@ -312,6 +312,9 @@ export function useComments({
   const [hasMore, setHasMore] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [creating, setCreating] = useState(false);
+  const [stats, setStats] = useState({ likesCount: 0, favoritesCount: 0, commentsCount: 0 });
+  const [userCommentLikes, setUserCommentLikes] = useState<Record<string, boolean>>({});
   
   // 检查认证状态
   const checkAuthStatus = useCallback(async () => {
@@ -337,7 +340,8 @@ export function useComments({
         targetType,
         targetId,
         page,
-        pageSize
+        pageSize,
+        false // 普通用户只看已发布的评论，管理员可以通过单独的界面查看草稿
       );
       
       if (reset || page === 1) {
@@ -348,18 +352,52 @@ export function useComments({
       
       setCurrentPage(page);
       setHasMore(page < response.meta.pagination.pageCount);
+      
+      // 修复：根据返回的实际评论数据更新统计
+      const commentsCount = response.meta.pagination.total || 0;
+      setStats(prev => ({
+        ...prev,
+        commentsCount: commentsCount
+      }));
+      
+      // 获取用户对这些评论的点赞状态
+      if (currentUser && response.data.length > 0) {
+        const commentIds: string[] = [];
+        const collectCommentIds = (comments: any[]) => {
+          comments.forEach(comment => {
+            const commentId = comment.documentId || comment.id;
+            if (commentId) commentIds.push(commentId);
+            // 也收集回复的ID
+            const replies = comment.replies || comment.attributes?.replies || [];
+            if (replies.length > 0) {
+              collectCommentIds(replies);
+            }
+          });
+        };
+        
+        collectCommentIds(response.data);
+        
+        if (commentIds.length > 0) {
+          try {
+            const userLikes = await strapiService.getUserCommentLikes(currentUser.id, commentIds);
+            setUserCommentLikes(userLikes);
+          } catch (error) {
+            console.error('Failed to fetch user comment likes:', error);
+          }
+        }
+      }
     } catch (err: any) {
       setError(err.message || '获取评论失败');
       console.error('Error fetching comments:', err);
     } finally {
       setLoading(false);
     }
-  }, [targetType, targetId, pageSize]);
+  }, [targetType, targetId, pageSize, currentUser?.id]); // 只依赖 currentUser.id，而不是整个 currentUser 对象
   
   // 创建评论
   const createComment = useCallback(async (
     content: string,
-    parentId?: number
+    parentId?: string // 支持字符串 ID
   ): Promise<boolean> => {
     if (!isAuthenticated || !currentUser) {
       setError('请先登录');
@@ -387,7 +425,143 @@ export function useComments({
       setError(err.message || '评论发布失败');
       return false;
     }
-  }, [isAuthenticated, currentUser, targetType, targetId, fetchComments]);
+  }, [isAuthenticated, currentUser?.id, targetType, targetId, fetchComments]);
+  
+  // 切换评论点赞
+  const toggleCommentLike = useCallback(async (commentId: string) => {
+    if (!isAuthenticated || !currentUser) return;
+    
+    // 乐观UI更新
+    const currentIsLiked = userCommentLikes[commentId] || false;
+    const newIsLiked = !currentIsLiked;
+    
+    // 先更新UI状态
+    setUserCommentLikes(prev => ({
+      ...prev,
+      [commentId]: newIsLiked
+    }));
+    
+    // 乐观更新评论的点赞数并重新排序
+    setComments(prevComments => {
+      const updatedComments = prevComments.map(comment => {
+        if ((comment.documentId || comment.id) === commentId) {
+          const currentLikes = comment.likesCount || comment.attributes?.likesCount || 0;
+          const newLikes = Math.max(0, currentLikes + (newIsLiked ? 1 : -1));
+          return {
+            ...comment,
+            likesCount: newLikes,
+            ...(comment.attributes && {
+              attributes: {
+                ...comment.attributes,
+                likesCount: newLikes
+              }
+            })
+          };
+        }
+        // 也更新回复中的点赞数
+        if (comment.replies && comment.replies.length > 0) {
+          const updatedReplies = comment.replies.map((reply: any) => {
+            if ((reply.documentId || reply.id) === commentId) {
+              const currentLikes = reply.likesCount || reply.attributes?.likesCount || 0;
+              const newLikes = Math.max(0, currentLikes + (newIsLiked ? 1 : -1));
+              return {
+                ...reply,
+                likesCount: newLikes,
+                ...(reply.attributes && {
+                  attributes: {
+                    ...reply.attributes,
+                    likesCount: newLikes
+                  }
+                })
+              };
+            }
+            return reply;
+          });
+          return {
+            ...comment,
+            replies: updatedReplies
+          };
+        }
+        return comment;
+      });
+
+      // 按点赞数降序，然后按创建时间降序重新排序
+      return updatedComments.sort((a, b) => {
+        const aLikes = a.likesCount || a.attributes?.likesCount || 0;
+        const bLikes = b.likesCount || b.attributes?.likesCount || 0;
+        
+        if (aLikes !== bLikes) {
+          return bLikes - aLikes; // 点赞数降序
+        }
+        
+        // 点赞数相同时按创建时间降序
+        const aTime = new Date(a.createdAt || a.attributes?.createdAt).getTime();
+        const bTime = new Date(b.createdAt || b.attributes?.createdAt).getTime();
+        return bTime - aTime;
+      });
+    });
+    
+    try {
+      const result = await strapiService.toggleCommentLike(commentId, currentUser.id);
+      if (result.success) {
+        // 确保UI状态与服务器状态一致
+        setUserCommentLikes(prev => ({
+          ...prev,
+          [commentId]: result.isActive || false
+        }));
+        // 延迟刷新评论列表以确保服务器排序一致（可选）
+        setTimeout(() => {
+          fetchComments(currentPage, false);
+        }, 2000);
+      } else {
+        // 如果失败，回滚UI状态和排序
+        setUserCommentLikes(prev => ({
+          ...prev,
+          [commentId]: currentIsLiked
+        }));
+        // 回滚评论点赞数并重新排序
+        setComments(prevComments => {
+          const revertedComments = prevComments.map(comment => {
+            if ((comment.documentId || comment.id) === commentId) {
+              const currentLikes = comment.likesCount || comment.attributes?.likesCount || 0;
+              const revertedLikes = Math.max(0, currentLikes - (newIsLiked ? 1 : -1));
+              return {
+                ...comment,
+                likesCount: revertedLikes,
+                ...(comment.attributes && {
+                  attributes: {
+                    ...comment.attributes,
+                    likesCount: revertedLikes
+                  }
+                })
+              };
+            }
+            return comment;
+          });
+
+          return revertedComments.sort((a, b) => {
+            const aLikes = a.likesCount || a.attributes?.likesCount || 0;
+            const bLikes = b.likesCount || b.attributes?.likesCount || 0;
+            
+            if (aLikes !== bLikes) {
+              return bLikes - aLikes;
+            }
+            
+            const aTime = new Date(a.createdAt || a.attributes?.createdAt).getTime();
+            const bTime = new Date(b.createdAt || b.attributes?.createdAt).getTime();
+            return bTime - aTime;
+          });
+        });
+      }
+    } catch (error) {
+      console.error('点赞评论失败:', error);
+      // 错误时回滚UI状态
+      setUserCommentLikes(prev => ({
+        ...prev,
+        [commentId]: currentIsLiked
+      }));
+    }
+  }, [isAuthenticated, currentUser?.id, userCommentLikes, currentPage, fetchComments]);
   
   // 加载更多
   const loadMore = useCallback(async () => {
@@ -403,27 +577,53 @@ export function useComments({
   
   // 初始化
   useEffect(() => {
+    let mounted = true;
+    
     const initialize = async () => {
-      await checkAuthStatus();
-      await fetchComments(1, true);
+      try {
+        // 检查用户认证状态
+        const user = await strapiService.getCurrentUser();
+        if (mounted) {
+          setCurrentUser(user);
+          setIsAuthenticated(!!user);
+        }
+        
+        // 获取评论
+        if (mounted) {
+          await fetchComments(1, true);
+        }
+      } catch (error) {
+        console.error('Initialize comments failed:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
     };
     
     initialize();
-  }, [targetType, targetId, checkAuthStatus, fetchComments]);
+    
+    // 清理函数
+    return () => {
+      mounted = false;
+    };
+  }, [targetType, targetId]); // 只依赖真正需要的值
   
   return {
     comments,
     loading,
     error,
     hasMore,
+    stats,
+    isAuthenticated,
+    user: currentUser,
+    creating,
+    userCommentLikes,
     
     // 操作方法
     createComment,
     loadMore,
     refresh,
-    
-    // 认证状态
-    isAuthenticated
+    toggleCommentLike
   };
 }
 

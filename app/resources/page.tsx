@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { SmartAvatar } from "@/components/ui/smart-avatar"
-import { Search, ExternalLink, Star, Eye, MessageSquare, ThumbsUp, Calendar, User, Award, Filter, X, Hash, ChevronDown, Loader2 } from "lucide-react"
+import { Search, ExternalLink, Star, Eye, MessageSquare, ThumbsUp, Calendar, User, Award, Filter, X, Hash, ChevronDown, Loader2, Bookmark } from "lucide-react"
 import Link from "next/link"
 
 export default function ResourcesPage() {
@@ -23,7 +23,7 @@ export default function ResourcesPage() {
   // 使用 Strapi API 获取数据
   const { data: allResources, loading: resourcesLoading, error: resourcesError, loadMore, hasMore, pagination } = useResources({
     pageSize: hasFilters ? 100 : 12, // 有筛选条件时获取更多数据，无筛选时分页
-    sort: 'createdAt:desc'
+    sort: 'createdAt:desc' // 使用创建时间，这个字段创建后不会变化
   })
   const { data: stats, loading: statsLoading } = useStats()
   const { data: categories, loading: categoriesLoading } = useResourceCategories()
@@ -75,13 +75,13 @@ export default function ResourcesPage() {
         category: data.category || 'templates',
         tags: data.tags || [],
         stats: {
-          likes: data.likes || 0,
+          likes: data.likesCount || 0,  // 使用新的 likesCount 字段（如果为 null 则显示 0）
           replies: 0, // 可以从关联的评论数据获取
           views: data.views || 0,
-          downloads: data.downloads || 0,
+          favorites: data.favoritesCount || 0,
         },
-        curatedAt: new Date(data.updatedAt || data.createdAt || Date.now()).toLocaleDateString('zh-CN'),
-        curatedAtRaw: new Date(data.updatedAt || data.createdAt || Date.now()), // 保存原始日期对象用于计算
+        curatedAt: new Date(data.publishedAt || data.createdAt || Date.now()).toLocaleDateString('zh-CN'),
+        curatedAtRaw: new Date(data.publishedAt || data.createdAt || Date.now()), // 保存原始日期对象用于计算
         curatedBy: "专家团队",
         featured: data.isFeatured || false,
         quality: data.isFeatured ? "精华" : "优质",
@@ -97,7 +97,9 @@ export default function ResourcesPage() {
         gradeLevel: data.gradeLevel || '',
         resourceType: data.resourceType || '',
         estimatedTime: data.estimatedTime || '',
-        rating: data.rating || 0,
+        // 保存原始日期字段用于排序
+        publishedAt: data.publishedAt,
+        createdAt: data.createdAt,
       }
     })
   }, [allResources])
@@ -198,15 +200,12 @@ export default function ResourcesPage() {
   const sortedResources = [...filteredResources].sort((a, b) => {
     switch (sortBy) {
       case "recent":
-        const dateA = a.curatedAtRaw || new Date(a.curatedAt);
-        const dateB = b.curatedAtRaw || new Date(b.curatedAt);
+        // 使用稳定的 createdAt 字段，这个字段创建后不会变化
+        const dateA = new Date(a.createdAt || '');
+        const dateB = new Date(b.createdAt || '');
         return dateB.getTime() - dateA.getTime();
       case "popular":
         return b.stats.likes - a.stats.likes
-      case "downloads":
-        return b.stats.downloads - a.stats.downloads
-      case "rating":
-        return b.rating - a.rating
       default:
         return 0
     }
@@ -497,8 +496,6 @@ export default function ResourcesPage() {
                   <SelectContent>
                     <SelectItem value="recent">最新发布</SelectItem>
                     <SelectItem value="popular">最受欢迎</SelectItem>
-                    <SelectItem value="downloads">下载最多</SelectItem>
-                    <SelectItem value="rating">评分最高</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -546,12 +543,6 @@ export default function ResourcesPage() {
                         <div className="font-medium">{resource.author.name}</div>
                         <div className="text-sm text-gray-600">{resource.author.title}</div>
                       </div>
-                      {resource.rating > 0 && (
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{resource.rating}</span>
-                        </div>
-                      )}
                     </div>
 
                     {/* Tags */}
@@ -572,16 +563,16 @@ export default function ResourcesPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-6 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
-                          <ThumbsUp className="w-4 h-4" />
-                          {resource.stats.likes} 点赞
-                        </div>
-                        <div className="flex items-center gap-1">
                           <Eye className="w-4 h-4" />
                           {resource.stats.views} 浏览
                         </div>
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {resource.stats.downloads} 下载
+                          <ThumbsUp className="w-4 h-4" />
+                          {resource.stats.likes} 点赞
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Bookmark className="w-4 h-4" />
+                          {resource.stats.favorites || 0} 收藏
                         </div>
                       </div>
 

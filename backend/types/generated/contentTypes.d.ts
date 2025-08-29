@@ -431,6 +431,7 @@ export interface ApiAiToolAiTool extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     useCases: Schema.Attribute.JSON;
     userRating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    views: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
   };
 }
 
@@ -449,6 +450,7 @@ export interface ApiCommentComment extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    likesCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -608,7 +610,9 @@ export interface ApiUserActionUserAction extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    actionType: Schema.Attribute.Enumeration<['like', 'favorite']> &
+    actionType: Schema.Attribute.Enumeration<
+      ['like', 'favorite', 'comment-like']
+    > &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

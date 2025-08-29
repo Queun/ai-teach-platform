@@ -108,9 +108,13 @@ class StrapiService {
     // 过滤器
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined) {
+          // 特殊处理：过滤null值（用于获取顶级评论）
+          if (value === null) {
+            searchParams.set(`filters[${key}][$null]`, 'true');
+          }
           // 对于特殊字段使用精确匹配
-          if (key === 'users_permissions_user' || key === 'targetId' || key === 'targetType' || key === 'actionType' || key === 'isActive') {
+          else if (key === 'users_permissions_user' || key === 'targetId' || key === 'targetType' || key === 'actionType' || key === 'isActive' || key === 'parent') {
             searchParams.set(`filters[${key}][$eq]`, value.toString());
           } else if (typeof value === 'boolean') {
             searchParams.set(`filters[${key}][$eq]`, value.toString());
@@ -213,7 +217,7 @@ class StrapiService {
   async getRecentResources(limit = 12): Promise<StrapiResponse<EduResource>> {
     return this.getResources({
       pageSize: limit,
-      sort: 'createdAt:desc'
+      sort: 'publishedAt:desc'
     });
   }
 
@@ -516,6 +520,9 @@ class StrapiService {
           })
         });
 
+        // 🔥 关键修改：同步更新内容的统计数据
+        await this.syncContentStats(targetType, targetId);
+
         return { success: true, isActive: newIsActive };
       } else {
         // 不存在记录，创建新的互动记录
@@ -534,11 +541,50 @@ class StrapiService {
           })
         });
         
+        // 🔥 关键修改：同步更新内容的统计数据
+        await this.syncContentStats(targetType, targetId);
+        
         return { success: true, isActive: true };
       }
     } catch (error) {
       console.error('Error toggling user action:', error);
       return { success: false, isActive: false };
+    }
+  }
+
+  // 同步内容的统计数据
+  async syncContentStats(
+    targetType: 'ai-tool' | 'edu-resource' | 'news-article',
+    targetId: number | string
+  ): Promise<boolean> {
+    try {
+      // 获取最新的互动统计数据
+      const stats = await this.getInteractionStats(targetType, targetId);
+      
+      // 映射 targetType 到对应的 API 端点
+      const contentTypeMap = {
+        'ai-tool': 'ai-tools',
+        'edu-resource': 'edu-resources', 
+        'news-article': 'news-articles'
+      } as const;
+      
+      const contentApiType = contentTypeMap[targetType];
+      
+      // 更新内容的统计字段
+      const result = await this.updateContentStats(contentApiType, targetId, {
+        likesCount: stats.likesCount,
+        favoritesCount: stats.favoritesCount,
+        commentsCount: stats.commentsCount
+      });
+      
+      if (result) {
+        console.log(`✅ 已同步 ${targetType} ${targetId} 的统计数据:`, stats);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error(`❌ 同步统计数据失败 ${targetType} ${targetId}:`, error);
+      return false;
     }
   }
 
@@ -595,7 +641,7 @@ class StrapiService {
   // 更新内容的统计数据
   async updateContentStats(
     contentType: 'ai-tools' | 'edu-resources' | 'news-articles',
-    contentId: number,
+    contentId: number | string, // 支持字符串ID（documentId）
     stats: Partial<InteractionStats>
   ): Promise<boolean> {
     try {
@@ -615,21 +661,24 @@ class StrapiService {
   // 获取评论列表
   async getComments(
     targetType: 'ai-tool' | 'edu-resource' | 'news-article',
-    targetId: number,
+    targetId: number | string,
     page = 1,
-    pageSize = 10
+    pageSize = 10,
+    includeUnpublished = false // 新增参数：是否包含未发布的评论（用于管理员审核）
   ): Promise<StrapiResponse<Comment>> {
     try {
       const queryParams = this.buildQueryParams({
         filters: {
           targetType,
-          targetId
+          targetId,
+          parent: null // 只获取顶级评论（没有父评论的评论）
         },
-        populate: ['users_permissions_user', 'parent', 'replies'],
-        sort: 'createdAt:desc',
+        populate: ['users_permissions_user', 'replies', 'replies.users_permissions_user'],
+        sort: 'likesCount:desc,createdAt:desc', // 先按点赞数降序，再按创建时间降序
         page,
         pageSize,
-        publicationState: 'live'
+        // 根据参数决定是否包含草稿评论
+        publicationState: includeUnpublished ? 'preview' : 'live'
       });
 
       return await this.request(`/comments?${queryParams}`);
@@ -653,9 +702,9 @@ class StrapiService {
   async createComment(
     content: string,
     targetType: 'ai-tool' | 'edu-resource' | 'news-article',
-    targetId: number,
+    targetId: number | string,
     userId: number,
-    parentId?: number
+    parentId?: number | string // 支持字符串 ID
   ): Promise<{ success: boolean; comment?: Comment }> {
     if (!this.userToken) {
       throw new Error('User authentication required');
@@ -670,13 +719,19 @@ class StrapiService {
       };
 
       if (parentId) {
-        commentData.parent = parentId;
+        commentData.parent = {
+          connect: [parentId]
+        };
       }
 
+      // 创建评论为草稿状态，需要审核后发布
       const response: StrapiSingleResponse<Comment> = await this.request('/comments', {
         method: 'POST',
         body: JSON.stringify({
-          data: commentData
+          data: {
+            ...commentData,
+            publishedAt: null // 明确设置为草稿状态
+          }
         })
       });
 
@@ -686,6 +741,47 @@ class StrapiService {
       };
     } catch (error) {
       console.error('Error creating comment:', error);
+      return { success: false };
+    }
+  }
+
+  // 审核评论（发布草稿评论）
+  async approveComment(commentId: number | string): Promise<{ success: boolean }> {
+    if (!this.userToken) {
+      throw new Error('User authentication required');
+    }
+
+    try {
+      await this.request(`/comments/${commentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          data: {
+            publishedAt: new Date().toISOString() // 设置发布时间
+          }
+        })
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error approving comment:', error);
+      return { success: false };
+    }
+  }
+
+  // 拒绝评论（删除草稿评论）
+  async rejectComment(commentId: number | string): Promise<{ success: boolean }> {
+    if (!this.userToken) {
+      throw new Error('User authentication required');
+    }
+
+    try {
+      await this.request(`/comments/${commentId}`, {
+        method: 'DELETE'
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error rejecting comment:', error);
       return { success: false };
     }
   }
@@ -1216,6 +1312,290 @@ class StrapiService {
     } catch (error) {
       console.error('Error removing user action:', error);
       return false;
+    }
+  }
+
+  // =============
+  // 浏览量追踪功能
+  // =============
+
+  // 增加浏览量
+  async incrementViews(
+    contentType: 'ai-tools' | 'edu-resources' | 'news-articles',
+    contentId: number | string
+  ): Promise<boolean> {
+    try {
+      // 首先获取当前内容的浏览量
+      const contentResponse = await this.request(`/${contentType}/${contentId}?populate=*`);
+      const currentViews = contentResponse.data?.attributes?.views || contentResponse.data?.views || 0;
+
+      // 更新浏览量
+      await this.request(`/${contentType}/${contentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          data: {
+            views: currentViews + 1
+          }
+        })
+      });
+
+      return true;
+    } catch (error: any) {
+      // 如果错误是 "Invalid key views"，说明该内容类型没有 views 字段
+      if (error.message?.includes('Invalid key views')) {
+        console.warn(`⚠️  ${contentType} 没有 views 字段，跳过浏览量更新`);
+        return false;
+      }
+      
+      console.error('Error incrementing views:', error);
+      return false;
+    }
+  }
+
+  // 批量增加浏览量（可用于统计多个内容的浏览情况）
+  async batchIncrementViews(
+    items: Array<{
+      contentType: 'ai-tools' | 'edu-resources' | 'news-articles';
+      contentId: number | string;
+    }>
+  ): Promise<{ successful: number; failed: number }> {
+    let successful = 0;
+    let failed = 0;
+
+    const promises = items.map(async (item) => {
+      try {
+        const success = await this.incrementViews(item.contentType, item.contentId);
+        if (success) {
+          successful++;
+        } else {
+          failed++;
+        }
+      } catch (error) {
+        failed++;
+      }
+    });
+
+    await Promise.allSettled(promises);
+
+    return { successful, failed };
+  }
+
+  // 获取浏览量统计（可选功能，用于管理面板）
+  async getViewsStats(
+    contentType: 'ai-tools' | 'edu-resources' | 'news-articles',
+    dateRange?: {
+      startDate: string;
+      endDate: string;
+    }
+  ): Promise<{
+    totalViews: number;
+    averageViews: number;
+    topContent: Array<{
+      id: number | string;
+      title: string;
+      views: number;
+    }>;
+  }> {
+    try {
+      // 获取所有内容及其浏览量
+      const response = await this.request(`/${contentType}?sort=views:desc&populate=*&pagination[pageSize]=100`);
+
+      const contents = response.data || [];
+      let totalViews = 0;
+      const topContent = [];
+
+      for (const content of contents.slice(0, 10)) { // 只取前10个
+        const data = content.attributes || content;
+        const views = data.views || 0;
+        totalViews += views;
+        
+        topContent.push({
+          id: content.documentId || content.id,
+          title: data.name || data.title || '未知内容',
+          views
+        });
+      }
+
+      const averageViews = contents.length > 0 ? totalViews / contents.length : 0;
+
+      return {
+        totalViews,
+        averageViews: Math.round(averageViews * 100) / 100, // 保留两位小数
+        topContent
+      };
+    } catch (error) {
+      console.error('Error getting views stats:', error);
+      return {
+        totalViews: 0,
+        averageViews: 0,
+        topContent: []
+      };
+    }
+  }
+
+  // 获取内容互动统计数据
+  async getInteractionStats(
+    targetType: 'ai-tool' | 'edu-resource' | 'news-article',
+    targetId: number | string
+  ): Promise<InteractionStats> {
+    try {
+      // 根据不同类型获取对应内容的统计数据
+      let endpoint = '';
+      switch (targetType) {
+        case 'ai-tool':
+          endpoint = `/ai-tools/${targetId}`;
+          break;
+        case 'edu-resource':
+          endpoint = `/edu-resources/${targetId}`;
+          break;
+        case 'news-article':
+          endpoint = `/news-articles/${targetId}`;
+          break;
+      }
+
+      const response = await this.request(`${endpoint}?populate=*`);
+      const data = response.data;
+
+      return {
+        likesCount: data.likesCount || 0,
+        favoritesCount: data.favoritesCount || 0,
+        commentsCount: data.commentsCount || 0
+      };
+    } catch (error) {
+      console.error('Error fetching interaction stats:', error);
+      return {
+        likesCount: 0,
+        favoritesCount: 0,
+        commentsCount: 0
+      };
+    }
+  }
+
+  // 评论点赞功能
+  async toggleCommentLike(
+    commentId: number | string,
+    userId: number
+  ): Promise<{ success: boolean; isActive?: boolean }> {
+    if (!this.userToken) {
+      throw new Error('User authentication required');
+    }
+
+    try {
+      // 检查是否已经点赞过这个评论
+      const existingResponse = await this.request(
+        `/user-actions?filters[users_permissions_user][id][$eq]=${userId}&filters[actionType][$eq]=comment-like&filters[targetType][$eq]=comment&filters[targetId][$eq]=${commentId}`
+      );
+
+      let isActive = false;
+      let userActionId = null;
+
+      if (existingResponse.data && existingResponse.data.length > 0) {
+        // 已存在记录，切换状态
+        const existingAction = existingResponse.data[0];
+        userActionId = existingAction.documentId || existingAction.id;
+        // 修复：兼容不同的数据结构
+        const currentIsActive = existingAction.attributes?.isActive ?? existingAction.isActive ?? true;
+        isActive = !currentIsActive;
+
+        await this.request(`/user-actions/${userActionId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            data: { isActive }
+          })
+        });
+      } else {
+        // 创建新的点赞记录
+        isActive = true;
+        await this.request('/user-actions', {
+          method: 'POST',
+          body: JSON.stringify({
+            data: {
+              actionType: 'comment-like',
+              targetType: 'comment',
+              targetId: commentId,
+              users_permissions_user: userId,
+              isActive: true
+            }
+          })
+        });
+      }
+
+      // 更新评论的点赞数
+      if (isActive) {
+        // 点赞：增加评论的 likesCount
+        await this.updateCommentStats(commentId, 1);
+      } else {
+        // 取消点赞：减少评论的 likesCount
+        await this.updateCommentStats(commentId, -1);
+      }
+
+      return { success: true, isActive };
+    } catch (error) {
+      console.error('Error toggling comment like:', error);
+      return { success: false };
+    }
+  }
+
+  // 更新评论统计数据
+  private async updateCommentStats(commentId: number | string, likesCountDelta: number): Promise<void> {
+    try {
+      // 获取当前评论数据
+      const commentResponse = await this.request(`/comments/${commentId}`);
+      const currentLikesCount = commentResponse.data.likesCount || commentResponse.data.attributes?.likesCount || 0;
+      const newLikesCount = Math.max(0, currentLikesCount + likesCountDelta);
+
+      // 只有当点赞数真正发生变化时才更新
+      if (newLikesCount !== currentLikesCount) {
+        // 更新评论的点赞数
+        await this.request(`/comments/${commentId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            data: {
+              likesCount: newLikesCount
+            }
+          })
+        });
+      }
+    } catch (error) {
+      console.error('Error updating comment stats:', error);
+    }
+  }
+
+  // 获取用户对评论的点赞状态
+  async getUserCommentLikes(
+    userId: number,
+    commentIds: (number | string)[]
+  ): Promise<Record<string, boolean>> {
+    if (!this.userToken || commentIds.length === 0) {
+      return {};
+    }
+
+    try {
+      const filters = commentIds.map(id => `filters[targetId][$in][]=${id}`).join('&');
+      const response = await this.request(
+        `/user-actions?filters[users_permissions_user][id][$eq]=${userId}&filters[actionType][$eq]=comment-like&filters[targetType][$eq]=comment&filters[isActive][$eq]=true&${filters}`
+      );
+
+      const likeMap: Record<string, boolean> = {};
+      commentIds.forEach(id => {
+        likeMap[String(id)] = false;
+      });
+
+      if (response.data) {
+        response.data.forEach((action: any) => {
+          // 修复：兼容不同的数据结构
+          const isActive = action.attributes?.isActive ?? action.isActive ?? false;
+          const targetId = action.attributes?.targetId ?? action.targetId;
+          if (isActive && targetId) {
+            likeMap[String(targetId)] = true;
+          }
+        });
+      }
+
+      return likeMap;
+    } catch (error) {
+      console.error('Error fetching user comment likes:', error);
+      return {};
     }
   }
 }

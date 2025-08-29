@@ -140,10 +140,6 @@ export default function HomePage() {
                               <div className="font-medium text-sm sm:text-base truncate">{tool.name || 'AI工具'}</div>
                               <div className="text-xs text-gray-500">{tool.shortDesc || 'AI助手工具'}</div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs">{tool.rating || '4.9'}</span>
-                            </div>
                           </div>
                         ))
                       ) : (
@@ -446,10 +442,6 @@ export default function HomePage() {
                       <Badge variant="secondary" className="text-xs">
                         {resource.category || resource.resourceType || "教学资源"}
                       </Badge>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 sm:w-4 h-3 sm:h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs sm:text-sm font-medium">{resource.rating || '5.0'}</span>
-                      </div>
                     </div>
                     <CardTitle className="text-base sm:text-lg leading-tight group-hover:text-blue-600 transition-colors">
                       <Link href={`/resources/${resource.documentId || resource.id}`}>

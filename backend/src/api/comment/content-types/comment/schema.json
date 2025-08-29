@@ -40,6 +40,10 @@
       "relation": "manyToOne",
       "target": "api::comment.comment",
       "inversedBy": "replies"
+    },
+    "likesCount": {
+      "type": "integer",
+      "default": 0
     }
   }
 }

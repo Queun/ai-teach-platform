@@ -101,6 +101,11 @@ export interface AITool {
     quickStart: string;
     detailedGuide: string;
     useCases: string[];
+    
+    // 新的统计字段（来自用户互动）
+    likesCount: number;
+    favoritesCount: number;
+    commentsCount: number;
 
     // 管理字段
     isRecommended: boolean;
@@ -152,11 +157,15 @@ export interface EduResource {
     attachments: StrapiMediaArray;
     videoUrl: string;
 
-    // 统计数据
+    // 统计数据  
     downloads: number;
     views: number;
-    likes: number;
     rating: number;
+    
+    // 新的统计字段（来自用户互动）
+    likesCount: number;
+    favoritesCount: number;
+    commentsCount: number;
 
     // 教学相关
     objectives: string[];
@@ -214,6 +223,11 @@ export interface NewsArticle {
     // 统计
     views: number;
     shares: number;
+    
+    // 新的统计字段（来自用户互动）
+    likesCount: number;
+    favoritesCount: number;
+    commentsCount: number;
 
     // 状态管理
     // 🚨 删除 status - 使用 Strapi 内置发布状态
@@ -298,9 +312,9 @@ export interface StrapiError {
 export interface UserAction {
   id: number;
   attributes: {
-    actionType: 'like' | 'favorite';
-    targetType: 'ai-tool' | 'edu-resource' | 'news-article';
-    targetId: number;
+    actionType: 'like' | 'favorite' | 'comment-like';
+    targetType: 'ai-tool' | 'edu-resource' | 'news-article' | 'comment';
+    targetId: string;
     users_permissions_user: {
       data: {
         id: number;
@@ -322,7 +336,7 @@ export interface Comment {
   attributes: {
     content: string;
     targetType: 'ai-tool' | 'edu-resource' | 'news-article';
-    targetId: number;
+    targetId: string;
     users_permissions_user: {
       data: {
         id: number;
@@ -344,7 +358,7 @@ export interface Comment {
         attributes: Comment['attributes'];
       }>;
     };
-    isHelpful: number;
+    likesCount: number;
     createdAt: string;
     updatedAt: string;
     publishedAt?: string;

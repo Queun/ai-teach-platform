@@ -499,7 +499,7 @@ export default function DashboardPage() {
                         {favoritesHook.favorites.map((item, index) => {
                           const data = item.attributes || item;
                           const contentType = item.contentType;
-                          let title, description, url, category, rating;
+                          let title, description, url, category;
                           
                           // 根据内容类型提取信息
                           if (contentType === 'ai-tool') {
@@ -507,19 +507,16 @@ export default function DashboardPage() {
                             description = data.shortDesc || data.description || '暂无描述';
                             url = `/tools/${item.documentId || item.id}`;
                             category = data.category || 'AI工具';
-                            rating = data.rating || 5.0;
                           } else if (contentType === 'edu-resource') {
                             title = data.title || '未知资源';
                             description = data.summary || data.content?.substring(0, 100) || '暂无描述';
                             url = `/resources/${item.documentId || item.id}`;
                             category = data.category || '教育资源';
-                            rating = data.rating || 5.0;
                           } else if (contentType === 'news-article') {
                             title = data.title || '未知文章';
                             description = data.excerpt || data.content?.substring(0, 100) || '暂无摘要';
                             url = `/news/${item.documentId || item.id}`;
                             category = data.category || '新闻文章';
-                            rating = null; // 新闻通常没有评分
                           }
 
                           return (
@@ -538,13 +535,7 @@ export default function DashboardPage() {
                                         <Badge variant="secondary" className="text-xs">
                                           {category}
                                         </Badge>
-                                        {rating && (
-                                          <div className="flex items-center gap-1">
-                                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                            <span className="text-xs text-gray-600">{rating}</span>
-                                          </div>
-                                        )}
-                                      </div>
+                                                      </div>
                                     </div>
                                   </div>
                                   <Button

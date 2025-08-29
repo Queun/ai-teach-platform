@@ -69,3 +69,33 @@ The project uses a sophisticated design system with:
 ### Development Notes
 
 The application is designed as a comprehensive platform for educational professionals to discover, learn about, and use AI tools in their teaching practice. It features rich content sections, community elements, and detailed tool/resource directories.
+
+## 项目状态概览
+
+- ✅ **核心功能已完成**：用户系统、工具库、资源库、新闻模块、互动系统、Dashboard
+- ✅ **技术架构稳定**：Next.js 15 + Strapi 5 + PostgreSQL + Docker
+- ✅ **生产就绪状态**：完整的前后端数据流和用户体验
+
+## 重要参考文档
+
+当需要了解项目详细信息时，可主动查阅以下文档：
+
+- **📊 项目状态文档**：`docs/project-status.md`
+  - 完整的功能完成状态
+  - 技术架构详情
+  - 已知问题和解决方案
+  - 性能指标和数据库状态
+
+- **🎯 开发计划文档**：`docs/development-plan.md`
+  - 3-6个月功能路线图
+  - 里程碑和优先级规划
+  - 商业化和运营策略
+  - 团队和资源规划
+
+- **🔧 技术参考文档**：
+  - `docs/strapi5-development-notes.md` - Strapi 5 开发要点和常见问题
+  - `docs/user-interaction-system.md` - 用户互动系统设计文档
+
+- **📁 归档文档** (`docs/archive/`)：
+  - `develop-roadmap.md` - 历史开发路线图
+  - `strapi-content-types-reference.md` - 数据模型设计规范

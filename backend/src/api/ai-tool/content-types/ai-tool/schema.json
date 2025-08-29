@@ -127,6 +127,10 @@
     "commentsCount": {
       "type": "integer",
       "default": 0
+    },
+    "views": {
+      "type": "integer",
+      "default": 0
     }
   }
 }
