@@ -258,7 +258,7 @@ export default function ResourcesPage() {
               <Award className="w-8 h-8 text-yellow-600" />
               <h1 className="text-4xl font-bold text-gray-900">教育资源库</h1>
             </div>
-            <p className="text-xl text-gray-600 mb-2">专业策展的优质教学资源，助力您的教学创新</p>
+            <p className="text-xl text-gray-600 mb-2">专业审核的优质教学资源，助力您的教学创新</p>
             <p className="text-sm text-gray-500 mb-8">
               所有资源均经过教育专家精心筛选和审核
             </p>
@@ -597,7 +597,7 @@ export default function ResourcesPage() {
                     {/* Curation Info */}
                     <div className="mt-4 pt-3 border-t border-gray-100">
                       <div className="text-xs text-gray-500">
-                        由 <span className="font-medium">{resource.curatedBy}</span> 策展推荐
+                        由 <span className="font-medium">{resource.curatedBy}</span> 推荐审核
                       </div>
                     </div>
                   </CardContent>
@@ -654,7 +654,7 @@ export default function ResourcesPage() {
             <Card className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
               <CardContent className="p-6 text-center">
                 <h3 className="text-lg font-semibold mb-2">想要分享您的教学资源？</h3>
-                <p className="text-gray-600 mb-4">加入我们的社区，分享您的教学经验和资源，有机会被策展为精品内容</p>
+                <p className="text-gray-600 mb-4">加入我们的社区，分享您的教学经验和资源，有机会被审核为精品内容</p>
                 <div className="flex gap-2 justify-center">
                   <Button asChild>
                     <Link href="/community" rel="noopener noreferrer">
