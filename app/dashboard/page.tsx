@@ -11,8 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useFavorites, useInteractionHistory, useUserStats } from "@/hooks/useDashboard"
 import { useAuth } from "@/contexts/AuthContext"
+import strapiService from "@/lib/strapi"
 import {
   BookOpen,
   MessageSquare,
@@ -34,6 +38,9 @@ import {
   Calendar,
   Zap,
   Award,
+  KeyRound,
+  Smartphone,
+  Send
 } from "lucide-react"
 import Link from "next/link"
 
@@ -43,6 +50,31 @@ export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [favoriteFilter, setFavoriteFilter] = useState<'all' | 'ai-tool' | 'edu-resource' | 'news-article'>('all')
+
+  // 对话框状态
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
+  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false)
+
+  // 修改密码表单状态
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+
+  // 绑定手机号表单状态
+  const [phoneForm, setPhoneForm] = useState({
+    phoneNumber: '',
+    verificationCode: ''
+  })
+  const [phoneLoading, setPhoneLoading] = useState(false)
+  const [phoneError, setPhoneError] = useState('')
+  const [phoneSuccess, setPhoneSuccess] = useState('')
+  const [codeSending, setCodeSending] = useState(false)
+  const [countdown, setCountdown] = useState(0)
 
   // 使用Dashboard相关的Hooks
   const favoritesHook = useFavorites({ 
@@ -71,9 +103,146 @@ export default function DashboardPage() {
 
   const { logout } = useAuth()
 
+  // 倒计时效果
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [countdown])
+
+  // 对话框关闭时重置表单状态
+  useEffect(() => {
+    if (!passwordDialogOpen) {
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      setPasswordError('')
+      setPasswordSuccess('')
+    }
+  }, [passwordDialogOpen])
+
+  useEffect(() => {
+    if (!phoneDialogOpen) {
+      setPhoneForm({ phoneNumber: '', verificationCode: '' })
+      setPhoneError('')
+      setPhoneSuccess('')
+      setCountdown(0)
+    }
+  }, [phoneDialogOpen])
+
   const handleLogout = () => {
     logout()
     router.push("/auth/login")
+  }
+
+  // 处理修改密码
+  const handleChangePassword = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setPasswordError('请填写所有字段')
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('新密码与确认密码不一致')
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError('新密码长度至少6位')
+      return
+    }
+
+    setPasswordLoading(true)
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    try {
+      const result = await strapiService.changePassword(
+        passwordForm.currentPassword,
+        passwordForm.newPassword,
+        passwordForm.confirmPassword
+      )
+
+      if (result.success) {
+        setPasswordSuccess(result.message || '密码修改成功')
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+        // 3秒后关闭对话框
+        setTimeout(() => {
+          setPasswordDialogOpen(false)
+          setPasswordSuccess('')
+        }, 3000)
+      } else {
+        setPasswordError(result.message || '密码修改失败')
+      }
+    } catch (error) {
+      setPasswordError('密码修改失败，请重试')
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  // 发送验证码
+  const handleSendVerificationCode = async () => {
+    if (!phoneForm.phoneNumber) {
+      setPhoneError('请输入手机号码')
+      return
+    }
+
+    setCodeSending(true)
+    setPhoneError('')
+
+    try {
+      const result = await strapiService.sendPhoneVerificationCode(phoneForm.phoneNumber)
+      
+      if (result.success) {
+        setPhoneSuccess(result.message || '验证码已发送')
+        setCountdown(60) // 60秒倒计时
+        // 清除成功消息
+        setTimeout(() => setPhoneSuccess(''), 3000)
+      } else {
+        setPhoneError(result.message || '验证码发送失败')
+      }
+    } catch (error) {
+      setPhoneError('验证码发送失败，请重试')
+    } finally {
+      setCodeSending(false)
+    }
+  }
+
+  // 处理绑定手机号
+  const handleBindPhone = async () => {
+    if (!phoneForm.phoneNumber || !phoneForm.verificationCode) {
+      setPhoneError('请填写所有字段')
+      return
+    }
+
+    setPhoneLoading(true)
+    setPhoneError('')
+    setPhoneSuccess('')
+
+    try {
+      const result = await strapiService.bindPhoneNumber(
+        phoneForm.phoneNumber,
+        phoneForm.verificationCode
+      )
+
+      if (result.success) {
+        setPhoneSuccess(result.message || '手机号绑定成功')
+        setPhoneForm({ phoneNumber: '', verificationCode: '' })
+        // 3秒后关闭对话框
+        setTimeout(() => {
+          setPhoneDialogOpen(false)
+          setPhoneSuccess('')
+        }, 3000)
+      } else {
+        setPhoneError(result.message || '手机号绑定失败')
+      }
+    } catch (error) {
+      setPhoneError('手机号绑定失败，请重试')
+    } finally {
+      setPhoneLoading(false)
+    }
   }
 
   // 显示加载状态或认证检查
@@ -116,12 +285,14 @@ export default function DashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src="/placeholder.svg?height=64&width=64" />
-                    <AvatarFallback className="text-lg">{(user?.username || user?.name)?.[0] || 'U'}</AvatarFallback>
-                  </Avatar>
+                  <SmartAvatar 
+                    name={user?.username || (user as any)?.name || '用户'} 
+                    src={(user as any)?.avatar?.url || (user as any)?.photo?.url || null}
+                    size="xl"
+                    className="w-16 h-16 text-lg"
+                  />
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">欢迎回来，{user?.username || user?.name}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">欢迎回来，{user?.username || (user as any)?.name || '用户'}</h1>
                     <p className="text-gray-600">{user?.email}</p>
                   </div>
                 </div>
@@ -279,16 +450,25 @@ export default function DashboardPage() {
                         <div key={index} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50">
                           <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
                           <div className="flex-1 min-w-0">
-                            <Link href={item.contentUrl} className="hover:text-blue-600">
+                            <Link href={item.contentUrl || '#'} className="hover:text-blue-600">
                               <p className="font-medium truncate">{item.contentTitle}</p>
-                              <p className="text-sm text-gray-600">
-                                {item.actionText} • {new Date(item.createdAt).toLocaleDateString('zh-CN')}
-                              </p>
+                              <div className="flex flex-col gap-1">
+                                <p className="text-sm text-gray-600">
+                                  {item.actionText} • {new Date(item.createdAt).toLocaleDateString('zh-CN')}
+                                </p>
+                                {/* 显示评论预览 */}
+                                {item.type === 'comment' && item.commentPreview && (
+                                  <p className="text-xs text-gray-500 italic bg-gray-50 px-2 py-1 rounded">
+                                    "{item.commentPreview}"
+                                  </p>
+                                )}
+                              </div>
                             </Link>
                           </div>
                           <div className="flex items-center gap-2">
                             {item.actionType === 'like' && <Heart className="w-4 h-4 text-red-500" />}
                             {item.actionType === 'favorite' && <Bookmark className="w-4 h-4 text-blue-500" />}
+                            {item.actionType === 'comment' && <MessageSquare className="w-4 h-4 text-green-500" />}
                             <Badge variant="outline" className="text-xs">
                               {item.targetType === 'ai-tool' ? 'AI工具' : 
                                item.targetType === 'edu-resource' ? '教育资源' : '新闻'}
@@ -359,29 +539,39 @@ export default function DashboardPage() {
                           <div className="flex-shrink-0 mt-1">
                             {item.actionType === 'like' ? (
                               <Heart className="w-5 h-5 text-red-500" />
-                            ) : (
+                            ) : item.actionType === 'favorite' ? (
                               <Bookmark className="w-5 h-5 text-blue-500" />
+                            ) : (
+                              <MessageSquare className="w-5 h-5 text-green-500" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
-                                <Link href={item.contentUrl} className="hover:text-blue-600">
+                                <Link href={item.contentUrl || '#'} className="hover:text-blue-600">
                                   <p className="font-medium truncate">{item.contentTitle}</p>
                                 </Link>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {item.actionText}
-                                  <span className="mx-2">•</span>
-                                  <time dateTime={item.createdAt}>
-                                    {new Date(item.createdAt).toLocaleString('zh-CN', {
-                                      year: 'numeric',
-                                      month: 'short',
-                                      day: 'numeric',
-                                      hour: '2-digit',
-                                      minute: '2-digit'
-                                    })}
-                                  </time>
-                                </p>
+                                <div className="space-y-1 mt-1">
+                                  <p className="text-sm text-gray-600">
+                                    {item.actionText}
+                                    <span className="mx-2">•</span>
+                                    <time dateTime={item.createdAt}>
+                                      {new Date(item.createdAt).toLocaleString('zh-CN', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })}
+                                    </time>
+                                  </p>
+                                  {/* 显示评论内容预览 */}
+                                  {item.type === 'comment' && item.commentPreview && (
+                                    <p className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg italic border-l-4 border-green-300">
+                                      "{item.commentPreview}"
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                               <Badge variant="outline" className="text-xs flex-shrink-0">
                                 {item.targetType === 'ai-tool' ? '🔧 AI工具' : 
@@ -429,7 +619,7 @@ export default function DashboardPage() {
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Select value={favoriteFilter} onValueChange={setFavoriteFilter}>
+                      <Select value={favoriteFilter} onValueChange={(value: any) => setFavoriteFilter(value)}>
                         <SelectTrigger className="w-40">
                           <Filter className="w-4 h-4 mr-2" />
                           <SelectValue />
@@ -642,9 +832,214 @@ export default function DashboardPage() {
                     <div>
                       <h3 className="text-lg font-semibold mb-4">安全设置</h3>
                       <div className="space-y-3">
-                        <Button variant="outline">修改密码</Button>
-                        <Button variant="outline">绑定手机号</Button>
-                        <Button variant="outline">两步验证</Button>
+                        {/* 修改密码对话框 */}
+                        <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="flex items-center gap-2">
+                              <KeyRound className="w-4 h-4" />
+                              修改密码
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>修改密码</DialogTitle>
+                              <DialogDescription>
+                                请输入当前密码和新密码来更改您的账户密码
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="current-password">当前密码</Label>
+                                <Input
+                                  id="current-password"
+                                  type="password"
+                                  value={passwordForm.currentPassword}
+                                  onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                                  placeholder="请输入当前密码"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="new-password">新密码</Label>
+                                <Input
+                                  id="new-password"
+                                  type="password"
+                                  value={passwordForm.newPassword}
+                                  onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                                  placeholder="请输入新密码（至少6位）"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="confirm-password">确认新密码</Label>
+                                <Input
+                                  id="confirm-password"
+                                  type="password"
+                                  value={passwordForm.confirmPassword}
+                                  onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                                  placeholder="请再次输入新密码"
+                                />
+                              </div>
+                              
+                              {passwordError && (
+                                <Alert>
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertDescription className="text-red-600">
+                                    {passwordError}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                              
+                              {passwordSuccess && (
+                                <Alert className="border-green-200 bg-green-50">
+                                  <AlertCircle className="h-4 w-4 text-green-600" />
+                                  <AlertDescription className="text-green-700">
+                                    {passwordSuccess}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                            </div>
+                            <DialogFooter>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => {
+                                  setPasswordDialogOpen(false)
+                                  setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+                                  setPasswordError('')
+                                  setPasswordSuccess('')
+                                }}
+                                disabled={passwordLoading}
+                              >
+                                取消
+                              </Button>
+                              <Button onClick={handleChangePassword} disabled={passwordLoading}>
+                                {passwordLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    修改中...
+                                  </>
+                                ) : (
+                                  '确认修改'
+                                )}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+
+                        {/* 绑定手机号对话框 */}
+                        <Dialog open={phoneDialogOpen} onOpenChange={setPhoneDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="flex items-center gap-2">
+                              <Smartphone className="w-4 h-4" />
+                              绑定手机号
+                              {(user as any)?.phone && (
+                                <Badge variant="secondary" className="ml-1">已绑定</Badge>
+                              )}
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>绑定手机号</DialogTitle>
+                              <DialogDescription>
+                                {(user as any)?.phone ? 
+                                  `当前绑定手机号：${(user as any).phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')}` :
+                                  '绑定手机号可用于账户安全验证和重要通知'
+                                }
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="phone-number">手机号码</Label>
+                                <Input
+                                  id="phone-number"
+                                  type="tel"
+                                  value={phoneForm.phoneNumber}
+                                  onChange={(e) => setPhoneForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                                  placeholder="请输入手机号码"
+                                  maxLength={11}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="verification-code">验证码</Label>
+                                <div className="flex gap-2">
+                                  <Input
+                                    id="verification-code"
+                                    type="text"
+                                    value={phoneForm.verificationCode}
+                                    onChange={(e) => setPhoneForm(prev => ({ ...prev, verificationCode: e.target.value }))}
+                                    placeholder="请输入6位验证码"
+                                    maxLength={6}
+                                    className="flex-1"
+                                  />
+                                  <Button
+                                    variant="outline"
+                                    onClick={handleSendVerificationCode}
+                                    disabled={codeSending || countdown > 0 || !phoneForm.phoneNumber}
+                                    className="whitespace-nowrap"
+                                  >
+                                    {codeSending ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                        发送中
+                                      </>
+                                    ) : countdown > 0 ? (
+                                      `${countdown}秒后重发`
+                                    ) : (
+                                      <>
+                                        <Send className="w-4 h-4 mr-1" />
+                                        发送验证码
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                  * 当前为演示模式，实际短信API需要网站过审后申请
+                                </p>
+                              </div>
+                              
+                              {phoneError && (
+                                <Alert>
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertDescription className="text-red-600">
+                                    {phoneError}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                              
+                              {phoneSuccess && (
+                                <Alert className="border-green-200 bg-green-50">
+                                  <AlertCircle className="h-4 w-4 text-green-600" />
+                                  <AlertDescription className="text-green-700">
+                                    {phoneSuccess}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                            </div>
+                            <DialogFooter>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => {
+                                  setPhoneDialogOpen(false)
+                                  setPhoneForm({ phoneNumber: '', verificationCode: '' })
+                                  setPhoneError('')
+                                  setPhoneSuccess('')
+                                  setCountdown(0)
+                                }}
+                                disabled={phoneLoading}
+                              >
+                                取消
+                              </Button>
+                              <Button onClick={handleBindPhone} disabled={phoneLoading}>
+                                {phoneLoading ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    绑定中...
+                                  </>
+                                ) : (
+                                  '确认绑定'
+                                )}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
 

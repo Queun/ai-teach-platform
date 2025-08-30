@@ -360,6 +360,16 @@ export function CommentSection({
               <Send className="w-4 h-4" />
               {creating ? '发表中...' : '发表评论'}
             </Button>
+            
+            {/* 提交成功提示 */}
+            {showSubmissionMessage && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>评论已提交，正在等待审核通过后显示</span>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-4 text-gray-500">

@@ -725,13 +725,10 @@ class StrapiService {
       }
 
       // 创建评论为草稿状态，需要审核后发布
-      const response: StrapiSingleResponse<Comment> = await this.request('/comments', {
+      const response: StrapiSingleResponse<Comment> = await this.request('/comments?status=draft', {
         method: 'POST',
         body: JSON.stringify({
-          data: {
-            ...commentData,
-            publishedAt: null // 明确设置为草稿状态
-          }
+          data: commentData
         })
       });
 
@@ -894,6 +891,110 @@ class StrapiService {
   // 登出
   logout() {
     this.userToken = null;
+  }
+
+  // 修改密码
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ): Promise<{ success: boolean; message?: string }> {
+    if (!this.userToken) {
+      return { success: false, message: '请先登录' };
+    }
+
+    if (newPassword !== confirmPassword) {
+      return { success: false, message: '新密码与确认密码不一致' };
+    }
+
+    if (newPassword.length < 6) {
+      return { success: false, message: '新密码长度至少6位' };
+    }
+
+    try {
+      await this.request('/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          currentPassword,
+          password: newPassword,
+          passwordConfirmation: confirmPassword
+        })
+      });
+
+      return { success: true, message: '密码修改成功' };
+    } catch (error: any) {
+      console.error('Change password error:', error);
+      const errorMessage = error.message || '密码修改失败';
+      
+      // 处理常见的错误消息
+      if (errorMessage.includes('current password')) {
+        return { success: false, message: '当前密码不正确' };
+      }
+      if (errorMessage.includes('password')) {
+        return { success: false, message: '密码格式不正确' };
+      }
+      
+      return { success: false, message: errorMessage };
+    }
+  }
+
+  // 绑定手机号 (预留接口)
+  async bindPhoneNumber(
+    phoneNumber: string,
+    verificationCode: string
+  ): Promise<{ success: boolean; message?: string }> {
+    if (!this.userToken) {
+      return { success: false, message: '请先登录' };
+    }
+
+    // 验证手机号格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return { success: false, message: '请输入正确的手机号码' };
+    }
+
+    if (!verificationCode || verificationCode.length !== 6) {
+      return { success: false, message: '请输入6位验证码' };
+    }
+
+    try {
+      // TODO: 实现真正的手机号绑定逻辑
+      // 当前返回模拟响应，等待短信API申请完成后实现
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟网络请求
+
+      // 更新用户信息
+      const response = await this.request('/users/me', {
+        method: 'PUT',
+        body: JSON.stringify({
+          phone: phoneNumber
+        })
+      });
+
+      return { success: true, message: '手机号绑定成功' };
+    } catch (error: any) {
+      console.error('Bind phone error:', error);
+      return { success: false, message: error.message || '手机号绑定失败' };
+    }
+  }
+
+  // 发送手机验证码 (预留接口)
+  async sendPhoneVerificationCode(phoneNumber: string): Promise<{ success: boolean; message?: string }> {
+    // 验证手机号格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return { success: false, message: '请输入正确的手机号码' };
+    }
+
+    try {
+      // TODO: 实现真正的短信发送逻辑
+      // 当前返回模拟响应，等待短信API申请完成后实现
+      await new Promise(resolve => setTimeout(resolve, 500)); // 模拟网络请求
+      
+      return { success: true, message: '验证码已发送，请查收短信' };
+    } catch (error: any) {
+      console.error('Send verification code error:', error);
+      return { success: false, message: error.message || '验证码发送失败' };
+    }
   }
 
   // =============
@@ -1092,7 +1193,7 @@ class StrapiService {
     }
   }
 
-  // 获取用户互动历史 (综合点赞和收藏，按时间排序)
+  // 获取用户互动历史 (综合点赞、收藏和评论，按时间排序)
   async getUserInteractionHistory(
     userId: number,
     limit = 50
@@ -1105,87 +1206,191 @@ class StrapiService {
     }
 
     try {
-      const queryParams = this.buildQueryParams({
-        filters: {
-          users_permissions_user: userId,
-          isActive: true
-        },
-        sort: 'createdAt:desc',
-        pageSize: limit,
-        populate: '*'
-      });
+      // 并行获取用户的点赞/收藏记录和评论记录
+      const [actionsResponse, commentsResponse] = await Promise.allSettled([
+        this.request(`/user-actions?${this.buildQueryParams({
+          filters: {
+            users_permissions_user: userId,
+            isActive: true
+          },
+          sort: 'createdAt:desc',
+          pageSize: Math.floor(limit * 0.7), // 分配70%给actions
+          populate: '*'
+        })}`),
+        this.request(`/comments?${this.buildQueryParams({
+          filters: {
+            users_permissions_user: userId
+          },
+          sort: 'createdAt:desc',
+          pageSize: Math.floor(limit * 0.3), // 分配30%给评论
+          populate: '*',
+          publicationState: 'live' // 只获取已发布的评论
+        })}`)
+      ]);
 
-      const response = await this.request(`/user-actions?${queryParams}`);
-      
-      // 获取每个互动对应的内容详情
-      const interactionHistory = await Promise.all(
-        response.data.map(async (action: any) => {
-          const targetType = action.attributes?.targetType || action.targetType;
-          const targetId = action.attributes?.targetId || action.targetId;
-          const actionType = action.attributes?.actionType || action.actionType;
-          const createdAt = action.attributes?.createdAt || action.createdAt;
-          
-          try {
-            let contentResponse;
-            let contentTitle = '未知内容';
-            let contentUrl = '#';
+      let allInteractions: any[] = [];
+
+      // 处理用户行为记录
+      if (actionsResponse.status === 'fulfilled') {
+        const actionHistories = await Promise.all(
+          actionsResponse.value.data.map(async (action: any) => {
+            const targetType = action.attributes?.targetType || action.targetType;
+            const targetId = action.attributes?.targetId || action.targetId;
+            const actionType = action.attributes?.actionType || action.actionType;
+            const createdAt = action.attributes?.createdAt || action.createdAt;
             
-            switch (targetType) {
-              case 'ai-tool':
-                contentResponse = await this.getToolById(targetId);
-                if (contentResponse?.data) {
-                  const data = contentResponse.data.attributes || contentResponse.data;
-                  contentTitle = data.name || '未知工具';
-                  contentUrl = `/tools/${contentResponse.data.documentId || contentResponse.data.id}`;
-                }
-                break;
-              case 'edu-resource':
-                contentResponse = await this.getResourceById(targetId);
-                if (contentResponse?.data) {
-                  const data = contentResponse.data.attributes || contentResponse.data;
-                  contentTitle = data.title || '未知资源';
-                  contentUrl = `/resources/${contentResponse.data.documentId || contentResponse.data.id}`;
-                }
-                break;
-              case 'news-article':
-                contentResponse = await this.getNewsById(targetId);
-                if (contentResponse?.data) {
-                  const data = contentResponse.data.attributes || contentResponse.data;
-                  contentTitle = data.title || '未知新闻';
-                  contentUrl = `/news/${contentResponse.data.documentId || contentResponse.data.id}`;
-                }
-                break;
-            }
+            try {
+              let contentResponse;
+              let contentTitle = '未知内容';
+              let contentUrl = '#';
+              
+              switch (targetType) {
+                case 'ai-tool':
+                  contentResponse = await this.getToolById(targetId);
+                  if (contentResponse?.data) {
+                    const data = contentResponse.data.attributes || contentResponse.data;
+                    contentTitle = data.name || '未知工具';
+                    contentUrl = `/tools/${contentResponse.data.documentId || contentResponse.data.id}`;
+                  }
+                  break;
+                case 'edu-resource':
+                  contentResponse = await this.getResourceById(targetId);
+                  if (contentResponse?.data) {
+                    const data = contentResponse.data.attributes || contentResponse.data;
+                    contentTitle = data.title || '未知资源';
+                    contentUrl = `/resources/${contentResponse.data.documentId || contentResponse.data.id}`;
+                  }
+                  break;
+                case 'news-article':
+                  contentResponse = await this.getNewsById(targetId);
+                  if (contentResponse?.data) {
+                    const data = contentResponse.data.attributes || contentResponse.data;
+                    contentTitle = data.title || '未知新闻';
+                    contentUrl = `/news/${contentResponse.data.documentId || contentResponse.data.id}`;
+                  }
+                  break;
+              }
 
-            return {
-              id: action.id || action.documentId,
-              actionType,
-              targetType,
-              targetId,
-              contentTitle,
-              contentUrl,
-              createdAt,
-              actionText: actionType === 'like' ? '点赞了' : '收藏了'
-            };
-          } catch (error) {
-            console.warn(`Failed to fetch content for ${targetType}:${targetId}`, error);
-            return {
-              id: action.id || action.documentId,
-              actionType,
-              targetType,
-              targetId,
-              contentTitle: '内容已删除或不可访问',
-              contentUrl: '#',
-              createdAt,
-              actionText: actionType === 'like' ? '点赞了' : '收藏了'
-            };
-          }
-        })
-      );
+              return {
+                id: action.id || action.documentId,
+                type: 'action',
+                actionType,
+                targetType,
+                targetId,
+                contentTitle,
+                contentUrl,
+                createdAt,
+                actionText: actionType === 'like' ? '点赞了' : '收藏了'
+              };
+            } catch (error) {
+              console.warn(`Failed to fetch content for ${targetType}:${targetId}`, error);
+              return {
+                id: action.id || action.documentId,
+                type: 'action',
+                actionType,
+                targetType,
+                targetId,
+                contentTitle: '内容已删除或不可访问',
+                contentUrl: '#',
+                createdAt,
+                actionText: actionType === 'like' ? '点赞了' : '收藏了'
+              };
+            }
+          })
+        );
+        allInteractions = [...allInteractions, ...actionHistories];
+      }
+
+      // 处理评论记录
+      if (commentsResponse.status === 'fulfilled') {
+        const commentHistories = await Promise.all(
+          commentsResponse.value.data.map(async (comment: any) => {
+            const commentData = comment.attributes || comment;
+            const targetType = commentData.targetType;
+            const targetId = commentData.targetId;
+            const createdAt = commentData.createdAt;
+            const content = commentData.content;
+            
+            try {
+              let contentResponse;
+              let contentTitle = '未知内容';
+              let contentUrl = '#';
+              
+              switch (targetType) {
+                case 'ai-tool':
+                  contentResponse = await this.getToolById(targetId);
+                  if (contentResponse?.data) {
+                    const data = contentResponse.data.attributes || contentResponse.data;
+                    contentTitle = data.name || '未知工具';
+                    contentUrl = `/tools/${contentResponse.data.documentId || contentResponse.data.id}`;
+                  }
+                  break;
+                case 'edu-resource':
+                  contentResponse = await this.getResourceById(targetId);
+                  if (contentResponse?.data) {
+                    const data = contentResponse.data.attributes || contentResponse.data;
+                    contentTitle = data.title || '未知资源';
+                    contentUrl = `/resources/${contentResponse.data.documentId || contentResponse.data.id}`;
+                  }
+                  break;
+                case 'news-article':
+                  contentResponse = await this.getNewsById(targetId);
+                  if (contentResponse?.data) {
+                    const data = contentResponse.data.attributes || contentResponse.data;
+                    contentTitle = data.title || '未知新闻';
+                    contentUrl = `/news/${contentResponse.data.documentId || contentResponse.data.id}`;
+                  }
+                  break;
+              }
+
+              return {
+                id: comment.id || comment.documentId,
+                type: 'comment',
+                actionType: 'comment',
+                targetType,
+                targetId,
+                contentTitle,
+                contentUrl,
+                createdAt,
+                actionText: '评论了',
+                commentContent: content,
+                commentPreview: content.length > 50 ? content.substring(0, 50) + '...' : content
+              };
+            } catch (error) {
+              console.warn(`Failed to fetch content for comment ${targetType}:${targetId}`, error);
+              return {
+                id: comment.id || comment.documentId,
+                type: 'comment',
+                actionType: 'comment',
+                targetType,
+                targetId,
+                contentTitle: '内容已删除或不可访问',
+                contentUrl: '#',
+                createdAt,
+                actionText: '评论了',
+                commentContent: content,
+                commentPreview: content.length > 50 ? content.substring(0, 50) + '...' : content
+              };
+            }
+          })
+        );
+        allInteractions = [...allInteractions, ...commentHistories];
+      }
+
+      // 按创建时间降序排序，取前limit条
+      const sortedInteractions = allInteractions
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, limit);
+
+      // 计算总数
+      const totalActions = actionsResponse.status === 'fulfilled' ? 
+        (actionsResponse.value.meta?.pagination?.total || 0) : 0;
+      const totalComments = commentsResponse.status === 'fulfilled' ? 
+        (commentsResponse.value.meta?.pagination?.total || 0) : 0;
 
       return {
-        data: interactionHistory,
-        total: response.meta.pagination.total
+        data: sortedInteractions,
+        total: totalActions + totalComments
       };
     } catch (error) {
       console.error('Error fetching user interaction history:', error);
@@ -1209,7 +1414,7 @@ class StrapiService {
 
     try {
       // 并行获取不同类型的互动统计
-      const [likesResponse, favoritesResponse] = await Promise.all([
+      const [likesResponse, favoritesResponse, commentsResponse] = await Promise.all([
         this.request(`/user-actions?${this.buildQueryParams({
           filters: {
             users_permissions_user: userId,
@@ -1229,14 +1434,21 @@ class StrapiService {
           pageSize: 1
         })}`).catch(err => {
           return { meta: { pagination: { total: 0 } } };
+        }),
+        this.request(`/comments?${this.buildQueryParams({
+          filters: {
+            users_permissions_user: userId
+          },
+          pageSize: 1,
+          publicationState: 'live' // 只统计已发布的评论
+        })}`).catch(err => {
+          return { meta: { pagination: { total: 0 } } };
         })
       ]);
 
       const likesCount = likesResponse?.meta?.pagination?.total || 0;
       const favoritesCount = favoritesResponse?.meta?.pagination?.total || 0;
-      
-      // TODO: 评论数量暂时设为0，等评论功能完善后再实现
-      const commentsCount = 0;
+      const commentsCount = commentsResponse?.meta?.pagination?.total || 0;
       
       return {
         likesCount,
@@ -1268,13 +1480,22 @@ class StrapiService {
     }
 
     try {
-      // 通过获取实际的用户收藏数据来计算统计
-      const favoritesResponse = await this.getUserFavorites(userId, undefined, 1, 1);
-      const likesResponse = await this.getUserLikes(userId, undefined, 1, 1);
+      // 通过获取实际的用户数据来计算统计
+      const [favoritesResponse, likesResponse, commentsResponse] = await Promise.all([
+        this.getUserFavorites(userId, undefined, 1, 1).catch(() => ({ meta: { pagination: { total: 0 } } })),
+        this.getUserLikes(userId, undefined, 1, 1).catch(() => ({ meta: { pagination: { total: 0 } } })),
+        this.request(`/comments?${this.buildQueryParams({
+          filters: {
+            users_permissions_user: userId
+          },
+          pageSize: 1,
+          publicationState: 'live' // 只统计已发布的评论
+        })}`).catch(() => ({ meta: { pagination: { total: 0 } } }))
+      ]);
       
       const favoritesCount = favoritesResponse.meta?.pagination?.total || 0;
       const likesCount = likesResponse.meta?.pagination?.total || 0;
-      const commentsCount = 0; // TODO: 实现评论统计
+      const commentsCount = commentsResponse.meta?.pagination?.total || 0;
       
       return {
         likesCount,
@@ -1429,44 +1650,6 @@ class StrapiService {
         totalViews: 0,
         averageViews: 0,
         topContent: []
-      };
-    }
-  }
-
-  // 获取内容互动统计数据
-  async getInteractionStats(
-    targetType: 'ai-tool' | 'edu-resource' | 'news-article',
-    targetId: number | string
-  ): Promise<InteractionStats> {
-    try {
-      // 根据不同类型获取对应内容的统计数据
-      let endpoint = '';
-      switch (targetType) {
-        case 'ai-tool':
-          endpoint = `/ai-tools/${targetId}`;
-          break;
-        case 'edu-resource':
-          endpoint = `/edu-resources/${targetId}`;
-          break;
-        case 'news-article':
-          endpoint = `/news-articles/${targetId}`;
-          break;
-      }
-
-      const response = await this.request(`${endpoint}?populate=*`);
-      const data = response.data;
-
-      return {
-        likesCount: data.likesCount || 0,
-        favoritesCount: data.favoritesCount || 0,
-        commentsCount: data.commentsCount || 0
-      };
-    } catch (error) {
-      console.error('Error fetching interaction stats:', error);
-      return {
-        likesCount: 0,
-        favoritesCount: 0,
-        commentsCount: 0
       };
     }
   }

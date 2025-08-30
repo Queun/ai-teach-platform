@@ -1,387 +1,206 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Search, MessageSquare, Heart, Share2, Bookmark, TrendingUp, Users, Calendar, Pin } from "lucide-react"
+import { Construction, Users, MessageSquare, Calendar, Rocket, Clock, Mail } from "lucide-react"
+import Link from "next/link"
 
 export default function CommunityPage() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [showModal, setShowModal] = useState(false)
 
-  const discussions = [
-    {
-      id: 1,
-      title: "如何在小学数学课堂中有效使用ChatGPT？",
-      content: "最近开始尝试在数学课上使用ChatGPT辅助教学，想听听大家的经验和建议...",
-      author: {
-        name: "张老师",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "小学数学教师",
-        level: "活跃用户",
-      },
-      category: "教学经验",
-      tags: ["ChatGPT", "小学数学", "课堂教学"],
-      stats: {
-        replies: 23,
-        likes: 45,
-        views: 312,
-        bookmarks: 12,
-      },
-      createdAt: "2小时前",
-      isPinned: false,
-      isHot: true,
-    },
-    {
-      id: 2,
-      title: "AI辅助英语写作批改的最佳实践分享",
-      content: "经过一学期的实践，总结了一些AI批改英语作文的经验，包括工具选择、批改标准设置等...",
-      author: {
-        name: "李教授",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "大学英语教师",
-        level: "专家用户",
-      },
-      category: "工具分享",
-      tags: ["英语教学", "写作批改", "AI工具"],
-      stats: {
-        replies: 18,
-        likes: 67,
-        views: 489,
-        bookmarks: 28,
-      },
-      createdAt: "5小时前",
-      isPinned: true,
-      isHot: true,
-    },
-    {
-      id: 3,
-      title: "求推荐适合高中物理的AI教学工具",
-      content: "想为高中物理课程引入一些AI工具，特别是在实验模拟和概念解释方面，有什么好的推荐吗？",
-      author: {
-        name: "王老师",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "高中物理教师",
-        level: "新手用户",
-      },
-      category: "求助问答",
-      tags: ["高中物理", "实验模拟", "工具推荐"],
-      stats: {
-        replies: 12,
-        likes: 28,
-        views: 156,
-        bookmarks: 8,
-      },
-      createdAt: "1天前",
-      isPinned: false,
-      isHot: false,
-    },
-    {
-      id: 4,
-      title: "AI个性化学习路径设计案例分享",
-      content: "分享一个成功的AI个性化学习路径设计案例，包括学生画像分析、路径规划、效果评估等...",
-      author: {
-        name: "陈主任",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "教学主任",
-        level: "资深用户",
-      },
-      category: "案例分享",
-      tags: ["个性化学习", "学习路径", "案例研究"],
-      stats: {
-        replies: 31,
-        likes: 89,
-        views: 672,
-        bookmarks: 45,
-      },
-      createdAt: "2天前",
-      isPinned: false,
-      isHot: true,
-    },
-  ]
+  // 页面加载时显示模态框
+  useEffect(() => {
+    setShowModal(true)
+  }, [])
 
-  const categories = [
-    { name: "全部讨论", count: 1234, color: "bg-blue-100 text-blue-800" },
-    { name: "教学经验", count: 456, color: "bg-green-100 text-green-800" },
-    { name: "工具分享", count: 234, color: "bg-purple-100 text-purple-800" },
-    { name: "求助问答", count: 189, color: "bg-orange-100 text-orange-800" },
-    { name: "案例分享", count: 167, color: "bg-pink-100 text-pink-800" },
-    { name: "技术讨论", count: 123, color: "bg-indigo-100 text-indigo-800" },
-    { name: "政策解读", count: 65, color: "bg-gray-100 text-gray-800" },
-  ]
-
-  const activeUsers = [
+  const upcomingFeatures = [
     {
-      name: "张教授",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "AI教育专家",
-      posts: 156,
-      reputation: 2340,
+      icon: MessageSquare,
+      title: "讨论交流",
+      description: "与全国教育工作者交流AI教学经验",
+      status: "审核中"
     },
     {
-      name: "李老师",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "小学教师",
-      posts: 89,
-      reputation: 1890,
+      icon: Users,
+      title: "专家问答",
+      description: "AI教育专家在线答疑解惑",
+      status: "审核中"
     },
     {
-      name: "王主任",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "教学主任",
-      posts: 67,
-      reputation: 1560,
+      icon: Rocket,
+      title: "项目协作",
+      description: "跨校跨地区教育创新项目合作",
+      status: "审核中"
     },
     {
-      name: "陈博士",
-      avatar: "/placeholder.svg?height=32&width=32",
-      role: "教育研究员",
-      posts: 45,
-      reputation: 1230,
-    },
+      icon: Calendar,
+      title: "活动分享",
+      description: "线上线下教育活动和研讨会",
+      status: "审核中"
+    }
   ]
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* 开发中提示模态框 */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <Construction className="w-8 h-8 text-blue-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-xl">社区功能审核中</DialogTitle>
+            <DialogDescription className="text-base leading-relaxed">
+              教师社区功能已基本开发完毕，目前正在进行合规审核，确保为教育工作者提供安全、专业的交流环境。
+              <br />
+              <br />
+              审核通过后将正式开放讨论交流、专家问答、项目协作等功能。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center pt-4">
+            <Button onClick={() => setShowModal(false)} className="px-8">
+              我知道了
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Header Section */}
       <section className="bg-white border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-4 text-gray-900">教师社区</h1>
-            <p className="text-xl text-gray-600 mb-8">与全国教育工作者交流AI教学经验，共同探索教育创新之路</p>
-
-            {/* Search Bar */}
-            <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="搜索讨论话题..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12"
-                />
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+                <Construction className="w-10 h-10 text-blue-600" />
               </div>
-              <Button className="h-12 px-8">发起讨论</Button>
             </div>
+            <h1 className="text-4xl font-bold mb-4 text-gray-900">教师社区</h1>
+            <p className="text-xl text-gray-600 mb-2">正在审核中</p>
+            <p className="text-lg text-gray-500">功能已开发完成，正等待合规审核通过后正式开放</p>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="lg:w-80 space-y-6">
-            {/* Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">讨论分类</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {categories.map((category, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
-                  >
-                    <span className="font-medium">{category.name}</span>
-                    <Badge className={category.color}>{category.count}</Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Active Users */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  活跃用户
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {activeUsers.map((user, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} />
-                      <AvatarFallback>{user.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{user.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{user.role}</div>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* 即将推出的功能 */}
+          <Card className="mb-8">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl flex items-center justify-center gap-2">
+                <Rocket className="w-6 h-6" />
+                即将开放的功能
+              </CardTitle>
+              <CardDescription className="text-base">
+                所有功能已开发完成，正在进行最后的合规审核确保平台安全合规
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {upcomingFeatures.map((feature, index) => {
+                  const IconComponent = feature.icon
+                  return (
+                    <div key={index} className="flex items-start gap-4 p-4 rounded-lg border hover:bg-gray-50 transition-colors">
+                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-lg">{feature.title}</h3>
+                          <Badge 
+                            variant={feature.status === "审核中" ? "default" : "secondary"}
+                            className="text-xs"
+                          >
+                            {feature.status}
+                          </Badge>
+                        </div>
+                        <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs font-medium">{user.reputation}</div>
-                      <div className="text-xs text-gray-500">声望</div>
-                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 审核进度 */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                审核进度
+              </CardTitle>
+              <CardDescription>
+                各项功能已开发完成，正在按流程进行合规审核
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>功能开发完成</span>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Community Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">社区统计</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">总用户数</span>
-                  <span className="font-semibold">12,456</span>
+                  <Badge className="bg-green-100 text-green-800">已完成</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">今日活跃</span>
-                  <span className="font-semibold">1,234</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>安全测试通过</span>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800">已完成</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">讨论话题</span>
-                  <span className="font-semibold">5,678</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span>合规性审核</span>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800">进行中</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">回复数量</span>
-                  <span className="font-semibold">23,456</span>
-                </div>
-              </CardContent>
-            </Card>
-          </aside>
-
-          {/* Main Content */}
-          <main className="flex-1">
-            <Tabs defaultValue="latest" className="space-y-6">
-              <div className="flex items-center justify-between">
-                <TabsList>
-                  <TabsTrigger value="latest">最新讨论</TabsTrigger>
-                  <TabsTrigger value="hot">热门话题</TabsTrigger>
-                  <TabsTrigger value="pinned">置顶公告</TabsTrigger>
-                  <TabsTrigger value="unanswered">待解答</TabsTrigger>
-                </TabsList>
-
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    筛选
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    排序
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    <span>正式开放使用</span>
+                  </div>
+                  <Badge variant="secondary">待审核通过</Badge>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <TabsContent value="latest" className="space-y-4">
-                {discussions.map((discussion) => (
-                  <Card key={discussion.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={discussion.author.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>{discussion.author.name[0]}</AvatarFallback>
-                        </Avatar>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            {discussion.isPinned && <Pin className="w-4 h-4 text-blue-600" />}
-                            {discussion.isHot && (
-                              <Badge variant="destructive" className="text-xs">
-                                <TrendingUp className="w-3 h-3 mr-1" />
-                                热门
-                              </Badge>
-                            )}
-                            <Badge variant="secondary">{discussion.category}</Badge>
-                          </div>
-
-                          <CardTitle className="text-lg leading-tight hover:text-blue-600 cursor-pointer mb-2">
-                            {discussion.title}
-                          </CardTitle>
-
-                          <CardDescription className="line-clamp-2 mb-3">{discussion.content}</CardDescription>
-
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {discussion.tags.map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              <span className="font-medium">{discussion.author.name}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {discussion.author.level}
-                              </Badge>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {discussion.createdAt}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-
-                    <Separator />
-
-                    <CardContent className="pt-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-6 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <MessageSquare className="w-4 h-4" />
-                            <span>{discussion.stats.replies} 回复</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Heart className="w-4 h-4" />
-                            <span>{discussion.stats.likes} 点赞</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Bookmark className="w-4 h-4" />
-                            <span>{discussion.stats.bookmarks} 收藏</span>
-                          </div>
-                          <span>{discussion.stats.views} 浏览</span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
-                            <Heart className="w-4 h-4 mr-1" />
-                            点赞
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Share2 className="w-4 h-4 mr-1" />
-                            分享
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Bookmark className="w-4 h-4 mr-1" />
-                            收藏
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </TabsContent>
-
-              <TabsContent value="hot">
-                <div className="text-center py-12">
-                  <h3 className="text-xl font-semibold mb-4">热门话题</h3>
-                  <p className="text-gray-600 mb-6">基于互动量和关注度的热门讨论</p>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="pinned">
-                <div className="text-center py-12">
-                  <h3 className="text-xl font-semibold mb-4">置顶公告</h3>
-                  <p className="text-gray-600 mb-6">重要通知和社区公告</p>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="unanswered">
-                <div className="text-center py-12">
-                  <h3 className="text-xl font-semibold mb-4">待解答问题</h3>
-                  <p className="text-gray-600 mb-6">需要社区帮助的问题</p>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </main>
+          {/* 联系我们 */}
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2">
+                <Mail className="w-5 h-5" />
+                保持联系
+              </CardTitle>
+              <CardDescription>
+                功能已开发完成，如有任何问题或建议，欢迎与我们联系
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild>
+                  <Link href="/tools">探索AI工具</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/resources">浏览教育资源</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/news">查看最新资讯</Link>
+                </Button>
+              </div>
+              <p className="text-sm text-gray-500 mt-6">
+                社区功能审核中，预计将在近期通过审核与大家见面，感谢您的耐心等待！
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

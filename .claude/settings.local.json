@@ -22,7 +22,8 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\n清理生产环境：移除测试文件和调试代码\n\n- 删除测试页面：app/test-interaction/ (531行测试代码)\n- 移除后端测试脚本：debug-import.js, test-*.js, import-data*.js\n- 清理开发文档：development-progress.md, login-interaction-implementation-plan.md  \n- 删除种子数据：backend/data/ 目录下的JSON文件\n- 优化Dashboard hooks：移除调试日志，保留核心功能\n- 清理Strapi service：删除开发期间的调试输出\n- 简化项目结构，提升生产环境安全性和维护性\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git config:*)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "ask": []
