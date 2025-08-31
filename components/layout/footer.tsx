@@ -1,14 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Mail, Phone, MapPin, Github, Twitter, Linkedin } from "lucide-react"
+import { Mail, MapPin, Github, Twitter, Linkedin } from "lucide-react"
 
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -42,8 +41,7 @@ export function Footer() {
                 { name: "AI工具库", href: "/tools" },
                 { name: "AI教育前沿", href: "/news" },
                 { name: "教师社区", href: "/community" },
-                { name: "使用指南", href: "/guide" },
-                { name: "常见问题", href: "/faq" },
+                { name: "关于我们", href: "/about" },
               ].map((link) => (
                 <Link
                   key={link.name}
@@ -62,32 +60,15 @@ export function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-2 text-sm text-gray-400">
                 <Mail className="w-4 h-4" />
-                <span>support@aiedu.com</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-400">
-                <Phone className="w-4 h-4" />
-                <span>400-123-4567</span>
+                <span>574702578@qq.com</span>
               </div>
               <div className="flex items-center space-x-2 text-sm text-gray-400">
                 <MapPin className="w-4 h-4" />
-                <span>北京市海淀区中关村</span>
+                <span>杭州</span>
               </div>
             </div>
           </div>
 
-          {/* Newsletter */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">订阅更新</h3>
-            <p className="text-gray-400 text-sm">订阅我们的邮件列表，获取最新的AI教育资讯和工具推荐。</p>
-            <div className="space-y-2">
-              <Input
-                type="email"
-                placeholder="输入您的邮箱"
-                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
-              />
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">订阅</Button>
-            </div>
-          </div>
         </div>
 
         <Separator className="my-8 bg-gray-800" />

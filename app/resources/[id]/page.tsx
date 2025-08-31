@@ -94,8 +94,8 @@ export default function ResourceDetailPage() {
       // 延迟一秒后追踪浏览量，避免用户快速跳转时重复计数
       const timer = setTimeout(async () => {
         try {
-          const { strapiService } = await import('@/lib/strapi')
-          await strapiService.incrementViews('edu-resources', id)
+          const { trackView } = await import('@/lib/track-view')
+          await trackView('edu-resources', id)
         } catch (error) {
           console.error('Failed to track view:', error)
         }

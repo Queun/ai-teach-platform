@@ -18,13 +18,27 @@ import type {
 
 class StrapiService {
   private baseURL: string;
-  private apiToken: string | null;
+  private serverToken: string | null;  // 服务端全权限token
+  private publicToken: string | null;  // 客户端只读token  
   private userToken: string | null;
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
-    this.apiToken = process.env.NEXT_PUBLIC_STRAPI_TOKEN || null;
+    // 服务端token（全权限，仅服务端使用）
+    this.serverToken = process.env.STRAPI_API_TOKEN || null;
+    // 客户端token（只读权限，可暴露给客户端）
+    this.publicToken = process.env.NEXT_PUBLIC_STRAPI_TOKEN || null;
     this.userToken = null;
+  }
+
+  // 获取适当的API token
+  private get apiToken(): string | null {
+    // 服务端环境：使用全权限token
+    if (typeof window === 'undefined') {
+      return this.serverToken;
+    }
+    // 客户端环境：使用只读token
+    return this.publicToken;
   }
 
   // 设置用户认证Token
@@ -47,10 +61,23 @@ class StrapiService {
       ...options?.headers,
     };
 
-    // 添加认证Token（用户Token优先）
+    // 不需要API token的认证端点（这些应该是公开或仅需用户token的）
+    const authEndpoints = [
+      '/auth/local',           // 登录
+      '/auth/local/register',  // 注册
+      '/auth/change-password', // 修改密码（仅需用户token）
+      '/auth/forgot-password', // 忘记密码
+      '/auth/reset-password'   // 重置密码
+    ];
+
+    const isAuthEndpoint = authEndpoints.some(authPath => endpoint.startsWith(authPath));
+
+    // 添加认证Token
     if (this.userToken) {
+      // 用户已登录，优先使用用户token
       headers['Authorization'] = `Bearer ${this.userToken}`;
-    } else if (this.apiToken) {
+    } else if (!isAuthEndpoint && this.apiToken) {
+      // 非认证端点且有API token时才使用API token
       headers['Authorization'] = `Bearer ${this.apiToken}`;
     }
     
@@ -68,7 +95,8 @@ class StrapiService {
           url,
           status: response.status,
           error: data,
-          hasToken: !!this.apiToken
+          hasToken: !!(this.userToken || this.apiToken),
+          tokenType: this.userToken ? 'user' : (this.apiToken ? 'api' : 'none')
         });
         throw new Error(error.error?.message || `API Error: ${response.status}`);
       }
