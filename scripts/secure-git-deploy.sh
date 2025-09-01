@@ -17,7 +17,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # 配置变量
-PROJECT_NAME="ai-edu-platform"
+PROJECT_NAME="ai-teach-platform"
 DOMAIN="aijx.online"
 DEPLOY_DIR="/opt/${PROJECT_NAME}"
 BACKUP_DIR="/opt/backups"
@@ -41,7 +41,15 @@ else
 fi
 
 # 获取GitHub用户名
-read -p "请输入您的GitHub用户名: " GITHUB_USER
+if [ -z "$GITHUB_USER" ]; then
+    if [ -t 0 ]; then
+        read -p "请输入您的GitHub用户名: " GITHUB_USER
+    else
+        GITHUB_USER="Queun"
+        echo -e "${YELLOW}使用默认GitHub用户名: ${GITHUB_USER}${NC}"
+    fi
+fi
+
 if [ -z "$GITHUB_USER" ]; then
     echo -e "${RED}❌ GitHub用户名不能为空${NC}"
     exit 1
