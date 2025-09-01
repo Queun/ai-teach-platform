@@ -73,14 +73,51 @@ fi
 
 # 检查Docker
 if ! command -v docker &> /dev/null; then
-    echo -e "${YELLOW}📦 安装Docker...${NC}"
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    $SUDO sh get-docker.sh
+    echo -e "${YELLOW}📦 安装Docker（使用阿里云镜像源）...${NC}"
+    
+    # 更新软件包索引
+    $SUDO apt update
+    
+    # 安装必要的依赖
+    $SUDO apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
+    
+    # 添加Docker的官方GPG密钥（使用阿里云镜像）
+    curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | $SUDO gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    
+    # 设置稳定版仓库（使用阿里云镜像）
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://mirrors.aliyun.com/docker-ce/linux/ubuntu \
+      $(lsb_release -cs) stable" | $SUDO tee /etc/apt/sources.list.d/docker.list > /dev/null
+    
+    # 更新软件包索引
+    $SUDO apt update
+    
+    # 安装Docker CE
+    $SUDO apt install -y docker-ce docker-ce-cli containerd.io
+    
+    # 启动Docker服务
+    $SUDO systemctl start docker
+    $SUDO systemctl enable docker
+    
+    # 将当前用户添加到docker组
     $SUDO usermod -aG docker $USER
-    rm get-docker.sh
-    echo -e "${YELLOW}⚠️  Docker安装完成，请重新登录以使权限生效${NC}"
-    echo "然后重新运行此脚本"
-    exit 1
+    
+    # 配置Docker镜像加速器（阿里云）
+    $SUDO mkdir -p /etc/docker
+    $SUDO tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": [
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://hub-mirror.c.163.com",
+    "https://mirror.baidubce.com"
+  ]
+}
+EOF
+    $SUDO systemctl daemon-reload
+    $SUDO systemctl restart docker
+    
+    echo -e "${GREEN}✅ Docker安装完成${NC}"
+    echo -e "${YELLOW}⚠️  如果权限问题，请重新登录或运行: newgrp docker${NC}"
 fi
 
 # 检查Docker Compose
@@ -123,16 +160,21 @@ fi
 
 # 测试SSH连接
 echo -e "${BLUE}🔗 测试GitHub SSH连接...${NC}"
-ssh-keyscan github.com >> "$SSH_DIR/known_hosts" 2>/dev/null
-if ssh -T git@github.com -o StrictHostKeyChecking=no 2>&1 | grep -q "successfully authenticated"; then
+
+# 添加GitHub到known_hosts
+ssh-keyscan -H github.com >> "$SSH_DIR/known_hosts" 2>/dev/null
+
+# 测试连接，设置较短的连接超时
+if timeout 10 ssh -T git@github.com -o ConnectTimeout=10 -o StrictHostKeyChecking=no 2>&1 | grep -q "successfully authenticated"; then
     echo -e "${GREEN}✅ GitHub SSH连接正常${NC}"
-else
-    echo -e "${RED}❌ GitHub SSH连接失败${NC}"
-    echo "请检查:"
-    echo "1. Deploy Key是否正确添加到GitHub"
-    echo "2. 网络是否能访问GitHub"
-    echo "3. SSH密钥权限是否正确"
+elif timeout 10 ssh -T git@github.com -o ConnectTimeout=10 -o StrictHostKeyChecking=no 2>&1 | grep -q "Permission denied"; then
+    echo -e "${RED}❌ GitHub SSH认证失败${NC}"
+    echo "请检查Deploy Key是否正确添加到GitHub"
+    echo "Deploy Key链接: https://github.com/${GITHUB_USER}/${REPO_NAME}/settings/keys"
     exit 1
+else
+    echo -e "${YELLOW}⚠️  GitHub SSH连接可能有问题，但继续尝试...${NC}"
+    echo "如果后续克隆失败，请检查网络连接和Deploy Key配置"
 fi
 
 # 3. 创建部署目录
