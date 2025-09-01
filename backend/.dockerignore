@@ -63,3 +63,6 @@ database/*.db
 
 # Uploads (will be handled by volumes in production)
 public/uploads/*
+
+# TypeScript config files (only copy JS config files to production)
+config/*.ts
