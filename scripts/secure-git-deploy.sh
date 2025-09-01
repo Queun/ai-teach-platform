@@ -65,35 +65,67 @@ echo ""
 # 1. 检查必要工具
 echo -e "${BLUE}🔍 检查系统环境...${NC}"
 
+# 检测操作系统
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$NAME
+    VERSION=$VERSION_ID
+elif type lsb_release >/dev/null 2>&1; then
+    OS=$(lsb_release -si)
+    VERSION=$(lsb_release -sr)
+else
+    OS=$(uname -s)
+    VERSION=$(uname -r)
+fi
+
+echo -e "${BLUE}📋 检测到系统: $OS $VERSION${NC}"
+
+# 设置包管理器
+if command -v apt &> /dev/null; then
+    PKG_MANAGER="apt"
+    PKG_UPDATE="$SUDO apt update"
+    PKG_INSTALL="$SUDO apt install -y"
+elif command -v yum &> /dev/null; then
+    PKG_MANAGER="yum"
+    PKG_UPDATE="$SUDO yum update -y"
+    PKG_INSTALL="$SUDO yum install -y"
+elif command -v dnf &> /dev/null; then
+    PKG_MANAGER="dnf"
+    PKG_UPDATE="$SUDO dnf update -y"
+    PKG_INSTALL="$SUDO dnf install -y"
+else
+    echo -e "${RED}❌ 不支持的包管理器${NC}"
+    exit 1
+fi
+
+echo -e "${BLUE}📋 使用包管理器: $PKG_MANAGER${NC}"
+
 # 检查Git
 if ! command -v git &> /dev/null; then
     echo -e "${YELLOW}📦 安装Git...${NC}"
-    $SUDO apt update && $SUDO apt install -y git
+    $PKG_INSTALL git
 fi
 
 # 检查Docker
 if ! command -v docker &> /dev/null; then
     echo -e "${YELLOW}📦 安装Docker（使用阿里云镜像源）...${NC}"
     
-    # 更新软件包索引
-    $SUDO apt update
-    
-    # 安装必要的依赖
-    $SUDO apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
-    
-    # 添加Docker的官方GPG密钥（使用阿里云镜像）
-    curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | $SUDO gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    
-    # 设置稳定版仓库（使用阿里云镜像）
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://mirrors.aliyun.com/docker-ce/linux/ubuntu \
-      $(lsb_release -cs) stable" | $SUDO tee /etc/apt/sources.list.d/docker.list > /dev/null
-    
-    # 更新软件包索引
-    $SUDO apt update
-    
-    # 安装Docker CE
-    $SUDO apt install -y docker-ce docker-ce-cli containerd.io
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        # Ubuntu/Debian系统
+        $PKG_UPDATE
+        $PKG_INSTALL apt-transport-https ca-certificates curl gnupg lsb-release
+        curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | $SUDO gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://mirrors.aliyun.com/docker-ce/linux/ubuntu \
+          $(lsb_release -cs) stable" | $SUDO tee /etc/apt/sources.list.d/docker.list > /dev/null
+        $PKG_UPDATE
+        $PKG_INSTALL docker-ce docker-ce-cli containerd.io
+    else
+        # CentOS/RHEL系统
+        $PKG_INSTALL yum-utils device-mapper-persistent-data lvm2
+        $SUDO yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+        $PKG_INSTALL docker-ce docker-ce-cli containerd.io
+    fi
     
     # 启动Docker服务
     $SUDO systemctl start docker
@@ -102,7 +134,7 @@ if ! command -v docker &> /dev/null; then
     # 将当前用户添加到docker组
     $SUDO usermod -aG docker $USER
     
-    # 配置Docker镜像加速器（阿里云）
+    # 配置Docker镜像加速器
     $SUDO mkdir -p /etc/docker
     $SUDO tee /etc/docker/daemon.json <<-'EOF'
 {
@@ -123,7 +155,19 @@ fi
 # 检查Docker Compose
 if ! command -v docker compose &> /dev/null; then
     echo -e "${YELLOW}📦 安装Docker Compose...${NC}"
-    $SUDO apt install -y docker-compose-plugin
+    if [ "$PKG_MANAGER" = "apt" ]; then
+        $PKG_INSTALL docker-compose-plugin
+    else
+        # CentOS/RHEL使用pip或直接下载
+        if command -v pip3 &> /dev/null; then
+            pip3 install docker-compose
+        else
+            DOCKER_COMPOSE_VERSION="2.24.1"
+            $SUDO curl -L "https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            $SUDO chmod +x /usr/local/bin/docker-compose
+            $SUDO ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+        fi
+    fi
 fi
 
 # 2. 配置SSH密钥
