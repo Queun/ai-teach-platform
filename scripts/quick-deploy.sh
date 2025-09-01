@@ -13,7 +13,7 @@ echo ""
 
 # 下载并运行主部署脚本
 echo "📥 下载最新部署脚本..."
-curl -fsSL https://raw.githubusercontent.com/Queun/ai-edu-platform/main/scripts/secure-git-deploy.sh -o /tmp/deploy.sh
+curl -fsSL https://raw.githubusercontent.com/Queun/ai-teach-platform/main/scripts/secure-git-deploy.sh -o /tmp/deploy.sh
 chmod +x /tmp/deploy.sh
 
 echo "🔐 启动安全Git部署..."

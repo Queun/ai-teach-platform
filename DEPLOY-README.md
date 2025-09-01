@@ -5,7 +5,7 @@
 在你的服务器上运行：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Queun/ai-edu-platform/main/scripts/quick-deploy.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Queun/ai-teach-platform/main/scripts/quick-deploy.sh | bash
 ```
 
 就这么简单！🎉

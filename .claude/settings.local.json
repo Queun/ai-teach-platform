@@ -25,7 +25,8 @@
       "Bash(npx:*)",
       "Bash(npm run lint:*)",
       "Bash(chmod:*)",
-      "Bash(./scripts/database/export-seeds.sh)"
+      "Bash(./scripts/database/export-seeds.sh)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

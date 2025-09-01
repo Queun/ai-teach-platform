@@ -25,13 +25,13 @@ curl -fsSL https://raw.githubusercontent.com/Queun/ai-edu-platform/main/scripts/
 ### 方式二：直接运行主脚本
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Queun/ai-edu-platform/main/scripts/secure-git-deploy.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Queun/ai-teach-platform/main/scripts/secure-git-deploy.sh | bash
 ```
 
 ### 方式三：手动部署
 
 ```bash
-git clone git@github.com:Queun/ai-edu-platform.git /opt/ai-edu-platform
+git clone git@github.com:Queun/ai-teach-platform.git /opt/ai-edu-platform
 cd /opt/ai-edu-platform
 ./scripts/secure-git-deploy.sh
 ```
@@ -71,7 +71,7 @@ cd /opt/ai-edu-platform
 2. **准备Deploy Key**：
    - 脚本会自动生成SSH密钥
    - 按提示将公钥添加到GitHub Deploy Keys
-   - 位置：`https://github.com/Queun/ai-edu-platform/settings/keys`
+   - 位置：`https://github.com/Queun/ai-teach-platform/settings/keys`
 
 ## 🔧 部署流程详解
 
