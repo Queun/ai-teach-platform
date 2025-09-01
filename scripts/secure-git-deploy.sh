@@ -24,7 +24,7 @@ BACKUP_DIR="/opt/backups"
 
 # 动态获取GitHub配置
 GITHUB_USER=""
-REPO_NAME="ai-edu-platform"
+REPO_NAME="ai-teach-platform"
 
 echo -e "${BLUE}📋 部署信息:${NC}"
 echo "   项目: ${PROJECT_NAME}"

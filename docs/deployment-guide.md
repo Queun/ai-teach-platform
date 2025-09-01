@@ -19,7 +19,7 @@
 在服务器上运行这一个命令即可：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Queun/ai-edu-platform/main/scripts/quick-deploy.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Queun/ai-teach-platform/main/scripts/quick-deploy.sh | bash
 ```
 
 ### 方式二：直接运行主脚本
