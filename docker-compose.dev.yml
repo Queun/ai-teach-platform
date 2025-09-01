@@ -1,9 +1,14 @@
+# ==========================================
+# Docker Compose - 开发环境配置
+# AI教育平台开发服务栈
+# ==========================================
 version: '3.8'
 
 services:
+  # PostgreSQL数据库 - 开发环境
   postgres:
     image: postgres:15-alpine
-    container_name: ai_edu_postgres
+    container_name: ai_edu_postgres_dev
     environment:
       POSTGRES_DB: ai_edu_platform
       POSTGRES_USER: strapi
@@ -12,8 +17,119 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ai-edu-platform_postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - ai_edu_dev_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U strapi -d ai_edu_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Strapi后端服务 - 开发模式 (可选，也可以本地运行)
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: deps  # 使用deps阶段进行开发，包含所有依赖
+      cache_from:
+        - ai-edu-platform-backend-dev:latest
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    container_name: ai_edu_backend_dev
+    environment:
+      NODE_ENV: development
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ai_edu_platform
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi123
+      DATABASE_SSL: "false"
+      HOST: 0.0.0.0
+      PORT: 1337
+      STRAPI_DISABLE_UPDATE_NOTIFICATION: "true"
+      STRAPI_TELEMETRY_DISABLED: "true"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - strapi_uploads_dev:/app/public/uploads
+      - strapi_cache_dev:/app/.cache
+    ports:
+      - "1337:1337"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ai_edu_dev_network
+    restart: unless-stopped
+    command: ["npm", "run", "develop"]
+    profiles:
+      - "full-stack"  # 只有在需要完整栈时才启动
+
+  # Next.js前端服务 - 开发模式 (可选，也可以本地运行)  
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deps  # 开发环境使用deps阶段
+      cache_from:
+        - ai-edu-platform-frontend-dev:latest
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    container_name: ai_edu_frontend_dev
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_STRAPI_URL: http://localhost:1337/api
+      NEXT_PUBLIC_STRAPI_TOKEN: ${NEXT_PUBLIC_STRAPI_TOKEN:-ed7a42e9a03c9235a4524c626370f09c8dfa755d774d1b7c28df232e9b603a05e79eb3b30a62983e6a32b9ae208246ff5950f7dff81a1069524325f425544410f93c68e4acbe9483896f247bc96d766fd341f5946aacb16baae9fb4a603fe3b47f462849ff1328a524d77883761c1d805e63cbc6e03dceef7fe0cd4e73997ca1}
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    networks:
+      - ai_edu_dev_network
+    restart: unless-stopped
+    command: ["npm", "run", "dev"]
+    profiles:
+      - "full-stack"  # 只有在需要完整栈时才启动
+
+  # PgAdmin数据库管理工具 (开发环境)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ai_edu_pgadmin_dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ai-edu.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - ai_edu_dev_network
+    profiles:
+      - "with-tools"
     restart: unless-stopped
 
+# 数据卷定义
 volumes:
-  postgres_data:
+  ai-edu-platform_postgres_data:
+    external: true  # 使用现有的外部数据卷
+  strapi_uploads_dev:
+    driver: local
+  strapi_cache_dev:
+    driver: local
+
+# 网络定义
+networks:
+  ai_edu_dev_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

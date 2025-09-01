@@ -25,3 +25,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 # next-env.d.ts
+
+# Docker development data
+/data/postgres/*
+!/data/postgres/.gitkeep
+/data/seeds/full_backup_*.sql
+
+# Docker environment files
+.env.docker.dev
+.env.docker.prod
+
+# Database backups
+/backups/*.sql
+/backups/*.dump
+!/backups/.gitkeep
