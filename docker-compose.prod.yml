@@ -10,10 +10,9 @@ services:
     image: postgres:15-alpine
     container_name: ai_edu_postgres_prod
     environment:
-      POSTGRES_DB: ai_edu_platform
+      # 使用现有数据库时，只需要设置用户名和密码，不需要INITDB参数
       POSTGRES_USER: ${DATABASE_USERNAME:-strapi}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-strapi123}
-      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./data:/var/lib/postgresql/data
