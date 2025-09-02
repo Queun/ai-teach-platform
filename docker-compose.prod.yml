@@ -38,13 +38,13 @@ services:
 
   # Strapi后端服务
   backend:
-    image: node:20-alpine
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: ai_edu_backend_prod
-    working_dir: /app
-    command: sh -c "apk add --no-cache python3 make g++ && npm install && npm run build && npm start"
     environment:
       NODE_ENV: production
-      NODE_OPTIONS: "--max-old-space-size=1536"
+      NODE_OPTIONS: "--max-old-space-size=1024"
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -62,7 +62,6 @@ services:
       JWT_SECRET: ${STRAPI_JWT_SECRET}
       ENCRYPTION_KEY: ${STRAPI_ENCRYPTION_KEY}
     volumes:
-      - ./backend:/app
       - strapi_uploads:/app/public/uploads
       - strapi_cache:/app/.cache
     ports:
@@ -82,11 +81,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 1.2G
+          cpus: '0.8'
+          memory: 800M
         reservations:
-          cpus: '0.4'
-          memory: 600M
+          cpus: '0.3'
+          memory: 400M
 
   # Next.js前端服务
   frontend:

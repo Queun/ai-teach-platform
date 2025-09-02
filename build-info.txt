@@ -1,0 +1,19 @@
+AI教育平台构建信息
+==================
+
+构建时间: Tue Sep  2 19:41:21 CST 2025
+Git提交: e28ed8fae61d7a016f424d2568769d0a03f1bb23
+
+镜像文件:
+- 后端镜像: ai-edu-backend.tar.gz (249M)
+- 前端镜像: ai-edu-frontend.tar.gz (65M)
+
+服务器部署步骤:
+1. 上传镜像文件到服务器
+2. 运行: chmod +x scripts/deploy-server.sh
+3. 运行: ./scripts/deploy-server.sh
+
+访问地址:
+- 前端: http://your-server:3000
+- 后端API: http://your-server:1337
+- 管理面板: http://your-server:1337/admin

@@ -40,3 +40,5 @@ yarn-error.log*
 /backups/*.dump
 !/backups/.gitkeep
 error*
+
+ai-edu-*.tar.gz
