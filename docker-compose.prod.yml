@@ -10,13 +10,13 @@ services:
     image: postgres:15-alpine
     container_name: ai_edu_postgres_prod
     environment:
-      # 使用现有数据库时，只需要设置用户名和密码，不需要INITDB参数
+      POSTGRES_DB: ai_edu_platform
       POSTGRES_USER: ${DATABASE_USERNAME:-strapi}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-strapi123}
-      PGDATA: /var/lib/postgresql/data/pgdata
+      PGDATA: /var/lib/postgresql/data
     volumes:
-      - ./data:/var/lib/postgresql/data
-      - ./backups:/backups
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backups:/backups
     ports:
       - "${DATABASE_PORT:-5432}:5432"
     networks:
@@ -158,6 +158,8 @@ services:
 # 数据卷定义
 volumes:
   postgres_data:
+    driver: local
+  postgres_backups:
     driver: local
   strapi_uploads:
     driver: local
