@@ -137,8 +137,9 @@ services:
     depends_on:
       - frontend
       - backend
-    networks:
-      - ai_edu_network
+    # networks:
+    #   - ai_edu_network
+    network_mode: "host"
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
