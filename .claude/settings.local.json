@@ -26,7 +26,13 @@
       "Bash(npm run lint:*)",
       "Bash(chmod:*)",
       "Bash(./scripts/database/export-seeds.sh)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(env:*)",
+      "Bash(DATABASE_PORT=5432 STRAPI_PORT=1337 docker-compose -f docker-compose.prod.yml up -d)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(DATABASE_PORT=5432 STRAPI_PORT=1337 docker-compose -f docker-compose.prod.yml up -d postgres)",
+      "Bash(DATABASE_PORT=5432 STRAPI_PORT=1337 docker-compose -f docker-compose.prod.yml up -d backend)"
     ],
     "deny": [],
     "ask": []
