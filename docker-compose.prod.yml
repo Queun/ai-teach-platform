@@ -23,9 +23,9 @@ services:
       - ai_edu_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-strapi} -d ai_edu_platform"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD-SHELL", "pg_isready -U strapi -d ai_edu_platform"]
+      interval: 10s
+      timeout: 5s
       retries: 5
     deploy:
       resources:
@@ -71,12 +71,6 @@ services:
     networks:
       - ai_edu_network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:1337/_health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
     deploy:
       resources:
         limits:
