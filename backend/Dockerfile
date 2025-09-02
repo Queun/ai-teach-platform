@@ -44,7 +44,6 @@ RUN apk add --no-cache dumb-init
 # 复制构建结果和依赖
 COPY --from=deps --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/dist ./dist
-COPY --from=builder --chown=strapi:strapi /app/build ./build
 COPY --from=builder --chown=strapi:strapi /app/src ./src
 COPY --from=builder --chown=strapi:strapi /app/config ./config
 COPY --from=builder --chown=strapi:strapi /app/database ./database
