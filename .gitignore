@@ -39,3 +39,4 @@ yarn-error.log*
 /backups/*.sql
 /backups/*.dump
 !/backups/.gitkeep
+error*

@@ -12,8 +12,8 @@ WORKDIR /app
 # 复制package文件
 COPY package*.json ./
 
-# 安装依赖
-RUN npm ci --only=production && npm cache clean --force
+# 安装所有依赖（包括dev依赖，构建时需要）
+RUN npm ci && npm cache clean --force
 
 # 阶段2: Builder - 构建应用
 FROM node:20-alpine AS builder
@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 构建应用
+# 构建应用 - Strapi需要源代码来构建管理面板
 ENV NODE_ENV=production
 RUN npm run build
 
@@ -44,10 +44,15 @@ RUN apk add --no-cache dumb-init
 # 复制构建结果和依赖
 COPY --from=deps --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/dist ./dist
+COPY --from=builder --chown=strapi:strapi /app/build ./build
+COPY --from=builder --chown=strapi:strapi /app/src ./src
 COPY --from=builder --chown=strapi:strapi /app/config ./config
 COPY --from=builder --chown=strapi:strapi /app/database ./database
 COPY --from=builder --chown=strapi:strapi /app/public ./public
 COPY --from=builder --chown=strapi:strapi /app/package*.json ./
+
+# 为运行时安装生产依赖
+RUN npm ci --only=production && npm cache clean --force
 
 # 创建必要的目录并设置权限
 RUN mkdir -p public/uploads && chown -R strapi:strapi public/uploads
