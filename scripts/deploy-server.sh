@@ -7,8 +7,19 @@
 
 set -e
 
+# 检测并设置正确的 docker compose 命令
+if command -v docker-compose > /dev/null 2>&1; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version > /dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+else
+    echo "❌ 错误：未找到 docker-compose 或 docker compose 命令"
+    exit 1
+fi
+
 echo "🚀 AI教育平台服务器部署开始"
 echo "================================"
+echo "ℹ️  使用命令: $DOCKER_COMPOSE"
 
 # 配置变量
 BACKEND_IMAGE="ai-edu-backend.tar.gz"
@@ -46,10 +57,10 @@ docker load < "$BACKEND_IMAGE"
 docker load < "$FRONTEND_IMAGE"
 
 echo "🛑 步骤2: 停止旧服务（如存在）..."
-docker-compose -f docker-compose.prod.yml down || true
+$DOCKER_COMPOSE -f docker-compose.prod.yml down || true
 
 echo "🗄️ 步骤3: 启动PostgreSQL数据库..."
-docker-compose -f docker-compose.prod.yml up -d postgres
+$DOCKER_COMPOSE -f docker-compose.prod.yml up -d postgres
 
 echo "⏳ 步骤4: 等待数据库就绪..."
 timeout=60
@@ -84,7 +95,7 @@ else
 fi
 
 echo "🚀 步骤6: 启动后端服务..."
-docker-compose -f docker-compose.prod.yml up -d backend
+$DOCKER_COMPOSE -f docker-compose.prod.yml up -d backend
 
 echo "⏳ 等待后端服务启动..."
 sleep 15
@@ -99,7 +110,7 @@ else
 fi
 
 echo "🌐 步骤7: 启动前端服务..."
-docker-compose -f docker-compose.prod.yml up -d frontend
+$DOCKER_COMPOSE -f docker-compose.prod.yml up -d frontend
 
 echo "⏳ 等待前端服务启动..."
 sleep 10
@@ -116,7 +127,7 @@ echo ""
 echo "🎉 部署完成！"
 echo "================================"
 echo "📊 服务状态："
-docker-compose -f docker-compose.prod.yml ps
+$DOCKER_COMPOSE -f docker-compose.prod.yml ps
 
 echo ""
 echo "🌐 访问地址："
@@ -126,7 +137,7 @@ echo "  - 管理面板: http://$(hostname -I | awk '{print $1}'):1337/admin"
 
 echo ""
 echo "🔧 常用命令："
-echo "  查看日志: docker-compose -f docker-compose.prod.yml logs -f [service]"
-echo "  重启服务: docker-compose -f docker-compose.prod.yml restart [service]"
-echo "  停止服务: docker-compose -f docker-compose.prod.yml down"
-echo "  查看状态: docker-compose -f docker-compose.prod.yml ps"
+echo "  查看日志: $DOCKER_COMPOSE -f docker-compose.prod.yml logs -f [service]"
+echo "  重启服务: $DOCKER_COMPOSE -f docker-compose.prod.yml restart [service]"
+echo "  停止服务: $DOCKER_COMPOSE -f docker-compose.prod.yml down"
+echo "  查看状态: $DOCKER_COMPOSE -f docker-compose.prod.yml ps"
