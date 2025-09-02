@@ -32,7 +32,8 @@
       "Bash(netstat:*)",
       "Bash(ss:*)",
       "Bash(DATABASE_PORT=5432 STRAPI_PORT=1337 docker-compose -f docker-compose.prod.yml up -d postgres)",
-      "Bash(DATABASE_PORT=5432 STRAPI_PORT=1337 docker-compose -f docker-compose.prod.yml up -d backend)"
+      "Bash(DATABASE_PORT=5432 STRAPI_PORT=1337 docker-compose -f docker-compose.prod.yml up -d backend)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
