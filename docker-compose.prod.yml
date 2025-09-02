@@ -71,6 +71,12 @@ services:
     networks:
       - ai_edu_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'process.exit(0)'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     deploy:
       resources:
         limits:
