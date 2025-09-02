@@ -23,7 +23,7 @@ class StrapiService {
   private userToken: string | null;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337/api';
+    this.baseURL = process.env.NEXT_PUBLIC_STRAPI_URL || '/api';
     // 服务端token（全权限，仅服务端使用）
     this.serverToken = process.env.STRAPI_API_TOKEN || null;
     // 客户端token（只读权限，可暴露给客户端）
