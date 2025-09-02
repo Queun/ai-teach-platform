@@ -41,8 +41,8 @@ RUN adduser --system --uid 1001 strapi
 # 安装运行时依赖
 RUN apk add --no-cache dumb-init
 
-# 复制构建结果和依赖
-COPY --from=deps --chown=strapi:strapi /app/node_modules ./node_modules
+# 复制构建结果和依赖（从builder阶段复制，包含构建后的admin文件）
+COPY --from=builder --chown=strapi:strapi /app/node_modules ./node_modules
 COPY --from=builder --chown=strapi:strapi /app/dist ./dist
 COPY --from=builder --chown=strapi:strapi /app/src ./src
 COPY --from=builder --chown=strapi:strapi /app/config ./config
@@ -50,8 +50,8 @@ COPY --from=builder --chown=strapi:strapi /app/database ./database
 COPY --from=builder --chown=strapi:strapi /app/public ./public
 COPY --from=builder --chown=strapi:strapi /app/package*.json ./
 
-# 为运行时安装生产依赖
-RUN npm ci --only=production && npm cache clean --force
+# 不再重新安装生产依赖，因为已从builder阶段复制完整的node_modules
+# RUN npm ci --only=production && npm cache clean --force
 
 # 创建必要的目录并设置权限
 RUN mkdir -p public/uploads && chown -R strapi:strapi public/uploads
