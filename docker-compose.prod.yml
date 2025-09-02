@@ -94,7 +94,7 @@ services:
     container_name: ai_edu_frontend_prod
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-http://backend:1337/api}
+      NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-/api}
       NEXT_PUBLIC_STRAPI_TOKEN: ${NEXT_PUBLIC_STRAPI_TOKEN}
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
       # 其他前端环境变量
@@ -109,7 +109,7 @@ services:
       - ai_edu_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
